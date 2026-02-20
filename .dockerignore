@@ -1,0 +1,7 @@
+.git
+.gitignore
+*.md
+test/testdata/*.docx
+.env
+.env.*
+tmp/
