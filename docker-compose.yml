@@ -13,6 +13,9 @@ services:
       - WRITE_TIMEOUT=60s
       - SHUTDOWN_TIMEOUT=10s
     volumes:
+      - .:/src
+      - go-mod-cache:/go/pkg/mod
+      - go-build-cache:/root/.cache/go-build
       - upload-data:/tmp/docx-uploads
     restart: unless-stopped
     deploy:
@@ -23,3 +26,5 @@ services:
 
 volumes:
   upload-data:
+  go-mod-cache:
+  go-build-cache:
