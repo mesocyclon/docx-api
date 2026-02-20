@@ -11,7 +11,7 @@ build:
 run: build
 	PORT=$(PORT) ./bin/$(APP_NAME)
 
-## test: Run all tests
+## test: Run all tests 
 test:
 	go test -v -race -count=1 ./...
 
