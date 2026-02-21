@@ -82,24 +82,22 @@ func openFromPhysReader(physReader *PhysPkgReader, factory *PartFactory) (*OpcPa
 		parts[sp.Partname] = part
 	}
 
-	// Wire up package-level relationships
+	// Wire up package-level relationships.
+	// Mirrors python-docx Unmarshaller._unmarshal_relationships where
+	// source is the package and target is parts[srel.target_partname].
 	for _, srel := range result.PkgSRels {
-		var target interface{} = srel.TargetRef
 		var targetPart Part
 		if !srel.IsExternal() {
 			pn := srel.TargetPartname()
-			p, ok := parts[pn]
-			if !ok {
-				continue // skip unresolvable rels
+			if p, ok := parts[pn]; ok {
+				targetPart = p
 			}
-			targetPart = p
-			target = p
 		}
-		_ = target
 		pkg.rels.Load(srel.RID, srel.RelType, srel.TargetRef, targetPart, srel.IsExternal())
 	}
 
-	// Wire up part-level relationships
+	// Wire up part-level relationships.
+	// Mirrors the same Python loop with source = parts[source_uri].
 	for _, sp := range result.SParts {
 		part, ok := parts[sp.Partname]
 		if !ok {

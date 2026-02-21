@@ -3,11 +3,19 @@ package opc
 import (
 	"archive/zip"
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
 )
+
+// ErrMemberNotFound is returned by BlobFor when the requested member
+// does not exist in the ZIP archive.  Callers (e.g. RelsXmlFor) can
+// test for it with errors.Is to distinguish "missing" from real I/O
+// errors — exactly the way python-docx catches KeyError in
+// _ZipPkgReader.rels_xml_for.
+var ErrMemberNotFound = errors.New("opc: member not found in package")
 
 // --------------------------------------------------------------------------
 // PhysPkgReader — reads a ZIP-based OPC package
@@ -71,7 +79,7 @@ func (p *PhysPkgReader) BlobFor(uri PackURI) ([]byte, error) {
 	membername := uri.Membername()
 	f, ok := p.files[membername]
 	if !ok {
-		return nil, fmt.Errorf("opc: member %q not found in package", membername)
+		return nil, fmt.Errorf("%w: %s", ErrMemberNotFound, membername)
 	}
 	rc, err := f.Open()
 	if err != nil {
@@ -92,7 +100,9 @@ func (p *PhysPkgReader) RelsXmlFor(sourceURI PackURI) ([]byte, error) {
 	blob, err := p.BlobFor(relsURI)
 	if err != nil {
 		// No .rels file is not an error — it simply means no relationships.
-		if strings.Contains(err.Error(), "not found") {
+		// This mirrors python-docx's _ZipPkgReader.rels_xml_for which
+		// catches KeyError from ZipFile.read and returns None.
+		if errors.Is(err, ErrMemberNotFound) {
 			return nil, nil
 		}
 		return nil, err
