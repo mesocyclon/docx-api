@@ -171,13 +171,11 @@ func (p *OpcPackage) Rels() *Relationships {
 	return p.rels
 }
 
-// Parts returns all parts in the package (deterministic order by partname).
+// Parts returns all parts reachable via the relationship graph.
+// Order is deterministic: depth-first traversal of rels, matching Python's
+// OpcPackage.parts property which returns list(self.iter_parts()).
 func (p *OpcPackage) Parts() []Part {
-	result := make([]Part, 0, len(p.parts))
-	for _, part := range p.parts {
-		result = append(result, part)
-	}
-	return result
+	return p.IterParts()
 }
 
 // PartByName returns a part by its PackURI.
