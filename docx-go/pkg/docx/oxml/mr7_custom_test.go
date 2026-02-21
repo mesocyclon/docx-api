@@ -10,7 +10,10 @@ import (
 // ===========================================================================
 
 func TestNewPicInline_Structure(t *testing.T) {
-	inline := NewPicInline(1, "rId5", "image1.png", 914400, 457200)
+	inline, err := NewPicInline(1, "rId5", "image1.png", 914400, 457200)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Check extent dimensions
 	cx := inline.ExtentCx()
@@ -63,7 +66,10 @@ func TestNewPicInline_Structure(t *testing.T) {
 }
 
 func TestCT_Inline_SetExtent(t *testing.T) {
-	inline := NewPicInline(1, "rId1", "test.png", 100, 200)
+	inline, err := NewPicInline(1, "rId1", "test.png", 100, 200)
+	if err != nil {
+		t.Fatal(err)
+	}
 	inline.SetExtentCx(300)
 	inline.SetExtentCy(400)
 	if inline.ExtentCx() != 300 {
@@ -127,7 +133,10 @@ func TestCT_Comments_AddCommentFull(t *testing.T) {
 	el, _ := ParseXml([]byte(xml))
 	cs := &CT_Comments{Element{E: el}}
 
-	c := cs.AddCommentFull()
+	c, err := cs.AddCommentFull()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if c == nil {
 		t.Fatal("expected comment, got nil")
 	}
@@ -140,7 +149,10 @@ func TestCT_Comments_AddCommentFull(t *testing.T) {
 	}
 
 	// Add another
-	c2 := cs.AddCommentFull()
+	c2, err := cs.AddCommentFull()
+	if err != nil {
+		t.Fatal(err)
+	}
 	id2, _ := c2.Id()
 	if id2 != 1 {
 		t.Errorf("expected second comment id=1, got %d", id2)
@@ -201,7 +213,10 @@ func TestCT_Comment_InnerContentElements(t *testing.T) {
 // ===========================================================================
 
 func TestNewCoreProperties(t *testing.T) {
-	cp := NewCoreProperties()
+	cp, err := NewCoreProperties()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if cp == nil {
 		t.Fatal("expected coreProperties, got nil")
 	}
@@ -213,7 +228,10 @@ func TestNewCoreProperties(t *testing.T) {
 }
 
 func TestCT_CoreProperties_TextProperties(t *testing.T) {
-	cp := NewCoreProperties()
+	cp, err := NewCoreProperties()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// All text properties should start empty
 	if got := cp.TitleText(); got != "" {
@@ -302,19 +320,25 @@ func TestCT_CoreProperties_TextProperties(t *testing.T) {
 }
 
 func TestCT_CoreProperties_TextProperty_255Limit(t *testing.T) {
-	cp := NewCoreProperties()
+	cp, err := NewCoreProperties()
+	if err != nil {
+		t.Fatal(err)
+	}
 	longStr := ""
 	for i := 0; i < 256; i++ {
 		longStr += "x"
 	}
-	err := cp.SetTitleText(longStr)
+	err = cp.SetTitleText(longStr)
 	if err == nil {
 		t.Error("expected error for string > 255 chars")
 	}
 }
 
 func TestCT_CoreProperties_DatetimeProperties(t *testing.T) {
-	cp := NewCoreProperties()
+	cp, err := NewCoreProperties()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Created should be nil initially
 	if got := cp.CreatedDatetime(); got != nil {
@@ -356,7 +380,10 @@ func TestCT_CoreProperties_DatetimeProperties(t *testing.T) {
 }
 
 func TestCT_CoreProperties_RevisionNumber(t *testing.T) {
-	cp := NewCoreProperties()
+	cp, err := NewCoreProperties()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	// Default should be 0
 	if got := cp.RevisionNumber(); got != 0 {

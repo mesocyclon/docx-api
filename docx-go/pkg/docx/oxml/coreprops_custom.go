@@ -12,16 +12,16 @@ import (
 // ===========================================================================
 
 // NewCoreProperties creates a new empty <cp:coreProperties> element.
-func NewCoreProperties() *CT_CoreProperties {
+func NewCoreProperties() (*CT_CoreProperties, error) {
 	xml := `<cp:coreProperties ` +
 		`xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" ` +
 		`xmlns:dc="http://purl.org/dc/elements/1.1/" ` +
 		`xmlns:dcterms="http://purl.org/dc/terms/"/>`
 	el, err := ParseXml([]byte(xml))
 	if err != nil {
-		panic(fmt.Sprintf("coreprops_custom: failed to parse coreProperties XML: %v", err))
+		return nil, fmt.Errorf("oxml: failed to parse coreProperties XML: %w", err)
 	}
-	return &CT_CoreProperties{Element{E: el}}
+	return &CT_CoreProperties{Element{E: el}}, nil
 }
 
 // --- Text property helpers ---

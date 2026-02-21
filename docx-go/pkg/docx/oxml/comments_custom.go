@@ -12,7 +12,7 @@ import (
 // AddCommentFull adds a new <w:comment> child with the given id, author, and
 // a skeleton paragraph containing a CommentText style and CommentReference run style.
 // The returned element is the minimum valid comment ready for content addition.
-func (cs *CT_Comments) AddCommentFull() *CT_Comment {
+func (cs *CT_Comments) AddCommentFull() (*CT_Comment, error) {
 	nextID := cs.nextAvailableCommentID()
 	xml := fmt.Sprintf(
 		`<w:comment xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" `+
@@ -28,11 +28,11 @@ func (cs *CT_Comments) AddCommentFull() *CT_Comment {
 	)
 	el, err := ParseXml([]byte(xml))
 	if err != nil {
-		panic(fmt.Sprintf("comments_custom: failed to parse comment XML: %v", err))
+		return nil, fmt.Errorf("oxml: failed to parse comment XML: %w", err)
 	}
 	comment := &CT_Comment{Element{E: el}}
 	cs.E.AddChild(comment.E)
-	return comment
+	return comment, nil
 }
 
 // GetCommentByID returns the <w:comment> element with the specified id, or nil if not found.

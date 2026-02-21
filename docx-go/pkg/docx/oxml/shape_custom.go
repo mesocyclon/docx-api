@@ -10,32 +10,35 @@ import "fmt"
 // for an inline image. shape_id is an integer identifier, rId is the relationship
 // id for the image part, filename is the original image name, cx and cy are the
 // image dimensions in EMU.
-func NewPicInline(shapeId int, rId, filename string, cx, cy int64) *CT_Inline {
-	pic := newPicture(0, filename, rId, cx, cy)
+func NewPicInline(shapeId int, rId, filename string, cx, cy int64) (*CT_Inline, error) {
+	pic, err := newPicture(0, filename, rId, cx, cy)
+	if err != nil {
+		return nil, err
+	}
 	return newInline(cx, cy, shapeId, pic)
 }
 
 // newInline creates a <wp:inline> skeleton and fills it with the given values.
-func newInline(cx, cy int64, shapeId int, pic *CT_Picture) *CT_Inline {
+func newInline(cx, cy int64, shapeId int, pic *CT_Picture) (*CT_Inline, error) {
 	xml := fmt.Sprintf(
-		`<wp:inline `+
-			`xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" `+
-			`xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" `+
-			`xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" `+
-			`xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">`+
-			`<wp:extent cx="914400" cy="914400"/>`+
-			`<wp:docPr id="666" name="unnamed"/>`+
-			`<wp:cNvGraphicFramePr>`+
-			`<a:graphicFrameLocks noChangeAspect="1"/>`+
-			`</wp:cNvGraphicFramePr>`+
-			`<a:graphic>`+
-			`<a:graphicData uri="URI not set"/>`+
-			`</a:graphic>`+
+		`<wp:inline ` +
+			`xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" ` +
+			`xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" ` +
+			`xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" ` +
+			`xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">` +
+			`<wp:extent cx="914400" cy="914400"/>` +
+			`<wp:docPr id="666" name="unnamed"/>` +
+			`<wp:cNvGraphicFramePr>` +
+			`<a:graphicFrameLocks noChangeAspect="1"/>` +
+			`</wp:cNvGraphicFramePr>` +
+			`<a:graphic>` +
+			`<a:graphicData uri="URI not set"/>` +
+			`</a:graphic>` +
 			`</wp:inline>`,
 	)
 	el, err := ParseXml([]byte(xml))
 	if err != nil {
-		panic(fmt.Sprintf("shape_custom: failed to parse inline XML: %v", err))
+		return nil, fmt.Errorf("oxml: failed to parse inline XML: %w", err)
 	}
 	inline := &CT_Inline{Element{E: el}}
 
@@ -53,38 +56,38 @@ func newInline(cx, cy int64, shapeId int, pic *CT_Picture) *CT_Inline {
 	// Insert pic:pic into graphicData
 	gd.E.AddChild(pic.E)
 
-	return inline
+	return inline, nil
 }
 
 // newPicture creates a minimum viable <pic:pic> element.
-func newPicture(picId int, filename, rId string, cx, cy int64) *CT_Picture {
+func newPicture(picId int, filename, rId string, cx, cy int64) (*CT_Picture, error) {
 	xml := fmt.Sprintf(
-		`<pic:pic `+
-			`xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" `+
-			`xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" `+
-			`xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">`+
-			`<pic:nvPicPr>`+
-			`<pic:cNvPr id="666" name="unnamed"/>`+
-			`<pic:cNvPicPr/>`+
-			`</pic:nvPicPr>`+
-			`<pic:blipFill>`+
-			`<a:blip/>`+
-			`<a:stretch>`+
-			`<a:fillRect/>`+
-			`</a:stretch>`+
-			`</pic:blipFill>`+
-			`<pic:spPr>`+
-			`<a:xfrm>`+
-			`<a:off x="0" y="0"/>`+
-			`<a:ext cx="914400" cy="914400"/>`+
-			`</a:xfrm>`+
-			`<a:prstGeom prst="rect"/>`+
-			`</pic:spPr>`+
+		`<pic:pic ` +
+			`xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" ` +
+			`xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" ` +
+			`xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">` +
+			`<pic:nvPicPr>` +
+			`<pic:cNvPr id="666" name="unnamed"/>` +
+			`<pic:cNvPicPr/>` +
+			`</pic:nvPicPr>` +
+			`<pic:blipFill>` +
+			`<a:blip/>` +
+			`<a:stretch>` +
+			`<a:fillRect/>` +
+			`</a:stretch>` +
+			`</pic:blipFill>` +
+			`<pic:spPr>` +
+			`<a:xfrm>` +
+			`<a:off x="0" y="0"/>` +
+			`<a:ext cx="914400" cy="914400"/>` +
+			`</a:xfrm>` +
+			`<a:prstGeom prst="rect"/>` +
+			`</pic:spPr>` +
 			`</pic:pic>`,
 	)
 	el, err := ParseXml([]byte(xml))
 	if err != nil {
-		panic(fmt.Sprintf("shape_custom: failed to parse pic XML: %v", err))
+		return nil, fmt.Errorf("oxml: failed to parse pic XML: %w", err)
 	}
 	pic := &CT_Picture{Element{E: el}}
 
@@ -95,7 +98,7 @@ func newPicture(picId int, filename, rId string, cx, cy int64) *CT_Picture {
 	pic.SpPr().SetCx(cx)
 	pic.SpPr().SetCy(cy)
 
-	return pic
+	return pic, nil
 }
 
 // ExtentCx returns the width of the inline image in EMU.
