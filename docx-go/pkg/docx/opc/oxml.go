@@ -141,14 +141,23 @@ func ParseRelationships(blob []byte, baseURI string) ([]SerializedRelationship, 
 }
 
 // SerializeRelationships builds .rels XML bytes from a Relationships collection.
+// For internal relationships with a resolved TargetPart, the target reference is
+// recomputed from the part's current partname — matching Python's dynamic
+// _Relationship.target_ref property behavior.
 func SerializeRelationships(rels *Relationships) ([]byte, error) {
 	xrels := xmlRelationships{}
 
 	for _, rel := range rels.All() {
+		targetRef := rel.TargetRef
+		// Recompute target_ref for internal rels with resolved parts,
+		// matching Python: target.partname.relative_ref(self._baseURI)
+		if !rel.IsExternal && rel.TargetPart != nil {
+			targetRef = rel.TargetPart.PartName().RelativeRef(rels.BaseURI())
+		}
 		xr := xmlRelationship{
 			ID:     rel.RID,
 			Type:   rel.RelType,
-			Target: rel.TargetRef,
+			Target: targetRef,
 		}
 		if rel.IsExternal {
 			xr.TargetMode = TargetModeExternal

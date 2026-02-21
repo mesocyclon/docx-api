@@ -25,13 +25,18 @@ func ParseXml(xmlBytes []byte) (*etree.Element, error) {
 
 // SerializeXml serializes an *etree.Element to []byte with an XML declaration
 // and standalone="yes", matching OOXML conventions.
+// Output is compact (no insignificant whitespace), matching Python's
+// etree.tostring(elm, encoding="UTF-8", standalone=True).
 func SerializeXml(el *etree.Element) ([]byte, error) {
 	doc := etree.NewDocument()
 	doc.CreateProcInst("xml", `version="1.0" encoding="UTF-8" standalone="yes"`)
 	doc.SetRoot(el.Copy())
 
+	// No doc.Indent() — produce compact output without insignificant whitespace,
+	// matching Python's serialize_part_xml behavior.
+	doc.WriteSettings.CanonicalEndTags = true
+
 	var buf bytes.Buffer
-	doc.Indent(0)
 	if _, err := doc.WriteTo(&buf); err != nil {
 		return nil, fmt.Errorf("oxml.SerializeXml: %w", err)
 	}

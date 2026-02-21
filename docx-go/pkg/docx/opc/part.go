@@ -43,14 +43,14 @@ func NewBasePart(partName PackURI, contentType string, blob []byte, pkg *OpcPack
 	}
 }
 
-func (p *BasePart) PartName() PackURI         { return p.partName }
-func (p *BasePart) ContentType() string        { return p.contentType }
-func (p *BasePart) Blob() []byte               { return p.blob }
-func (p *BasePart) Rels() *Relationships       { return p.rels }
+func (p *BasePart) PartName() PackURI           { return p.partName }
+func (p *BasePart) ContentType() string         { return p.contentType }
+func (p *BasePart) Blob() []byte                { return p.blob }
+func (p *BasePart) Rels() *Relationships        { return p.rels }
 func (p *BasePart) SetRels(rels *Relationships) { p.rels = rels }
-func (p *BasePart) Package() *OpcPackage       { return p.pkg }
-func (p *BasePart) BeforeMarshal()             {}
-func (p *BasePart) AfterUnmarshal()            {}
+func (p *BasePart) Package() *OpcPackage        { return p.pkg }
+func (p *BasePart) BeforeMarshal()              {}
+func (p *BasePart) AfterUnmarshal()             {}
 
 // SetPartName updates the part name.
 func (p *BasePart) SetPartName(pn PackURI) {
@@ -105,6 +105,8 @@ func (p *XmlPart) SetElement(el *etree.Element) {
 }
 
 // Blob serializes the XML element to bytes.
+// Output is compact (no insignificant whitespace), matching Python's
+// serialize_part_xml behavior.
 func (p *XmlPart) Blob() []byte {
 	if p.element == nil {
 		return nil
@@ -112,7 +114,8 @@ func (p *XmlPart) Blob() []byte {
 	doc := etree.NewDocument()
 	doc.CreateProcInst("xml", `version="1.0" encoding="UTF-8" standalone="yes"`)
 	doc.SetRoot(p.element.Copy())
-	doc.Indent(0)
+	// No doc.Indent() — compact output, matching Python.
+	doc.WriteSettings.CanonicalEndTags = true
 	b, _ := doc.WriteToBytes()
 	return b
 }
