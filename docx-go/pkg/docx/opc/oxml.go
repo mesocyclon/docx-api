@@ -11,9 +11,9 @@ import (
 
 // xmlTypes is the root <Types> element in [Content_Types].xml.
 type xmlTypes struct {
-	XMLName   xml.Name       `xml:"Types"`
-	Defaults  []xmlDefault   `xml:"Default"`
-	Overrides []xmlOverride  `xml:"Override"`
+	XMLName   xml.Name      `xml:"http://schemas.openxmlformats.org/package/2006/content-types Types"`
+	Defaults  []xmlDefault  `xml:"Default"`
+	Overrides []xmlOverride `xml:"Override"`
 }
 
 // xmlDefault is a <Default> element mapping an extension to a content type.
@@ -46,9 +46,7 @@ func ParseContentTypes(blob []byte) (*ContentTypeMap, error) {
 
 // SerializeContentTypes builds [Content_Types].xml bytes from the given parts.
 func SerializeContentTypes(parts []PartInfo) ([]byte, error) {
-	types := xmlTypes{
-		XMLName: xml.Name{Space: NsOpcContentTypes, Local: "Types"},
-	}
+	types := xmlTypes{}
 
 	// Always include rels and xml defaults
 	defaults := newCaseInsensitiveMap()
@@ -101,7 +99,7 @@ type PartInfo struct {
 
 // xmlRelationships is the root <Relationships> element in a .rels file.
 type xmlRelationships struct {
-	XMLName       xml.Name          `xml:"Relationships"`
+	XMLName       xml.Name          `xml:"http://schemas.openxmlformats.org/package/2006/relationships Relationships"`
 	Relationships []xmlRelationship `xml:"Relationship"`
 }
 
@@ -144,9 +142,7 @@ func ParseRelationships(blob []byte, baseURI string) ([]SerializedRelationship, 
 
 // SerializeRelationships builds .rels XML bytes from a Relationships collection.
 func SerializeRelationships(rels *Relationships) ([]byte, error) {
-	xrels := xmlRelationships{
-		XMLName: xml.Name{Space: NsOpcRelationships, Local: "Relationships"},
-	}
+	xrels := xmlRelationships{}
 
 	for _, rel := range rels.All() {
 		xr := xmlRelationship{
