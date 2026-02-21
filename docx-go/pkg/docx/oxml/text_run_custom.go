@@ -49,9 +49,12 @@ func (r *CT_R) Style() *string {
 }
 
 // SetStyle sets the run style. Passing nil removes the rStyle element.
-func (r *CT_R) SetStyle(styleID *string) {
+func (r *CT_R) SetStyle(styleID *string) error {
 	rPr := r.GetOrAddRPr()
-	rPr.SetStyleVal(styleID)
+	if err := rPr.SetStyleVal(styleID); err != nil {
+		return err
+	}
+	return nil
 }
 
 // RunText returns the textual content of this run by concatenating text equivalents

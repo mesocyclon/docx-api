@@ -246,12 +246,17 @@ func (e *CT_Br) Type() string {
 
 // SetType sets the "w:type" attribute.
 // Passing "textWrapping" removes it.
-func (e *CT_Br) SetType(v string) {
+func (e *CT_Br) SetType(v string) error {
 	if v == "textWrapping" {
 		e.RemoveAttr("w:type")
-		return
+		return nil
 	}
-	e.SetAttr("w:type", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Br.SetType: %w", err)
+	}
+	e.SetAttr("w:type", s)
+	return nil
 }
 
 // Clear returns the value of the "w:clear" attribute, or "" if absent.
@@ -265,12 +270,17 @@ func (e *CT_Br) Clear() string {
 
 // SetClear sets the "w:clear" attribute.
 // Passing "" removes it.
-func (e *CT_Br) SetClear(v string) {
+func (e *CT_Br) SetClear(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:clear")
-		return
+		return nil
 	}
-	e.SetAttr("w:clear", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Br.SetClear: %w", err)
+	}
+	e.SetAttr("w:clear", s)
+	return nil
 }
 
 // --- CT_Cr ---

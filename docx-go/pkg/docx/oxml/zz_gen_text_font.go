@@ -1168,12 +1168,17 @@ func (e *CT_Color) ThemeColor() string {
 
 // SetThemeColor sets the "w:themeColor" attribute.
 // Passing "" removes it.
-func (e *CT_Color) SetThemeColor(v string) {
+func (e *CT_Color) SetThemeColor(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:themeColor")
-		return
+		return nil
 	}
-	e.SetAttr("w:themeColor", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Color.SetThemeColor: %w", err)
+	}
+	e.SetAttr("w:themeColor", s)
+	return nil
 }
 
 // Val returns the value of the required "w:val" attribute.
@@ -1186,8 +1191,13 @@ func (e *CT_Color) Val() (string, error) {
 }
 
 // SetVal sets the required "w:val" attribute.
-func (e *CT_Color) SetVal(v string) {
-	e.SetAttr("w:val", v)
+func (e *CT_Color) SetVal(v string) error {
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Color.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
 
 // --- CT_Fonts ---
@@ -1208,12 +1218,17 @@ func (e *CT_Fonts) Ascii() string {
 
 // SetAscii sets the "w:ascii" attribute.
 // Passing "" removes it.
-func (e *CT_Fonts) SetAscii(v string) {
+func (e *CT_Fonts) SetAscii(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:ascii")
-		return
+		return nil
 	}
-	e.SetAttr("w:ascii", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Fonts.SetAscii: %w", err)
+	}
+	e.SetAttr("w:ascii", s)
+	return nil
 }
 
 // HAnsi returns the value of the "w:hAnsi" attribute, or "" if absent.
@@ -1227,12 +1242,17 @@ func (e *CT_Fonts) HAnsi() string {
 
 // SetHAnsi sets the "w:hAnsi" attribute.
 // Passing "" removes it.
-func (e *CT_Fonts) SetHAnsi(v string) {
+func (e *CT_Fonts) SetHAnsi(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:hAnsi")
-		return
+		return nil
 	}
-	e.SetAttr("w:hAnsi", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Fonts.SetHAnsi: %w", err)
+	}
+	e.SetAttr("w:hAnsi", s)
+	return nil
 }
 
 // --- CT_Highlight ---
@@ -1252,8 +1272,13 @@ func (e *CT_Highlight) Val() (string, error) {
 }
 
 // SetVal sets the required "w:val" attribute.
-func (e *CT_Highlight) SetVal(v string) {
-	e.SetAttr("w:val", v)
+func (e *CT_Highlight) SetVal(v string) error {
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Highlight.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
 
 // --- CT_HpsMeasure ---
@@ -1273,8 +1298,13 @@ func (e *CT_HpsMeasure) Val() (int64, error) {
 }
 
 // SetVal sets the required "w:val" attribute.
-func (e *CT_HpsMeasure) SetVal(v int64) {
-	e.SetAttr("w:val", formatInt64Attr(v))
+func (e *CT_HpsMeasure) SetVal(v int64) error {
+	s, err := formatInt64Attr(v)
+	if err != nil {
+		return fmt.Errorf("CT_HpsMeasure.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
 
 // --- CT_Underline ---
@@ -1295,12 +1325,17 @@ func (e *CT_Underline) Val() string {
 
 // SetVal sets the "w:val" attribute.
 // Passing "" removes it.
-func (e *CT_Underline) SetVal(v string) {
+func (e *CT_Underline) SetVal(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:val")
-		return
+		return nil
 	}
-	e.SetAttr("w:val", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Underline.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
 
 // --- CT_VerticalAlignRun ---
@@ -1320,6 +1355,11 @@ func (e *CT_VerticalAlignRun) Val() (string, error) {
 }
 
 // SetVal sets the required "w:val" attribute.
-func (e *CT_VerticalAlignRun) SetVal(v string) {
-	e.SetAttr("w:val", v)
+func (e *CT_VerticalAlignRun) SetVal(v string) error {
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_VerticalAlignRun.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }

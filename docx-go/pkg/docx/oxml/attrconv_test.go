@@ -56,17 +56,29 @@ func TestParseBoolAttr(t *testing.T) {
 
 func TestFormatIntAttr(t *testing.T) {
 	t.Parallel()
-	if got := formatIntAttr(42); got != "42" {
+	got, err := formatIntAttr(42)
+	if err != nil {
+		t.Fatalf("formatIntAttr(42) error: %v", err)
+	}
+	if got != "42" {
 		t.Errorf("formatIntAttr(42) = %q, want %q", got, "42")
 	}
 }
 
 func TestFormatBoolAttr(t *testing.T) {
 	t.Parallel()
-	if got := formatBoolAttr(true); got != "true" {
+	got, err := formatBoolAttr(true)
+	if err != nil {
+		t.Fatalf("formatBoolAttr(true) error: %v", err)
+	}
+	if got != "true" {
 		t.Errorf("formatBoolAttr(true) = %q", got)
 	}
-	if got := formatBoolAttr(false); got != "false" {
+	got, err = formatBoolAttr(false)
+	if err != nil {
+		t.Fatalf("formatBoolAttr(false) error: %v", err)
+	}
+	if got != "false" {
 		t.Errorf("formatBoolAttr(false) = %q", got)
 	}
 }
@@ -80,7 +92,11 @@ func TestParseInt64Attr(t *testing.T) {
 
 func TestFormatInt64Attr(t *testing.T) {
 	t.Parallel()
-	if got := formatInt64Attr(914400); got != "914400" {
+	got, err := formatInt64Attr(914400)
+	if err != nil {
+		t.Fatalf("formatInt64Attr(914400) error: %v", err)
+	}
+	if got != "914400" {
 		t.Errorf("formatInt64Attr(914400) = %q", got)
 	}
 }

@@ -61,12 +61,17 @@ func (e *CT_Hyperlink) RId() string {
 
 // SetRId sets the "r:id" attribute.
 // Passing "" removes it.
-func (e *CT_Hyperlink) SetRId(v string) {
+func (e *CT_Hyperlink) SetRId(v string) error {
 	if v == "" {
 		e.RemoveAttr("r:id")
-		return
+		return nil
 	}
-	e.SetAttr("r:id", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Hyperlink.SetRId: %w", err)
+	}
+	e.SetAttr("r:id", s)
+	return nil
 }
 
 // Anchor returns the value of the "w:anchor" attribute, or "" if absent.
@@ -80,12 +85,17 @@ func (e *CT_Hyperlink) Anchor() string {
 
 // SetAnchor sets the "w:anchor" attribute.
 // Passing "" removes it.
-func (e *CT_Hyperlink) SetAnchor(v string) {
+func (e *CT_Hyperlink) SetAnchor(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:anchor")
-		return
+		return nil
 	}
-	e.SetAttr("w:anchor", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Hyperlink.SetAnchor: %w", err)
+	}
+	e.SetAttr("w:anchor", s)
+	return nil
 }
 
 // History returns the value of the "w:history" attribute, or true if absent.
@@ -99,10 +109,15 @@ func (e *CT_Hyperlink) History() bool {
 
 // SetHistory sets the "w:history" attribute.
 // Passing true removes it.
-func (e *CT_Hyperlink) SetHistory(v bool) {
+func (e *CT_Hyperlink) SetHistory(v bool) error {
 	if v == true {
 		e.RemoveAttr("w:history")
-		return
+		return nil
 	}
-	e.SetAttr("w:history", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Hyperlink.SetHistory: %w", err)
+	}
+	e.SetAttr("w:history", s)
+	return nil
 }

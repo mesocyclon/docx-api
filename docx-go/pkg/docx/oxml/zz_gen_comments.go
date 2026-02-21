@@ -136,12 +136,17 @@ func (e *CT_Comment) Initials() string {
 
 // SetInitials sets the "w:initials" attribute.
 // Passing "" removes it.
-func (e *CT_Comment) SetInitials(v string) {
+func (e *CT_Comment) SetInitials(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:initials")
-		return
+		return nil
 	}
-	e.SetAttr("w:initials", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Comment.SetInitials: %w", err)
+	}
+	e.SetAttr("w:initials", s)
+	return nil
 }
 
 // Date returns the value of the "w:date" attribute, or "" if absent.
@@ -155,12 +160,17 @@ func (e *CT_Comment) Date() string {
 
 // SetDate sets the "w:date" attribute.
 // Passing "" removes it.
-func (e *CT_Comment) SetDate(v string) {
+func (e *CT_Comment) SetDate(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:date")
-		return
+		return nil
 	}
-	e.SetAttr("w:date", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Comment.SetDate: %w", err)
+	}
+	e.SetAttr("w:date", s)
+	return nil
 }
 
 // Id returns the value of the required "w:id" attribute.
@@ -173,8 +183,13 @@ func (e *CT_Comment) Id() (int, error) {
 }
 
 // SetId sets the required "w:id" attribute.
-func (e *CT_Comment) SetId(v int) {
-	e.SetAttr("w:id", formatIntAttr(v))
+func (e *CT_Comment) SetId(v int) error {
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Comment.SetId: %w", err)
+	}
+	e.SetAttr("w:id", s)
+	return nil
 }
 
 // Author returns the value of the required "w:author" attribute.
@@ -187,6 +202,11 @@ func (e *CT_Comment) Author() (string, error) {
 }
 
 // SetAuthor sets the required "w:author" attribute.
-func (e *CT_Comment) SetAuthor(v string) {
-	e.SetAttr("w:author", v)
+func (e *CT_Comment) SetAuthor(v string) error {
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Comment.SetAuthor: %w", err)
+	}
+	e.SetAttr("w:author", s)
+	return nil
 }

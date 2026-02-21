@@ -131,8 +131,12 @@ func TestCT_ShapeProperties_CxCy(t *testing.T) {
 	}
 
 	// Set new values
-	spPr.SetCx(1234)
-	spPr.SetCy(5678)
+	if err := spPr.SetCx(1234); err != nil {
+		t.Fatalf("SetCx: %v", err)
+	}
+	if err := spPr.SetCy(5678); err != nil {
+		t.Fatalf("SetCy: %v", err)
+	}
 	cx = spPr.Cx()
 	if cx == nil || *cx != 1234 {
 		t.Errorf("after set, expected cx=1234, got %v", cx)
@@ -533,7 +537,10 @@ func TestCT_Numbering_AddNumWithAbstractNumId(t *testing.T) {
 	el, _ := ParseXml([]byte(xml))
 	n := &CT_Numbering{Element{E: el}}
 
-	num := n.AddNumWithAbstractNumId(0)
+	num, err := n.AddNumWithAbstractNumId(0)
+	if err != nil {
+		t.Fatalf("AddNumWithAbstractNumId: %v", err)
+	}
 	if num == nil {
 		t.Fatal("expected num, got nil")
 	}
@@ -559,7 +566,10 @@ func TestCT_Numbering_AddNumWithAbstractNumId(t *testing.T) {
 	}
 
 	// Add another
-	num2 := n.AddNumWithAbstractNumId(1)
+	num2, err := n.AddNumWithAbstractNumId(1)
+	if err != nil {
+		t.Fatalf("AddNumWithAbstractNumId: %v", err)
+	}
 	numId2, _ := num2.NumId()
 	if numId2 != 2 {
 		t.Errorf("expected numId=2, got %d", numId2)
@@ -599,7 +609,10 @@ func TestCT_Numbering_NextNumId_GapFilling(t *testing.T) {
 }
 
 func TestNewNum(t *testing.T) {
-	num := NewNum(5, 3)
+	num, err := NewNum(5, 3)
+	if err != nil {
+		t.Fatalf("NewNum: %v", err)
+	}
 	numId, err := num.NumId()
 	if err != nil {
 		t.Fatalf("numId error: %v", err)
@@ -651,8 +664,12 @@ func TestCT_NumPr_ValAccessors_Empty(t *testing.T) {
 	}
 
 	// Set and verify
-	np.SetIlvlVal(3)
-	np.SetNumIdVal(7)
+	if err := np.SetIlvlVal(3); err != nil {
+		t.Fatalf("SetIlvlVal: %v", err)
+	}
+	if err := np.SetNumIdVal(7); err != nil {
+		t.Fatalf("SetNumIdVal: %v", err)
+	}
 	ilvl := np.IlvlVal()
 	if ilvl == nil || *ilvl != 3 {
 		t.Errorf("expected ilvl=3, got %v", ilvl)
@@ -679,21 +696,29 @@ func TestCT_Settings_EvenAndOddHeadersVal(t *testing.T) {
 
 	// Set to true
 	boolTrue := true
-	s.SetEvenAndOddHeadersVal(&boolTrue)
+	if err := s.SetEvenAndOddHeadersVal(&boolTrue); err != nil {
+		t.Fatalf("SetEvenAndOddHeadersVal: %v", err)
+	}
 	if !s.EvenAndOddHeadersVal() {
 		t.Error("expected true after setting")
 	}
 
 	// Set to false (should remove)
 	boolFalse := false
-	s.SetEvenAndOddHeadersVal(&boolFalse)
+	if err := s.SetEvenAndOddHeadersVal(&boolFalse); err != nil {
+		t.Fatalf("SetEvenAndOddHeadersVal: %v", err)
+	}
 	if s.EvenAndOddHeadersVal() {
 		t.Error("expected false after unsetting")
 	}
 
 	// Set to true again then nil (should remove)
-	s.SetEvenAndOddHeadersVal(&boolTrue)
-	s.SetEvenAndOddHeadersVal(nil)
+	if err := s.SetEvenAndOddHeadersVal(&boolTrue); err != nil {
+		t.Fatalf("SetEvenAndOddHeadersVal: %v", err)
+	}
+	if err := s.SetEvenAndOddHeadersVal(nil); err != nil {
+		t.Fatalf("SetEvenAndOddHeadersVal: %v", err)
+	}
 	if s.EvenAndOddHeadersVal() {
 		t.Error("expected false after setting nil")
 	}
@@ -807,7 +832,10 @@ func TestCT_Body_AddSectionBreak(t *testing.T) {
 // ===========================================================================
 
 func TestNewDecimalNumber(t *testing.T) {
-	dn := NewDecimalNumber("w:abstractNumId", 42)
+	dn, err := NewDecimalNumber("w:abstractNumId", 42)
+	if err != nil {
+		t.Fatalf("NewDecimalNumber: %v", err)
+	}
 	v, err := dn.Val()
 	if err != nil {
 		t.Fatal(err)
@@ -818,7 +846,10 @@ func TestNewDecimalNumber(t *testing.T) {
 }
 
 func TestNewCtString(t *testing.T) {
-	s := NewCtString("w:pStyle", "Heading1")
+	s, err := NewCtString("w:pStyle", "Heading1")
+	if err != nil {
+		t.Fatalf("NewCtString: %v", err)
+	}
 	v, err := s.Val()
 	if err != nil {
 		t.Fatal(err)

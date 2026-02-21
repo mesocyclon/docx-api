@@ -26,13 +26,13 @@ func (rPr *CT_RPr) getBoolVal(tag string) *bool {
 //   - *false: add element with val="false" (e.g. <w:b w:val="false"/>)
 //
 // getOrAdd and remove are function params to handle the correct child tag.
-func (rPr *CT_RPr) setBoolValWith(val *bool, getOrAdd func() *CT_OnOff, remove func()) {
+func (rPr *CT_RPr) setBoolValWith(val *bool, getOrAdd func() *CT_OnOff, remove func()) error {
 	if val == nil {
 		remove()
-		return
+		return nil
 	}
 	el := getOrAdd()
-	el.SetVal(*val)
+	return el.SetVal(*val)
 }
 
 // --- Bold ---
@@ -43,8 +43,8 @@ func (rPr *CT_RPr) BoldVal() *bool {
 }
 
 // SetBoldVal sets the bold tri-state.
-func (rPr *CT_RPr) SetBoldVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddB, rPr.RemoveB)
+func (rPr *CT_RPr) SetBoldVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddB, rPr.RemoveB)
 }
 
 // --- Italic ---
@@ -55,8 +55,8 @@ func (rPr *CT_RPr) ItalicVal() *bool {
 }
 
 // SetItalicVal sets the italic tri-state.
-func (rPr *CT_RPr) SetItalicVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddI, rPr.RemoveI)
+func (rPr *CT_RPr) SetItalicVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddI, rPr.RemoveI)
 }
 
 // --- Caps ---
@@ -67,8 +67,8 @@ func (rPr *CT_RPr) CapsVal() *bool {
 }
 
 // SetCapsVal sets the all-caps tri-state.
-func (rPr *CT_RPr) SetCapsVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddCaps, rPr.RemoveCaps)
+func (rPr *CT_RPr) SetCapsVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddCaps, rPr.RemoveCaps)
 }
 
 // --- SmallCaps ---
@@ -79,8 +79,8 @@ func (rPr *CT_RPr) SmallCapsVal() *bool {
 }
 
 // SetSmallCapsVal sets the small-caps tri-state.
-func (rPr *CT_RPr) SetSmallCapsVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddSmallCaps, rPr.RemoveSmallCaps)
+func (rPr *CT_RPr) SetSmallCapsVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddSmallCaps, rPr.RemoveSmallCaps)
 }
 
 // --- Strike ---
@@ -91,8 +91,8 @@ func (rPr *CT_RPr) StrikeVal() *bool {
 }
 
 // SetStrikeVal sets the strikethrough tri-state.
-func (rPr *CT_RPr) SetStrikeVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddStrike, rPr.RemoveStrike)
+func (rPr *CT_RPr) SetStrikeVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddStrike, rPr.RemoveStrike)
 }
 
 // --- Dstrike (double strikethrough) ---
@@ -103,8 +103,8 @@ func (rPr *CT_RPr) DstrikeVal() *bool {
 }
 
 // SetDstrikeVal sets the double-strikethrough tri-state.
-func (rPr *CT_RPr) SetDstrikeVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddDstrike, rPr.RemoveDstrike)
+func (rPr *CT_RPr) SetDstrikeVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddDstrike, rPr.RemoveDstrike)
 }
 
 // --- Outline ---
@@ -115,8 +115,8 @@ func (rPr *CT_RPr) OutlineVal() *bool {
 }
 
 // SetOutlineVal sets the outline tri-state.
-func (rPr *CT_RPr) SetOutlineVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddOutline, rPr.RemoveOutline)
+func (rPr *CT_RPr) SetOutlineVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddOutline, rPr.RemoveOutline)
 }
 
 // --- Shadow ---
@@ -127,8 +127,8 @@ func (rPr *CT_RPr) ShadowVal() *bool {
 }
 
 // SetShadowVal sets the shadow tri-state.
-func (rPr *CT_RPr) SetShadowVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddShadow, rPr.RemoveShadow)
+func (rPr *CT_RPr) SetShadowVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddShadow, rPr.RemoveShadow)
 }
 
 // --- Emboss ---
@@ -139,8 +139,8 @@ func (rPr *CT_RPr) EmbossVal() *bool {
 }
 
 // SetEmbossVal sets the emboss tri-state.
-func (rPr *CT_RPr) SetEmbossVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddEmboss, rPr.RemoveEmboss)
+func (rPr *CT_RPr) SetEmbossVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddEmboss, rPr.RemoveEmboss)
 }
 
 // --- Imprint ---
@@ -151,8 +151,8 @@ func (rPr *CT_RPr) ImprintVal() *bool {
 }
 
 // SetImprintVal sets the imprint tri-state.
-func (rPr *CT_RPr) SetImprintVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddImprint, rPr.RemoveImprint)
+func (rPr *CT_RPr) SetImprintVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddImprint, rPr.RemoveImprint)
 }
 
 // --- NoProof ---
@@ -163,8 +163,8 @@ func (rPr *CT_RPr) NoProofVal() *bool {
 }
 
 // SetNoProofVal sets the noProof tri-state.
-func (rPr *CT_RPr) SetNoProofVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddNoProof, rPr.RemoveNoProof)
+func (rPr *CT_RPr) SetNoProofVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddNoProof, rPr.RemoveNoProof)
 }
 
 // --- SnapToGrid ---
@@ -175,8 +175,8 @@ func (rPr *CT_RPr) SnapToGridVal() *bool {
 }
 
 // SetSnapToGridVal sets the snapToGrid tri-state.
-func (rPr *CT_RPr) SetSnapToGridVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddSnapToGrid, rPr.RemoveSnapToGrid)
+func (rPr *CT_RPr) SetSnapToGridVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddSnapToGrid, rPr.RemoveSnapToGrid)
 }
 
 // --- Vanish ---
@@ -187,8 +187,8 @@ func (rPr *CT_RPr) VanishVal() *bool {
 }
 
 // SetVanishVal sets the vanish tri-state.
-func (rPr *CT_RPr) SetVanishVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddVanish, rPr.RemoveVanish)
+func (rPr *CT_RPr) SetVanishVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddVanish, rPr.RemoveVanish)
 }
 
 // --- WebHidden ---
@@ -199,8 +199,8 @@ func (rPr *CT_RPr) WebHiddenVal() *bool {
 }
 
 // SetWebHiddenVal sets the webHidden tri-state.
-func (rPr *CT_RPr) SetWebHiddenVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddWebHidden, rPr.RemoveWebHidden)
+func (rPr *CT_RPr) SetWebHiddenVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddWebHidden, rPr.RemoveWebHidden)
 }
 
 // --- SpecVanish ---
@@ -211,8 +211,8 @@ func (rPr *CT_RPr) SpecVanishVal() *bool {
 }
 
 // SetSpecVanishVal sets the specVanish tri-state.
-func (rPr *CT_RPr) SetSpecVanishVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddSpecVanish, rPr.RemoveSpecVanish)
+func (rPr *CT_RPr) SetSpecVanishVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddSpecVanish, rPr.RemoveSpecVanish)
 }
 
 // --- OMath ---
@@ -223,8 +223,8 @@ func (rPr *CT_RPr) OMathVal() *bool {
 }
 
 // SetOMathVal sets the oMath tri-state.
-func (rPr *CT_RPr) SetOMathVal(v *bool) {
-	rPr.setBoolValWith(v, rPr.GetOrAddOMath, rPr.RemoveOMath)
+func (rPr *CT_RPr) SetOMathVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddOMath, rPr.RemoveOMath)
 }
 
 // --- Color ---
@@ -243,13 +243,16 @@ func (rPr *CT_RPr) ColorVal() *string {
 }
 
 // SetColorVal sets the color hex value. Passing nil removes the color element.
-func (rPr *CT_RPr) SetColorVal(v *string) {
+func (rPr *CT_RPr) SetColorVal(v *string) error {
 	if v == nil {
 		rPr.RemoveColor()
-		return
+		return nil
 	}
 	color := rPr.GetOrAddColor()
-	color.SetVal(*v)
+	if err := color.SetVal(*v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ColorTheme returns the theme color from w:color/@w:themeColor, or nil if not present.
@@ -270,19 +273,24 @@ func (rPr *CT_RPr) ColorTheme() *enum.MsoThemeColorIndex {
 }
 
 // SetColorTheme sets the theme color. Passing nil removes the themeColor attribute.
-func (rPr *CT_RPr) SetColorTheme(v *enum.MsoThemeColorIndex) {
+func (rPr *CT_RPr) SetColorTheme(v *enum.MsoThemeColorIndex) error {
 	if v == nil {
 		color := rPr.Color()
 		if color != nil {
-			color.SetThemeColor("")
+			if err := color.SetThemeColor(""); err != nil {
+				return err
+			}
 		}
-		return
+		return nil
 	}
 	color := rPr.GetOrAddColor()
 	xml, err := v.ToXml()
 	if err == nil {
-		color.SetThemeColor(xml)
+		if err := color.SetThemeColor(xml); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // --- Size ---
@@ -301,13 +309,16 @@ func (rPr *CT_RPr) SzVal() *int64 {
 }
 
 // SetSzVal sets the font size in half-points. Passing nil removes the sz element.
-func (rPr *CT_RPr) SetSzVal(v *int64) {
+func (rPr *CT_RPr) SetSzVal(v *int64) error {
 	if v == nil {
 		rPr.RemoveSz()
-		return
+		return nil
 	}
 	sz := rPr.GetOrAddSz()
-	sz.SetVal(*v)
+	if err := sz.SetVal(*v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // --- Fonts ---
@@ -326,13 +337,16 @@ func (rPr *CT_RPr) RFontsAscii() *string {
 }
 
 // SetRFontsAscii sets the ascii font name. Passing nil removes the rFonts element.
-func (rPr *CT_RPr) SetRFontsAscii(v *string) {
+func (rPr *CT_RPr) SetRFontsAscii(v *string) error {
 	if v == nil {
 		rPr.RemoveRFonts()
-		return
+		return nil
 	}
 	rFonts := rPr.GetOrAddRFonts()
-	rFonts.SetAscii(*v)
+	if err := rFonts.SetAscii(*v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // RFontsHAnsi returns the hAnsi font name, or nil if not present.
@@ -349,16 +363,21 @@ func (rPr *CT_RPr) RFontsHAnsi() *string {
 }
 
 // SetRFontsHAnsi sets the hAnsi font name. Passing nil leaves rFonts alone.
-func (rPr *CT_RPr) SetRFontsHAnsi(v *string) {
+func (rPr *CT_RPr) SetRFontsHAnsi(v *string) error {
 	if v == nil && rPr.RFonts() == nil {
-		return
+		return nil
 	}
 	rFonts := rPr.GetOrAddRFonts()
 	if v == nil {
-		rFonts.SetHAnsi("")
+		if err := rFonts.SetHAnsi(""); err != nil {
+			return err
+		}
 	} else {
-		rFonts.SetHAnsi(*v)
+		if err := rFonts.SetHAnsi(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // --- Underline ---
@@ -377,12 +396,15 @@ func (rPr *CT_RPr) UVal() *string {
 }
 
 // SetUVal sets the underline style. Passing nil removes the u element.
-func (rPr *CT_RPr) SetUVal(v *string) {
+func (rPr *CT_RPr) SetUVal(v *string) error {
 	rPr.RemoveU()
 	if v != nil {
 		u := rPr.addU()
-		u.SetVal(*v)
+		if err := u.SetVal(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // --- Highlight ---
@@ -401,13 +423,16 @@ func (rPr *CT_RPr) HighlightVal() *string {
 }
 
 // SetHighlightVal sets the highlight color. Passing nil removes the highlight element.
-func (rPr *CT_RPr) SetHighlightVal(v *string) {
+func (rPr *CT_RPr) SetHighlightVal(v *string) error {
 	if v == nil {
 		rPr.RemoveHighlight()
-		return
+		return nil
 	}
 	h := rPr.GetOrAddHighlight()
-	h.SetVal(*v)
+	if err := h.SetVal(*v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // --- Style ---
@@ -426,18 +451,23 @@ func (rPr *CT_RPr) StyleVal() *string {
 }
 
 // SetStyleVal sets the run style. Passing nil removes the rStyle element.
-func (rPr *CT_RPr) SetStyleVal(v *string) {
+func (rPr *CT_RPr) SetStyleVal(v *string) error {
 	if v == nil {
 		rPr.RemoveRStyle()
-		return
+		return nil
 	}
 	rStyle := rPr.RStyle()
 	if rStyle == nil {
 		s := rPr.addRStyle()
-		s.SetVal(*v)
+		if err := s.SetVal(*v); err != nil {
+			return err
+		}
 	} else {
-		rStyle.SetVal(*v)
+		if err := rStyle.SetVal(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // --- Subscript / Superscript ---
@@ -459,11 +489,13 @@ func (rPr *CT_RPr) Subscript() *bool {
 
 // SetSubscript sets the subscript state. nil removes vertAlign,
 // true sets it to "subscript", false clears only if currently "subscript".
-func (rPr *CT_RPr) SetSubscript(v *bool) {
+func (rPr *CT_RPr) SetSubscript(v *bool) error {
 	if v == nil {
 		rPr.RemoveVertAlign()
 	} else if *v {
-		rPr.GetOrAddVertAlign().SetVal("subscript")
+		if err := rPr.GetOrAddVertAlign().SetVal("subscript"); err != nil {
+			return err
+		}
 	} else {
 		va := rPr.VertAlign()
 		if va != nil {
@@ -473,6 +505,7 @@ func (rPr *CT_RPr) SetSubscript(v *bool) {
 			}
 		}
 	}
+	return nil
 }
 
 // Superscript returns true if vertAlign is "superscript", false if it's something else,
@@ -491,11 +524,13 @@ func (rPr *CT_RPr) Superscript() *bool {
 }
 
 // SetSuperscript sets the superscript state.
-func (rPr *CT_RPr) SetSuperscript(v *bool) {
+func (rPr *CT_RPr) SetSuperscript(v *bool) error {
 	if v == nil {
 		rPr.RemoveVertAlign()
 	} else if *v {
-		rPr.GetOrAddVertAlign().SetVal("superscript")
+		if err := rPr.GetOrAddVertAlign().SetVal("superscript"); err != nil {
+			return err
+		}
 	} else {
 		va := rPr.VertAlign()
 		if va != nil {
@@ -505,4 +540,5 @@ func (rPr *CT_RPr) SetSuperscript(v *bool) {
 			}
 		}
 	}
+	return nil
 }

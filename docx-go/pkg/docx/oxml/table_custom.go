@@ -2,6 +2,7 @@ package oxml
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/beevik/etree"
 	"github.com/user/go-docx/pkg/docx/enum"
@@ -44,7 +45,7 @@ func NewTbl(rows, cols int, widthTwips int) *CT_Tbl {
 	for i := 0; i < cols; i++ {
 		gc := tblGridE.CreateElement("gridCol")
 		gc.Space = "w"
-		gc.CreateAttr("w:w", formatIntAttr(colWidth))
+		gc.CreateAttr("w:w", strconv.Itoa(colWidth))
 	}
 
 	// rows
@@ -59,7 +60,7 @@ func NewTbl(rows, cols int, widthTwips int) *CT_Tbl {
 			tcW := tcPrE.CreateElement("tcW")
 			tcW.Space = "w"
 			tcW.CreateAttr("w:type", "dxa")
-			tcW.CreateAttr("w:w", formatIntAttr(colWidth))
+			tcW.CreateAttr("w:w", strconv.Itoa(colWidth))
 			pE := tcE.CreateElement("p")
 			pE.Space = "w"
 		}
@@ -95,7 +96,9 @@ func (t *CT_Tbl) SetTblStyleVal(styleID string) error {
 	if styleID == "" {
 		return nil
 	}
-	tblPr.GetOrAddTblStyle().SetVal(styleID)
+	if err := tblPr.GetOrAddTblStyle().SetVal(styleID); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -163,7 +166,9 @@ func (t *CT_Tbl) SetBidiVisualVal(v *bool) error {
 		tblPr.RemoveBidiVisual()
 		return nil
 	}
-	tblPr.GetOrAddBidiVisual().SetVal(*v)
+	if err := tblPr.GetOrAddBidiVisual().SetVal(*v); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -188,9 +193,13 @@ func (t *CT_Tbl) SetAutofit(v bool) error {
 	}
 	layout := tblPr.GetOrAddTblLayout()
 	if v {
-		layout.SetType("autofit")
+		if err := layout.SetType("autofit"); err != nil {
+			return err
+		}
 	} else {
-		layout.SetType("fixed")
+		if err := layout.SetType("fixed"); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -273,13 +282,18 @@ func (pr *CT_TblPr) AutofitVal() bool {
 }
 
 // SetAutofitVal sets the autofit property.
-func (pr *CT_TblPr) SetAutofitVal(v bool) {
+func (pr *CT_TblPr) SetAutofitVal(v bool) error {
 	layout := pr.GetOrAddTblLayout()
 	if v {
-		layout.SetType("autofit")
+		if err := layout.SetType("autofit"); err != nil {
+			return err
+		}
 	} else {
-		layout.SetType("fixed")
+		if err := layout.SetType("fixed"); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // StyleVal returns the value of tblStyle/@w:val or "" if absent.
@@ -296,12 +310,15 @@ func (pr *CT_TblPr) StyleVal() string {
 }
 
 // SetStyleVal sets the table style. Passing "" removes tblStyle.
-func (pr *CT_TblPr) SetStyleVal(v string) {
+func (pr *CT_TblPr) SetStyleVal(v string) error {
 	pr.RemoveTblStyle()
 	if v == "" {
-		return
+		return nil
 	}
-	pr.GetOrAddTblStyle().SetVal(v)
+	if err := pr.GetOrAddTblStyle().SetVal(v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ===========================================================================
@@ -371,17 +388,20 @@ func (r *CT_Row) TrHeightVal() *int {
 }
 
 // SetTrHeightVal sets the row height. Passing nil removes it.
-func (r *CT_Row) SetTrHeightVal(twips *int) {
+func (r *CT_Row) SetTrHeightVal(twips *int) error {
 	if twips == nil {
 		trPr := r.TrPr()
 		if trPr != nil {
 			trPr.RemoveTrHeight()
 		}
-		return
+		return nil
 	}
 	trPr := r.GetOrAddTrPr()
 	h := trPr.GetOrAddTrHeight()
-	h.SetVal(*twips)
+	if err := h.SetVal(*twips); err != nil {
+		return err
+	}
+	return nil
 }
 
 // TrHeightHRule returns the row height rule, or nil.
@@ -394,20 +414,20 @@ func (r *CT_Row) TrHeightHRule() *enum.WdRowHeightRule {
 }
 
 // SetTrHeightHRule sets the row height rule. Passing nil removes it.
-func (r *CT_Row) SetTrHeightHRule(rule *enum.WdRowHeightRule) {
+func (r *CT_Row) SetTrHeightHRule(rule *enum.WdRowHeightRule) error {
 	if rule == nil {
 		trPr := r.TrPr()
 		if trPr != nil {
 			h := trPr.TrHeight()
 			if h != nil {
-				h.SetHRule(enum.WdRowHeightRule(0))
+				return h.SetHRule(enum.WdRowHeightRule(0))
 			}
 		}
-		return
+		return nil
 	}
 	trPr := r.GetOrAddTrPr()
 	h := trPr.GetOrAddTrHeight()
-	h.SetHRule(*rule)
+	return h.SetHRule(*rule)
 }
 
 // ===========================================================================
@@ -454,13 +474,16 @@ func (pr *CT_TrPr) TrHeightValTwips() *int {
 }
 
 // SetTrHeightValTwips sets the trHeight value. Passing nil removes trHeight.
-func (pr *CT_TrPr) SetTrHeightValTwips(twips *int) {
+func (pr *CT_TrPr) SetTrHeightValTwips(twips *int) error {
 	if twips == nil {
 		pr.RemoveTrHeight()
-		return
+		return nil
 	}
 	h := pr.GetOrAddTrHeight()
-	h.SetVal(*twips)
+	if err := h.SetVal(*twips); err != nil {
+		return err
+	}
+	return nil
 }
 
 // TrHeightHRuleVal returns the height rule, or nil.
@@ -477,16 +500,16 @@ func (pr *CT_TrPr) TrHeightHRuleVal() *enum.WdRowHeightRule {
 }
 
 // SetTrHeightHRuleVal sets the height rule. Passing nil removes it.
-func (pr *CT_TrPr) SetTrHeightHRuleVal(rule *enum.WdRowHeightRule) {
+func (pr *CT_TrPr) SetTrHeightHRuleVal(rule *enum.WdRowHeightRule) error {
 	if rule == nil {
 		h := pr.TrHeight()
 		if h != nil {
-			h.SetHRule(enum.WdRowHeightRule(0))
+			return h.SetHRule(enum.WdRowHeightRule(0))
 		}
-		return
+		return nil
 	}
 	h := pr.GetOrAddTrHeight()
-	h.SetHRule(*rule)
+	return h.SetHRule(*rule)
 }
 
 // ===========================================================================
@@ -511,9 +534,12 @@ func (tc *CT_Tc) GridSpanVal() int {
 }
 
 // SetGridSpanVal sets the grid span. Values ≤ 1 remove the gridSpan element.
-func (tc *CT_Tc) SetGridSpanVal(v int) {
+func (tc *CT_Tc) SetGridSpanVal(v int) error {
 	tcPr := tc.GetOrAddTcPr()
-	tcPr.SetGridSpanVal(v)
+	if err := tcPr.SetGridSpanVal(v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // VMergeVal returns the value of tcPr/vMerge/@w:val, or nil if vMerge is not present.
@@ -527,9 +553,12 @@ func (tc *CT_Tc) VMergeVal() *string {
 }
 
 // SetVMergeVal sets the vMerge value. Passing nil removes vMerge.
-func (tc *CT_Tc) SetVMergeVal(v *string) {
+func (tc *CT_Tc) SetVMergeVal(v *string) error {
 	tcPr := tc.GetOrAddTcPr()
-	tcPr.SetVMergeValStr(v)
+	if err := tcPr.SetVMergeValStr(v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // WidthTwips returns the cell width in twips from tcPr/tcW, or nil if not present
@@ -543,9 +572,12 @@ func (tc *CT_Tc) WidthTwips() *int {
 }
 
 // SetWidthTwips sets the cell width in twips.
-func (tc *CT_Tc) SetWidthTwips(twips int) {
+func (tc *CT_Tc) SetWidthTwips(twips int) error {
 	tcPr := tc.GetOrAddTcPr()
-	tcPr.SetWidthTwips(twips)
+	if err := tcPr.SetWidthTwips(twips); err != nil {
+		return err
+	}
+	return nil
 }
 
 // VAlignVal returns the vertical alignment of this cell, or nil.
@@ -558,9 +590,9 @@ func (tc *CT_Tc) VAlignVal() *enum.WdCellVerticalAlignment {
 }
 
 // SetVAlignVal sets the vertical alignment. Passing nil removes vAlign.
-func (tc *CT_Tc) SetVAlignVal(v *enum.WdCellVerticalAlignment) {
+func (tc *CT_Tc) SetVAlignVal(v *enum.WdCellVerticalAlignment) error {
 	tcPr := tc.GetOrAddTcPr()
-	tcPr.SetVAlignValEnum(v)
+	return tcPr.SetVAlignValEnum(v)
 }
 
 // InnerContentElements returns all w:p and w:tbl direct children in document order.
@@ -695,13 +727,16 @@ func (tc *CT_Tc) NextTc() *CT_Tc {
 }
 
 // AddWidthOf adds the width of other to this cell. Does nothing if either has no width.
-func (tc *CT_Tc) AddWidthOf(other *CT_Tc) {
+func (tc *CT_Tc) AddWidthOf(other *CT_Tc) error {
 	w1 := tc.WidthTwips()
 	w2 := other.WidthTwips()
 	if w1 != nil && w2 != nil {
 		sum := *w1 + *w2
-		tc.SetWidthTwips(sum)
+		if err := tc.SetWidthTwips(sum); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // MoveContentTo appends the block-level content of this cell to other.
@@ -908,16 +943,24 @@ func (tc *CT_Tc) growTo(width, height int, topTc *CT_Tc) error {
 			return fmt.Errorf("span is not rectangular")
 		}
 		next.MoveContentTo(topTc)
-		tc.AddWidthOf(next)
-		tc.SetGridSpanVal(tc.GridSpanVal() + next.GridSpanVal())
+		if err := tc.AddWidthOf(next); err != nil {
+			return err
+		}
+		if err := tc.SetGridSpanVal(tc.GridSpanVal() + next.GridSpanVal()); err != nil {
+			return err
+		}
 		next.RemoveElement()
 	}
 
 	if vMerge == "" {
 		// Remove vMerge entirely
-		tc.SetVMergeVal(nil)
+		if err := tc.SetVMergeVal(nil); err != nil {
+			return err
+		}
 	} else {
-		tc.SetVMergeVal(&vMerge)
+		if err := tc.SetVMergeVal(&vMerge); err != nil {
+			return err
+		}
 	}
 
 	if height > 1 {
@@ -948,11 +991,14 @@ func (pr *CT_TcPr) GridSpanVal() int {
 }
 
 // SetGridSpanVal sets the grid span. Values ≤ 1 remove the gridSpan element.
-func (pr *CT_TcPr) SetGridSpanVal(v int) {
+func (pr *CT_TcPr) SetGridSpanVal(v int) error {
 	pr.RemoveGridSpan()
 	if v > 1 {
-		pr.GetOrAddGridSpan().SetVal(v)
+		if err := pr.GetOrAddGridSpan().SetVal(v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // VMergeValStr returns the vMerge value as a string pointer.
@@ -967,13 +1013,16 @@ func (pr *CT_TcPr) VMergeValStr() *string {
 }
 
 // SetVMergeValStr sets the vMerge value. nil removes vMerge.
-func (pr *CT_TcPr) SetVMergeValStr(v *string) {
+func (pr *CT_TcPr) SetVMergeValStr(v *string) error {
 	pr.RemoveVMerge()
 	if v == nil {
-		return
+		return nil
 	}
 	vm := pr.GetOrAddVMerge()
-	vm.SetVal(*v)
+	if err := vm.SetVal(*v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // VAlignValEnum returns the vertical alignment enum, or nil.
@@ -990,12 +1039,12 @@ func (pr *CT_TcPr) VAlignValEnum() *enum.WdCellVerticalAlignment {
 }
 
 // SetVAlignValEnum sets the vertical alignment. nil removes vAlign.
-func (pr *CT_TcPr) SetVAlignValEnum(v *enum.WdCellVerticalAlignment) {
+func (pr *CT_TcPr) SetVAlignValEnum(v *enum.WdCellVerticalAlignment) error {
 	if v == nil {
 		pr.RemoveVAlign()
-		return
+		return nil
 	}
-	pr.GetOrAddVAlign().SetVal(*v)
+	return pr.GetOrAddVAlign().SetVal(*v)
 }
 
 // WidthTwips returns the cell width in twips from tcW, or nil if not dxa or absent.
@@ -1016,10 +1065,15 @@ func (pr *CT_TcPr) WidthTwips() *int {
 }
 
 // SetWidthTwips sets the cell width to dxa type with the given twips value.
-func (pr *CT_TcPr) SetWidthTwips(twips int) {
+func (pr *CT_TcPr) SetWidthTwips(twips int) error {
 	tcW := pr.GetOrAddTcW()
-	tcW.SetType("dxa")
-	tcW.SetW(twips)
+	if err := tcW.SetType("dxa"); err != nil {
+		return err
+	}
+	if err := tcW.SetW(twips); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ===========================================================================
@@ -1040,9 +1094,14 @@ func (tw *CT_TblWidth) WidthTwips() *int {
 }
 
 // SetWidthDxa sets the width in dxa (twips) and type to "dxa".
-func (tw *CT_TblWidth) SetWidthDxa(twips int) {
-	tw.SetType("dxa")
-	tw.SetW(twips)
+func (tw *CT_TblWidth) SetWidthDxa(twips int) error {
+	if err := tw.SetType("dxa"); err != nil {
+		return err
+	}
+	if err := tw.SetW(twips); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ===========================================================================

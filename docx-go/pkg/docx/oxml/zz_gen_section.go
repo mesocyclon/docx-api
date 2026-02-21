@@ -345,8 +345,13 @@ func (e *CT_HdrFtrRef) Type() (enum.WdHeaderFooterIndex, error) {
 }
 
 // SetType sets the required "w:type" attribute.
-func (e *CT_HdrFtrRef) SetType(v enum.WdHeaderFooterIndex) {
-	e.SetAttr("w:type", mustToXmlEnum(v))
+func (e *CT_HdrFtrRef) SetType(v enum.WdHeaderFooterIndex) error {
+	s, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("CT_HdrFtrRef.SetType: %w", err)
+	}
+	e.SetAttr("w:type", s)
+	return nil
 }
 
 // RId returns the value of the required "r:id" attribute.
@@ -359,8 +364,13 @@ func (e *CT_HdrFtrRef) RId() (string, error) {
 }
 
 // SetRId sets the required "r:id" attribute.
-func (e *CT_HdrFtrRef) SetRId(v string) {
-	e.SetAttr("r:id", v)
+func (e *CT_HdrFtrRef) SetRId(v string) error {
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_HdrFtrRef.SetRId: %w", err)
+	}
+	e.SetAttr("r:id", s)
+	return nil
 }
 
 // --- CT_PageMar ---
@@ -381,12 +391,17 @@ func (e *CT_PageMar) Top() int {
 
 // SetTop sets the "w:top" attribute.
 // Passing 0 removes it.
-func (e *CT_PageMar) SetTop(v int) {
+func (e *CT_PageMar) SetTop(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:top")
-		return
+		return nil
 	}
-	e.SetAttr("w:top", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PageMar.SetTop: %w", err)
+	}
+	e.SetAttr("w:top", s)
+	return nil
 }
 
 // Right returns the value of the "w:right" attribute, or 0 if absent.
@@ -400,12 +415,17 @@ func (e *CT_PageMar) Right() int {
 
 // SetRight sets the "w:right" attribute.
 // Passing 0 removes it.
-func (e *CT_PageMar) SetRight(v int) {
+func (e *CT_PageMar) SetRight(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:right")
-		return
+		return nil
 	}
-	e.SetAttr("w:right", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PageMar.SetRight: %w", err)
+	}
+	e.SetAttr("w:right", s)
+	return nil
 }
 
 // Bottom returns the value of the "w:bottom" attribute, or 0 if absent.
@@ -419,12 +439,17 @@ func (e *CT_PageMar) Bottom() int {
 
 // SetBottom sets the "w:bottom" attribute.
 // Passing 0 removes it.
-func (e *CT_PageMar) SetBottom(v int) {
+func (e *CT_PageMar) SetBottom(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:bottom")
-		return
+		return nil
 	}
-	e.SetAttr("w:bottom", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PageMar.SetBottom: %w", err)
+	}
+	e.SetAttr("w:bottom", s)
+	return nil
 }
 
 // Left returns the value of the "w:left" attribute, or 0 if absent.
@@ -438,12 +463,17 @@ func (e *CT_PageMar) Left() int {
 
 // SetLeft sets the "w:left" attribute.
 // Passing 0 removes it.
-func (e *CT_PageMar) SetLeft(v int) {
+func (e *CT_PageMar) SetLeft(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:left")
-		return
+		return nil
 	}
-	e.SetAttr("w:left", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PageMar.SetLeft: %w", err)
+	}
+	e.SetAttr("w:left", s)
+	return nil
 }
 
 // Header returns the value of the "w:header" attribute, or 0 if absent.
@@ -457,12 +487,17 @@ func (e *CT_PageMar) Header() int {
 
 // SetHeader sets the "w:header" attribute.
 // Passing 0 removes it.
-func (e *CT_PageMar) SetHeader(v int) {
+func (e *CT_PageMar) SetHeader(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:header")
-		return
+		return nil
 	}
-	e.SetAttr("w:header", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PageMar.SetHeader: %w", err)
+	}
+	e.SetAttr("w:header", s)
+	return nil
 }
 
 // Footer returns the value of the "w:footer" attribute, or 0 if absent.
@@ -476,12 +511,17 @@ func (e *CT_PageMar) Footer() int {
 
 // SetFooter sets the "w:footer" attribute.
 // Passing 0 removes it.
-func (e *CT_PageMar) SetFooter(v int) {
+func (e *CT_PageMar) SetFooter(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:footer")
-		return
+		return nil
 	}
-	e.SetAttr("w:footer", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PageMar.SetFooter: %w", err)
+	}
+	e.SetAttr("w:footer", s)
+	return nil
 }
 
 // Gutter returns the value of the "w:gutter" attribute, or 0 if absent.
@@ -495,12 +535,17 @@ func (e *CT_PageMar) Gutter() int {
 
 // SetGutter sets the "w:gutter" attribute.
 // Passing 0 removes it.
-func (e *CT_PageMar) SetGutter(v int) {
+func (e *CT_PageMar) SetGutter(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:gutter")
-		return
+		return nil
 	}
-	e.SetAttr("w:gutter", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PageMar.SetGutter: %w", err)
+	}
+	e.SetAttr("w:gutter", s)
+	return nil
 }
 
 // --- CT_PageSz ---
@@ -521,12 +566,17 @@ func (e *CT_PageSz) W() int {
 
 // SetW sets the "w:w" attribute.
 // Passing 0 removes it.
-func (e *CT_PageSz) SetW(v int) {
+func (e *CT_PageSz) SetW(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:w")
-		return
+		return nil
 	}
-	e.SetAttr("w:w", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PageSz.SetW: %w", err)
+	}
+	e.SetAttr("w:w", s)
+	return nil
 }
 
 // H returns the value of the "w:h" attribute, or 0 if absent.
@@ -540,12 +590,17 @@ func (e *CT_PageSz) H() int {
 
 // SetH sets the "w:h" attribute.
 // Passing 0 removes it.
-func (e *CT_PageSz) SetH(v int) {
+func (e *CT_PageSz) SetH(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:h")
-		return
+		return nil
 	}
-	e.SetAttr("w:h", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PageSz.SetH: %w", err)
+	}
+	e.SetAttr("w:h", s)
+	return nil
 }
 
 // Orient returns the value of the "w:orient" attribute, or enum.WdOrientation(0) if absent.
@@ -559,12 +614,17 @@ func (e *CT_PageSz) Orient() enum.WdOrientation {
 
 // SetOrient sets the "w:orient" attribute.
 // Passing enum.WdOrientation(0) removes it.
-func (e *CT_PageSz) SetOrient(v enum.WdOrientation) {
+func (e *CT_PageSz) SetOrient(v enum.WdOrientation) error {
 	if v == enum.WdOrientation(0) {
 		e.RemoveAttr("w:orient")
-		return
+		return nil
 	}
-	e.SetAttr("w:orient", mustToXmlEnum(v))
+	s, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("CT_PageSz.SetOrient: %w", err)
+	}
+	e.SetAttr("w:orient", s)
+	return nil
 }
 
 // --- CT_SectType ---
@@ -585,10 +645,15 @@ func (e *CT_SectType) Val() enum.WdSectionStart {
 
 // SetVal sets the "w:val" attribute.
 // Passing enum.WdSectionStart(0) removes it.
-func (e *CT_SectType) SetVal(v enum.WdSectionStart) {
+func (e *CT_SectType) SetVal(v enum.WdSectionStart) error {
 	if v == enum.WdSectionStart(0) {
 		e.RemoveAttr("w:val")
-		return
+		return nil
 	}
-	e.SetAttr("w:val", mustToXmlEnum(v))
+	s, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("CT_SectType.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }

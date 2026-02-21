@@ -167,7 +167,7 @@ func TestOptionalAttribute_GeneratesGetterSetter(t *testing.T) {
 	})
 
 	assertContains(t, code, "func (e *CT_P) RsidR() string")
-	assertContains(t, code, "func (e *CT_P) SetRsidR(v string)")
+	assertContains(t, code, "func (e *CT_P) SetRsidR(v string) error")
 	assertContains(t, code, "RemoveAttr")
 }
 
@@ -186,7 +186,7 @@ func TestOptionalAttribute_IntType(t *testing.T) {
 	})
 
 	assertContains(t, code, "func (e *CT_Spacing) Before() int")
-	assertContains(t, code, "func (e *CT_Spacing) SetBefore(v int)")
+	assertContains(t, code, "func (e *CT_Spacing) SetBefore(v int) error")
 	assertContains(t, code, "parseIntAttr(val)")
 	assertContains(t, code, "formatIntAttr(v)")
 }
@@ -225,8 +225,50 @@ func TestRequiredAttribute_GeneratesGetterWithError(t *testing.T) {
 	})
 
 	assertContains(t, code, "func (e *CT_SchemeClr) Val() (string, error)")
-	assertContains(t, code, "func (e *CT_SchemeClr) SetVal(v string)")
+	assertContains(t, code, "func (e *CT_SchemeClr) SetVal(v string) error")
 	assertContains(t, code, "required attribute")
+}
+
+func TestOptionalEnumAttribute_SetterReturnsError(t *testing.T) {
+	t.Parallel()
+	code := generateCode(t, Schema{
+		Package: "oxml",
+		Imports: []string{"github.com/user/go-docx/pkg/docx/enum"},
+		Elements: []Element{{
+			Name: "CT_PageSz",
+			Tag:  "w:pgSz",
+			Attributes: []Attribute{{
+				Name: "Orient", AttrName: "w:orient",
+				Type: "enum.WdOrientation", Required: false,
+			}},
+		}},
+	})
+
+	assertContains(t, code, "func (e *CT_PageSz) SetOrient(v enum.WdOrientation) error")
+	assertContains(t, code, "v.ToXml()")
+	assertNotContains(t, code, "mustToXmlEnum")
+	assertNotContains(t, code, "panic(")
+}
+
+func TestRequiredEnumAttribute_SetterReturnsError(t *testing.T) {
+	t.Parallel()
+	code := generateCode(t, Schema{
+		Package: "oxml",
+		Imports: []string{"github.com/user/go-docx/pkg/docx/enum"},
+		Elements: []Element{{
+			Name: "CT_Jc",
+			Tag:  "w:jc",
+			Attributes: []Attribute{{
+				Name: "Val", AttrName: "w:val",
+				Type: "enum.WdParagraphAlignment", Required: true,
+			}},
+		}},
+	})
+
+	assertContains(t, code, "func (e *CT_Jc) SetVal(v enum.WdParagraphAlignment) error")
+	assertContains(t, code, "v.ToXml()")
+	assertNotContains(t, code, "mustToXmlEnum")
+	assertNotContains(t, code, "panic(")
 }
 
 // --- Acceptance criterion: ZeroOrOneChoice ---
@@ -468,7 +510,7 @@ func TestResolveAttrType_String(t *testing.T) {
 	assertEqual(t, `""`, zero)
 	assertEqual(t, `""`, def)
 	assertEqual(t, "val", parse)
-	assertEqual(t, "v", format)
+	assertEqual(t, "formatStringAttr(v)", format)
 }
 
 func TestResolveAttrType_Int(t *testing.T) {
@@ -493,6 +535,25 @@ func TestResolveAttrType_Int64(t *testing.T) {
 	assertEqual(t, "int64", goType)
 	assertEqual(t, "parseInt64Attr(val)", parse)
 	assertEqual(t, "formatInt64Attr(v)", format)
+}
+
+func TestResolveAttrType_Enum(t *testing.T) {
+	t.Parallel()
+	goType, zero, _, parse, format := resolveAttrType(Attribute{Type: "enum.WdAlign"})
+	assertEqual(t, "enum.WdAlign", goType)
+	assertEqual(t, "enum.WdAlign(0)", zero)
+	assertEqual(t, "mustParseEnum(val, enum.WdAlignFromXml)", parse)
+	assertEqual(t, "v.ToXml()", format)
+}
+
+func TestResolveAttrType_OptionalEnum(t *testing.T) {
+	t.Parallel()
+	goType, zero, def, parse, format := resolveAttrType(Attribute{Type: "*enum.WdAlign"})
+	assertEqual(t, "*enum.WdAlign", goType)
+	assertEqual(t, "nil", zero)
+	assertEqual(t, "nil", def)
+	assertEqual(t, "parseOptionalEnum(val, enum.WdAlignFromXml)", parse)
+	assertEqual(t, "(*v).ToXml()", format)
 }
 
 // --- Helpers ---

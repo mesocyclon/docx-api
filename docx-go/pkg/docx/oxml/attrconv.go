@@ -38,22 +38,27 @@ func parseOptionalIntAttr(s string) *int {
 	return &v
 }
 
+// formatStringAttr formats a string as an attribute value.
+func formatStringAttr(v string) (string, error) {
+	return v, nil
+}
+
 // formatIntAttr formats an int as a string attribute value.
-func formatIntAttr(v int) string {
-	return strconv.Itoa(v)
+func formatIntAttr(v int) (string, error) {
+	return strconv.Itoa(v), nil
 }
 
 // formatInt64Attr formats an int64 as a string attribute value.
-func formatInt64Attr(v int64) string {
-	return strconv.FormatInt(v, 10)
+func formatInt64Attr(v int64) (string, error) {
+	return strconv.FormatInt(v, 10), nil
 }
 
 // formatBoolAttr formats a bool as an XML attribute value.
-func formatBoolAttr(v bool) string {
+func formatBoolAttr(v bool) (string, error) {
 	if v {
-		return "true"
+		return "true", nil
 	}
-	return "false"
+	return "false", nil
 }
 
 // mustParseEnum parses an XML attribute value using the provided fromXml function.
@@ -76,17 +81,3 @@ func parseOptionalEnum[T any](s string, fromXml func(string) (T, error)) *T {
 	return &v
 }
 
-// toXmlEnum is an interface satisfied by all enum types with a ToXml method.
-type toXmlEnum interface {
-	ToXml() (string, error)
-}
-
-// mustToXmlEnum calls ToXml() on an enum value and panics if it fails.
-// Used in generated setters where error propagation is impractical.
-func mustToXmlEnum(v toXmlEnum) string {
-	s, err := v.ToXml()
-	if err != nil {
-		panic(err)
-	}
-	return s
-}

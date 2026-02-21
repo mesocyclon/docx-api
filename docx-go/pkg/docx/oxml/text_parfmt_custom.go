@@ -1,6 +1,7 @@
 package oxml
 
 import (
+	"fmt"
 	"github.com/user/go-docx/pkg/docx/enum"
 )
 
@@ -20,12 +21,12 @@ func (pPr *CT_PPr) JcVal() *enum.WdParagraphAlignment {
 }
 
 // SetJcVal sets the justification value. Passing nil removes the jc element.
-func (pPr *CT_PPr) SetJcVal(v *enum.WdParagraphAlignment) {
+func (pPr *CT_PPr) SetJcVal(v *enum.WdParagraphAlignment) error {
 	if v == nil {
 		pPr.RemoveJc()
-		return
+		return nil
 	}
-	pPr.GetOrAddJc().SetVal(*v)
+	return pPr.GetOrAddJc().SetVal(*v)
 }
 
 // --- Style ---
@@ -44,12 +45,15 @@ func (pPr *CT_PPr) StyleVal() *string {
 }
 
 // SetStyleVal sets the paragraph style. Passing nil removes pStyle.
-func (pPr *CT_PPr) SetStyleVal(v *string) {
+func (pPr *CT_PPr) SetStyleVal(v *string) error {
 	if v == nil {
 		pPr.RemovePStyle()
-		return
+		return nil
 	}
-	pPr.GetOrAddPStyle().SetVal(*v)
+	if err := pPr.GetOrAddPStyle().SetVal(*v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // --- Spacing properties ---
@@ -70,16 +74,19 @@ func (pPr *CT_PPr) SpacingBefore() *int {
 
 // SetSpacingBefore sets the w:spacing/@w:before value in twips.
 // Passing nil removes the attribute (creates spacing element if needed for other attrs).
-func (pPr *CT_PPr) SetSpacingBefore(v *int) {
+func (pPr *CT_PPr) SetSpacingBefore(v *int) error {
 	if v == nil && pPr.Spacing() == nil {
-		return
+		return nil
 	}
 	spacing := pPr.GetOrAddSpacing()
 	if v == nil {
 		spacing.SetBefore(0) // removes attr via generated code
 	} else {
-		spacing.SetBefore(*v)
+		if err := spacing.SetBefore(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // SpacingAfter returns the value of w:spacing/@w:after in twips, or nil if not present.
@@ -97,16 +104,21 @@ func (pPr *CT_PPr) SpacingAfter() *int {
 }
 
 // SetSpacingAfter sets the w:spacing/@w:after value in twips.
-func (pPr *CT_PPr) SetSpacingAfter(v *int) {
+func (pPr *CT_PPr) SetSpacingAfter(v *int) error {
 	if v == nil && pPr.Spacing() == nil {
-		return
+		return nil
 	}
 	spacing := pPr.GetOrAddSpacing()
 	if v == nil {
-		spacing.SetAfter(0)
+		if err := spacing.SetAfter(0); err != nil {
+			return err
+		}
 	} else {
-		spacing.SetAfter(*v)
+		if err := spacing.SetAfter(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // SpacingLine returns the value of w:spacing/@w:line in twips, or nil if not present.
@@ -124,16 +136,21 @@ func (pPr *CT_PPr) SpacingLine() *int {
 }
 
 // SetSpacingLine sets the w:spacing/@w:line value.
-func (pPr *CT_PPr) SetSpacingLine(v *int) {
+func (pPr *CT_PPr) SetSpacingLine(v *int) error {
 	if v == nil && pPr.Spacing() == nil {
-		return
+		return nil
 	}
 	spacing := pPr.GetOrAddSpacing()
 	if v == nil {
-		spacing.SetLine(0)
+		if err := spacing.SetLine(0); err != nil {
+			return err
+		}
 	} else {
-		spacing.SetLine(*v)
+		if err := spacing.SetLine(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // SpacingLineRule returns the line spacing rule, or nil if not present.
@@ -161,19 +178,24 @@ func (pPr *CT_PPr) SpacingLineRule() *enum.WdLineSpacing {
 }
 
 // SetSpacingLineRule sets the line spacing rule.
-func (pPr *CT_PPr) SetSpacingLineRule(v *enum.WdLineSpacing) {
+func (pPr *CT_PPr) SetSpacingLineRule(v *enum.WdLineSpacing) error {
 	if v == nil && pPr.Spacing() == nil {
-		return
+		return nil
 	}
 	spacing := pPr.GetOrAddSpacing()
 	if v == nil {
-		spacing.SetLineRule("")
+		if err := spacing.SetLineRule(""); err != nil {
+			return err
+		}
 	} else {
 		xml, err := v.ToXml()
 		if err == nil {
-			spacing.SetLineRule(xml)
+			if err := spacing.SetLineRule(xml); err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
 // --- Indentation properties ---
@@ -193,16 +215,21 @@ func (pPr *CT_PPr) IndLeft() *int {
 }
 
 // SetIndLeft sets the w:ind/@w:left in twips.
-func (pPr *CT_PPr) SetIndLeft(v *int) {
+func (pPr *CT_PPr) SetIndLeft(v *int) error {
 	if v == nil && pPr.Ind() == nil {
-		return
+		return nil
 	}
 	ind := pPr.GetOrAddInd()
 	if v == nil {
-		ind.SetLeft(0)
+		if err := ind.SetLeft(0); err != nil {
+			return err
+		}
 	} else {
-		ind.SetLeft(*v)
+		if err := ind.SetLeft(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // IndRight returns the value of w:ind/@w:right in twips, or nil if not present.
@@ -220,16 +247,21 @@ func (pPr *CT_PPr) IndRight() *int {
 }
 
 // SetIndRight sets the w:ind/@w:right in twips.
-func (pPr *CT_PPr) SetIndRight(v *int) {
+func (pPr *CT_PPr) SetIndRight(v *int) error {
 	if v == nil && pPr.Ind() == nil {
-		return
+		return nil
 	}
 	ind := pPr.GetOrAddInd()
 	if v == nil {
-		ind.SetRight(0)
+		if err := ind.SetRight(0); err != nil {
+			return err
+		}
 	} else {
-		ind.SetRight(*v)
+		if err := ind.SetRight(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // FirstLineIndent returns a calculated indentation from w:ind/@w:firstLine and
@@ -255,21 +287,30 @@ func (pPr *CT_PPr) FirstLineIndent() *int {
 
 // SetFirstLineIndent sets the first-line indent. Negative values become hanging indents.
 // nil clears both firstLine and hanging.
-func (pPr *CT_PPr) SetFirstLineIndent(v *int) {
+func (pPr *CT_PPr) SetFirstLineIndent(v *int) error {
 	if pPr.Ind() == nil && v == nil {
-		return
+		return nil
 	}
 	ind := pPr.GetOrAddInd()
-	ind.SetFirstLine(0)
-	ind.SetHanging(0)
+	if err := ind.SetFirstLine(0); err != nil {
+		return err
+	}
+	if err := ind.SetHanging(0); err != nil {
+		return err
+	}
 	if v == nil {
-		return
+		return nil
 	}
 	if *v < 0 {
-		ind.SetHanging(-*v)
+		if err := ind.SetHanging(-*v); err != nil {
+			return err
+		}
 	} else {
-		ind.SetFirstLine(*v)
+		if err := ind.SetFirstLine(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // --- Paragraph formatting booleans (keepLines, keepNext, pageBreakBefore, widowControl) ---
@@ -291,12 +332,15 @@ func (pPr *CT_PPr) KeepLinesVal() *bool {
 }
 
 // SetKeepLinesVal sets keepLines. nil removes the element.
-func (pPr *CT_PPr) SetKeepLinesVal(v *bool) {
+func (pPr *CT_PPr) SetKeepLinesVal(v *bool) error {
 	if v == nil {
 		pPr.RemoveKeepLines()
 	} else {
-		pPr.GetOrAddKeepLines().SetVal(*v)
+		if err := pPr.GetOrAddKeepLines().SetVal(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // KeepNextVal returns the tri-state keepNext value.
@@ -305,12 +349,15 @@ func (pPr *CT_PPr) KeepNextVal() *bool {
 }
 
 // SetKeepNextVal sets keepNext. nil removes the element.
-func (pPr *CT_PPr) SetKeepNextVal(v *bool) {
+func (pPr *CT_PPr) SetKeepNextVal(v *bool) error {
 	if v == nil {
 		pPr.RemoveKeepNext()
 	} else {
-		pPr.GetOrAddKeepNext().SetVal(*v)
+		if err := pPr.GetOrAddKeepNext().SetVal(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // PageBreakBeforeVal returns the tri-state pageBreakBefore value.
@@ -319,12 +366,15 @@ func (pPr *CT_PPr) PageBreakBeforeVal() *bool {
 }
 
 // SetPageBreakBeforeVal sets pageBreakBefore. nil removes the element.
-func (pPr *CT_PPr) SetPageBreakBeforeVal(v *bool) {
+func (pPr *CT_PPr) SetPageBreakBeforeVal(v *bool) error {
 	if v == nil {
 		pPr.RemovePageBreakBefore()
 	} else {
-		pPr.GetOrAddPageBreakBefore().SetVal(*v)
+		if err := pPr.GetOrAddPageBreakBefore().SetVal(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // WidowControlVal returns the tri-state widowControl value.
@@ -333,30 +383,39 @@ func (pPr *CT_PPr) WidowControlVal() *bool {
 }
 
 // SetWidowControlVal sets widowControl. nil removes the element.
-func (pPr *CT_PPr) SetWidowControlVal(v *bool) {
+func (pPr *CT_PPr) SetWidowControlVal(v *bool) error {
 	if v == nil {
 		pPr.RemoveWidowControl()
 	} else {
-		pPr.GetOrAddWidowControl().SetVal(*v)
+		if err := pPr.GetOrAddWidowControl().SetVal(*v); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // --- CT_TabStops custom methods ---
 
 // InsertTabInOrder inserts a new <w:tab> child element in position order.
-func (tabs *CT_TabStops) InsertTabInOrder(pos int, align enum.WdTabAlignment, leader enum.WdTabLeader) *CT_TabStop {
+func (tabs *CT_TabStops) InsertTabInOrder(pos int, align enum.WdTabAlignment, leader enum.WdTabLeader) (*CT_TabStop, error) {
 	newTab := tabs.newTab()
-	newTab.SetPos(pos)
-	newTab.SetVal(align)
-	newTab.SetLeader(leader)
+	if err := newTab.SetPos(pos); err != nil {
+		return nil, err
+	}
+	if err := newTab.SetVal(align); err != nil {
+		return nil, fmt.Errorf("InsertTabInOrder: %w", err)
+	}
+	if err := newTab.SetLeader(leader); err != nil {
+		return nil, fmt.Errorf("InsertTabInOrder: %w", err)
+	}
 
 	for _, tab := range tabs.TabList() {
 		tabPos, err := tab.Pos()
 		if err == nil && pos < tabPos {
 			insertBefore(tabs.E, newTab.E, tab.E)
-			return newTab
+			return newTab, nil
 		}
 	}
 	tabs.E.AddChild(newTab.E)
-	return newTab
+	return newTab, nil
 }

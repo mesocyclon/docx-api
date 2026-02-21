@@ -16,10 +16,10 @@ func (s *CT_Settings) EvenAndOddHeadersVal() bool {
 
 // SetEvenAndOddHeadersVal sets the evenAndOddHeaders flag.
 // Passing false or nil-equivalent removes the element entirely.
-func (s *CT_Settings) SetEvenAndOddHeadersVal(v *bool) {
+func (s *CT_Settings) SetEvenAndOddHeadersVal(v *bool) error {
 	if v == nil || !*v {
 		s.RemoveEvenAndOddHeaders()
-		return
+		return nil
 	}
-	s.GetOrAddEvenAndOddHeaders().SetVal(true)
+	return s.GetOrAddEvenAndOddHeaders().SetVal(true)
 }

@@ -50,15 +50,20 @@ func (sp *CT_SectPr) PageWidth() *int {
 }
 
 // SetPageWidth sets the page width in twips.
-func (sp *CT_SectPr) SetPageWidth(twips *int) {
+func (sp *CT_SectPr) SetPageWidth(twips *int) error {
 	if twips == nil {
 		pgSz := sp.PgSz()
 		if pgSz != nil {
-			pgSz.SetW(0)
+			if err := pgSz.SetW(0); err != nil {
+				return err
+			}
 		}
-		return
+		return nil
 	}
-	sp.GetOrAddPgSz().SetW(*twips)
+	if err := sp.GetOrAddPgSz().SetW(*twips); err != nil {
+		return err
+	}
+	return nil
 }
 
 // PageHeight returns the page height in twips from pgSz/@w:h, or nil.
@@ -75,15 +80,20 @@ func (sp *CT_SectPr) PageHeight() *int {
 }
 
 // SetPageHeight sets the page height in twips.
-func (sp *CT_SectPr) SetPageHeight(twips *int) {
+func (sp *CT_SectPr) SetPageHeight(twips *int) error {
 	if twips == nil {
 		pgSz := sp.PgSz()
 		if pgSz != nil {
-			pgSz.SetH(0)
+			if err := pgSz.SetH(0); err != nil {
+				return err
+			}
 		}
-		return
+		return nil
 	}
-	sp.GetOrAddPgSz().SetH(*twips)
+	if err := sp.GetOrAddPgSz().SetH(*twips); err != nil {
+		return err
+	}
+	return nil
 }
 
 // --- Orientation ---
@@ -102,13 +112,12 @@ func (sp *CT_SectPr) Orientation() enum.WdOrientation {
 }
 
 // SetOrientation sets the page orientation.
-func (sp *CT_SectPr) SetOrientation(v enum.WdOrientation) {
+func (sp *CT_SectPr) SetOrientation(v enum.WdOrientation) error {
 	pgSz := sp.GetOrAddPgSz()
 	if v == enum.WdOrientationPortrait {
-		pgSz.SetOrient(enum.WdOrientation(0)) // removes attr, defaulting to portrait
-	} else {
-		pgSz.SetOrient(v)
+		return pgSz.SetOrient(enum.WdOrientation(0)) // removes attr, defaulting to portrait
 	}
+	return pgSz.SetOrient(v)
 }
 
 // --- Start type ---
@@ -157,12 +166,15 @@ func (sp *CT_SectPr) TitlePgVal() bool {
 }
 
 // SetTitlePgVal sets the titlePg flag. Passing false removes the element.
-func (sp *CT_SectPr) SetTitlePgVal(v bool) {
+func (sp *CT_SectPr) SetTitlePgVal(v bool) error {
 	if !v {
 		sp.RemoveTitlePg()
-		return
+		return nil
 	}
-	sp.GetOrAddTitlePg().SetVal(true)
+	if err := sp.GetOrAddTitlePg().SetVal(true); err != nil {
+		return err
+	}
+	return nil
 }
 
 // --- Margins ---
@@ -181,13 +193,18 @@ func (sp *CT_SectPr) TopMargin() *int {
 }
 
 // SetTopMargin sets the top margin in twips. Passing nil removes the attribute.
-func (sp *CT_SectPr) SetTopMargin(twips *int) {
+func (sp *CT_SectPr) SetTopMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
 	if twips == nil {
-		pgMar.SetTop(0)
+		if err := pgMar.SetTop(0); err != nil {
+			return err
+		}
 	} else {
-		pgMar.SetTop(*twips)
+		if err := pgMar.SetTop(*twips); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // BottomMargin returns the bottom margin in twips, or nil.
@@ -204,13 +221,18 @@ func (sp *CT_SectPr) BottomMargin() *int {
 }
 
 // SetBottomMargin sets the bottom margin in twips.
-func (sp *CT_SectPr) SetBottomMargin(twips *int) {
+func (sp *CT_SectPr) SetBottomMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
 	if twips == nil {
-		pgMar.SetBottom(0)
+		if err := pgMar.SetBottom(0); err != nil {
+			return err
+		}
 	} else {
-		pgMar.SetBottom(*twips)
+		if err := pgMar.SetBottom(*twips); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // LeftMargin returns the left margin in twips, or nil.
@@ -227,13 +249,18 @@ func (sp *CT_SectPr) LeftMargin() *int {
 }
 
 // SetLeftMargin sets the left margin in twips.
-func (sp *CT_SectPr) SetLeftMargin(twips *int) {
+func (sp *CT_SectPr) SetLeftMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
 	if twips == nil {
-		pgMar.SetLeft(0)
+		if err := pgMar.SetLeft(0); err != nil {
+			return err
+		}
 	} else {
-		pgMar.SetLeft(*twips)
+		if err := pgMar.SetLeft(*twips); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // RightMargin returns the right margin in twips, or nil.
@@ -250,13 +277,18 @@ func (sp *CT_SectPr) RightMargin() *int {
 }
 
 // SetRightMargin sets the right margin in twips.
-func (sp *CT_SectPr) SetRightMargin(twips *int) {
+func (sp *CT_SectPr) SetRightMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
 	if twips == nil {
-		pgMar.SetRight(0)
+		if err := pgMar.SetRight(0); err != nil {
+			return err
+		}
 	} else {
-		pgMar.SetRight(*twips)
+		if err := pgMar.SetRight(*twips); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // HeaderMargin returns the header distance from top edge in twips, or nil.
@@ -273,13 +305,18 @@ func (sp *CT_SectPr) HeaderMargin() *int {
 }
 
 // SetHeaderMargin sets the header margin in twips.
-func (sp *CT_SectPr) SetHeaderMargin(twips *int) {
+func (sp *CT_SectPr) SetHeaderMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
 	if twips == nil {
-		pgMar.SetHeader(0)
+		if err := pgMar.SetHeader(0); err != nil {
+			return err
+		}
 	} else {
-		pgMar.SetHeader(*twips)
+		if err := pgMar.SetHeader(*twips); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // FooterMargin returns the footer distance from bottom edge in twips, or nil.
@@ -296,13 +333,18 @@ func (sp *CT_SectPr) FooterMargin() *int {
 }
 
 // SetFooterMargin sets the footer margin in twips.
-func (sp *CT_SectPr) SetFooterMargin(twips *int) {
+func (sp *CT_SectPr) SetFooterMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
 	if twips == nil {
-		pgMar.SetFooter(0)
+		if err := pgMar.SetFooter(0); err != nil {
+			return err
+		}
 	} else {
-		pgMar.SetFooter(*twips)
+		if err := pgMar.SetFooter(*twips); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // GutterMargin returns the gutter in twips, or nil.
@@ -319,31 +361,44 @@ func (sp *CT_SectPr) GutterMargin() *int {
 }
 
 // SetGutterMargin sets the gutter in twips.
-func (sp *CT_SectPr) SetGutterMargin(twips *int) {
+func (sp *CT_SectPr) SetGutterMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
 	if twips == nil {
-		pgMar.SetGutter(0)
+		if err := pgMar.SetGutter(0); err != nil {
+			return err
+		}
 	} else {
-		pgMar.SetGutter(*twips)
+		if err := pgMar.SetGutter(*twips); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // --- Header/Footer references ---
 
 // AddHeaderRef adds a headerReference with the given type and relationship ID.
-func (sp *CT_SectPr) AddHeaderRef(hfType enum.WdHeaderFooterIndex, rId string) *CT_HdrFtrRef {
+func (sp *CT_SectPr) AddHeaderRef(hfType enum.WdHeaderFooterIndex, rId string) (*CT_HdrFtrRef, error) {
 	ref := sp.AddHeaderReference()
-	ref.SetType(hfType)
-	ref.SetRId(rId)
-	return ref
+	if err := ref.SetType(hfType); err != nil {
+		return nil, fmt.Errorf("AddHeaderRef: %w", err)
+	}
+	if err := ref.SetRId(rId); err != nil {
+		return nil, err
+	}
+	return ref, nil
 }
 
 // AddFooterRef adds a footerReference with the given type and relationship ID.
-func (sp *CT_SectPr) AddFooterRef(hfType enum.WdHeaderFooterIndex, rId string) *CT_HdrFtrRef {
+func (sp *CT_SectPr) AddFooterRef(hfType enum.WdHeaderFooterIndex, rId string) (*CT_HdrFtrRef, error) {
 	ref := sp.AddFooterReference()
-	ref.SetType(hfType)
-	ref.SetRId(rId)
-	return ref
+	if err := ref.SetType(hfType); err != nil {
+		return nil, fmt.Errorf("AddFooterRef: %w", err)
+	}
+	if err := ref.SetRId(rId); err != nil {
+		return nil, err
+	}
+	return ref, nil
 }
 
 // GetHeaderRef returns the headerReference of the given type, or nil.

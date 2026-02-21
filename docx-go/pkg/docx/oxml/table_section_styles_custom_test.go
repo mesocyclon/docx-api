@@ -252,13 +252,17 @@ func TestCT_Row_TrHeight_RoundTrip(t *testing.T) {
 		t.Errorf("expected nil, got %d", *v)
 	}
 	h := 720
-	tr.SetTrHeightVal(&h)
+	if err := tr.SetTrHeightVal(&h); err != nil {
+		t.Fatalf("SetTrHeightVal: %v", err)
+	}
 	got := tr.TrHeightVal()
 	if got == nil || *got != 720 {
 		t.Errorf("expected 720, got %v", got)
 	}
 	rule := enum.WdRowHeightRuleExactly
-	tr.SetTrHeightHRule(&rule)
+	if err := tr.SetTrHeightHRule(&rule); err != nil {
+		t.Fatalf("SetTrHeightHRule: %v", err)
+	}
 	gotRule := tr.TrHeightHRule()
 	if gotRule == nil || *gotRule != enum.WdRowHeightRuleExactly {
 		t.Errorf("expected Exactly, got %v", gotRule)
@@ -278,7 +282,9 @@ func TestCT_Tc_GridSpan_RoundTrip(t *testing.T) {
 	if v := tc.GridSpanVal(); v != 1 {
 		t.Errorf("expected 1, got %d", v)
 	}
-	tc.SetGridSpanVal(3)
+	if err := tc.SetGridSpanVal(3); err != nil {
+		t.Fatalf("SetGridSpanVal: %v", err)
+	}
 	if v := tc.GridSpanVal(); v != 3 {
 		t.Errorf("expected 3, got %d", v)
 	}
@@ -294,12 +300,16 @@ func TestCT_Tc_VMerge_RoundTrip(t *testing.T) {
 		t.Errorf("expected nil, got %v", *v)
 	}
 	restart := "restart"
-	tc.SetVMergeVal(&restart)
+	if err := tc.SetVMergeVal(&restart); err != nil {
+		t.Fatalf("SetVMergeVal: %v", err)
+	}
 	got := tc.VMergeVal()
 	if got == nil || *got != "restart" {
 		t.Errorf("expected restart, got %v", got)
 	}
-	tc.SetVMergeVal(nil)
+	if err := tc.SetVMergeVal(nil); err != nil {
+		t.Fatalf("SetVMergeVal: %v", err)
+	}
 	if v := tc.VMergeVal(); v != nil {
 		t.Errorf("expected nil after clear, got %v", *v)
 	}
@@ -310,7 +320,9 @@ func TestCT_Tc_Width_RoundTrip(t *testing.T) {
 	if v := tc.WidthTwips(); v != nil {
 		t.Errorf("expected nil, got %d", *v)
 	}
-	tc.SetWidthTwips(2880)
+	if err := tc.SetWidthTwips(2880); err != nil {
+		t.Fatalf("SetWidthTwips: %v", err)
+	}
 	got := tc.WidthTwips()
 	if got == nil || *got != 2880 {
 		t.Errorf("expected 2880, got %v", got)
@@ -323,12 +335,16 @@ func TestCT_Tc_VAlign_RoundTrip(t *testing.T) {
 		t.Errorf("expected nil, got %v", *v)
 	}
 	center := enum.WdCellVerticalAlignmentCenter
-	tc.SetVAlignVal(&center)
+	if err := tc.SetVAlignVal(&center); err != nil {
+		t.Fatalf("SetVAlignVal: %v", err)
+	}
 	got := tc.VAlignVal()
 	if got == nil || *got != enum.WdCellVerticalAlignmentCenter {
 		t.Errorf("expected center, got %v", got)
 	}
-	tc.SetVAlignVal(nil)
+	if err := tc.SetVAlignVal(nil); err != nil {
+		t.Fatalf("SetVAlignVal(nil): %v", err)
+	}
 	if v := tc.VAlignVal(); v != nil {
 		t.Errorf("expected nil after clear, got %v", *v)
 	}
@@ -476,12 +492,16 @@ func TestCT_SectPr_PageWidth_RoundTrip(t *testing.T) {
 		t.Errorf("expected nil, got %d", *v)
 	}
 	w := 12240
-	sp.SetPageWidth(&w)
+	if err := sp.SetPageWidth(&w); err != nil {
+		t.Fatalf("SetPageWidth: %v", err)
+	}
 	got := sp.PageWidth()
 	if got == nil || *got != 12240 {
 		t.Errorf("expected 12240, got %v", got)
 	}
-	sp.SetPageWidth(nil)
+	if err := sp.SetPageWidth(nil); err != nil {
+		t.Fatalf("SetPageWidth: %v", err)
+	}
 	if v := sp.PageWidth(); v != nil {
 		t.Errorf("expected nil after clear, got %v", *v)
 	}
@@ -490,7 +510,9 @@ func TestCT_SectPr_PageWidth_RoundTrip(t *testing.T) {
 func TestCT_SectPr_PageHeight_RoundTrip(t *testing.T) {
 	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
 	h := 15840
-	sp.SetPageHeight(&h)
+	if err := sp.SetPageHeight(&h); err != nil {
+		t.Fatalf("SetPageHeight: %v", err)
+	}
 	got := sp.PageHeight()
 	if got == nil || *got != 15840 {
 		t.Errorf("expected 15840, got %v", got)
@@ -503,11 +525,15 @@ func TestCT_SectPr_Orientation_RoundTrip(t *testing.T) {
 	if sp.Orientation() != enum.WdOrientationPortrait {
 		t.Error("expected portrait by default")
 	}
-	sp.SetOrientation(enum.WdOrientationLandscape)
+	if err := sp.SetOrientation(enum.WdOrientationLandscape); err != nil {
+		t.Fatalf("SetOrientation(landscape): %v", err)
+	}
 	if sp.Orientation() != enum.WdOrientationLandscape {
 		t.Error("expected landscape")
 	}
-	sp.SetOrientation(enum.WdOrientationPortrait)
+	if err := sp.SetOrientation(enum.WdOrientationPortrait); err != nil {
+		t.Fatalf("SetOrientation(portrait): %v", err)
+	}
 	// After setting portrait, orient attr should be removed (default)
 	pgSz := sp.PgSz()
 	if pgSz != nil {
@@ -542,11 +568,15 @@ func TestCT_SectPr_TitlePg_RoundTrip(t *testing.T) {
 	if sp.TitlePgVal() {
 		t.Error("expected false by default")
 	}
-	sp.SetTitlePgVal(true)
+	if err := sp.SetTitlePgVal(true); err != nil {
+		t.Fatalf("SetTitlePgVal: %v", err)
+	}
 	if !sp.TitlePgVal() {
 		t.Error("expected true after set")
 	}
-	sp.SetTitlePgVal(false)
+	if err := sp.SetTitlePgVal(false); err != nil {
+		t.Fatalf("SetTitlePgVal: %v", err)
+	}
 	if sp.TitlePg() != nil {
 		t.Error("expected titlePg element removed")
 	}
@@ -556,50 +586,66 @@ func TestCT_SectPr_Margins_RoundTrip(t *testing.T) {
 	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
 
 	top := 1440
-	sp.SetTopMargin(&top)
+	if err := sp.SetTopMargin(&top); err != nil {
+		t.Fatalf("SetTopMargin: %v", err)
+	}
 	got := sp.TopMargin()
 	if got == nil || *got != 1440 {
 		t.Errorf("top: expected 1440, got %v", got)
 	}
 
 	bottom := 1440
-	sp.SetBottomMargin(&bottom)
+	if err := sp.SetBottomMargin(&bottom); err != nil {
+		t.Fatalf("SetBottomMargin: %v", err)
+	}
 	if got := sp.BottomMargin(); got == nil || *got != 1440 {
 		t.Errorf("bottom: expected 1440, got %v", got)
 	}
 
 	left := 1800
-	sp.SetLeftMargin(&left)
+	if err := sp.SetLeftMargin(&left); err != nil {
+		t.Fatalf("SetLeftMargin: %v", err)
+	}
 	if got := sp.LeftMargin(); got == nil || *got != 1800 {
 		t.Errorf("left: expected 1800, got %v", got)
 	}
 
 	right := 1800
-	sp.SetRightMargin(&right)
+	if err := sp.SetRightMargin(&right); err != nil {
+		t.Fatalf("SetRightMargin: %v", err)
+	}
 	if got := sp.RightMargin(); got == nil || *got != 1800 {
 		t.Errorf("right: expected 1800, got %v", got)
 	}
 
 	hdr := 720
-	sp.SetHeaderMargin(&hdr)
+	if err := sp.SetHeaderMargin(&hdr); err != nil {
+		t.Fatalf("SetHeaderMargin: %v", err)
+	}
 	if got := sp.HeaderMargin(); got == nil || *got != 720 {
 		t.Errorf("header: expected 720, got %v", got)
 	}
 
 	ftr := 720
-	sp.SetFooterMargin(&ftr)
+	if err := sp.SetFooterMargin(&ftr); err != nil {
+		t.Fatalf("SetFooterMargin: %v", err)
+	}
 	if got := sp.FooterMargin(); got == nil || *got != 720 {
 		t.Errorf("footer: expected 720, got %v", got)
 	}
 
 	gut := 0
-	sp.SetGutterMargin(&gut)
+	if err := sp.SetGutterMargin(&gut); err != nil {
+		t.Fatalf("SetGutterMargin: %v", err)
+	}
 }
 
 func TestCT_SectPr_Clone(t *testing.T) {
 	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
 	w := 12240
-	sp.SetPageWidth(&w)
+	if err := sp.SetPageWidth(&w); err != nil {
+		t.Fatalf("SetPageWidth: %v", err)
+	}
 	sp.E.CreateAttr("w:rsidR", "00A12345")
 
 	cloned := sp.Clone()
@@ -613,7 +659,9 @@ func TestCT_SectPr_Clone(t *testing.T) {
 	}
 	// Modifying clone shouldn't affect original
 	w2 := 9999
-	cloned.SetPageWidth(&w2)
+	if err := cloned.SetPageWidth(&w2); err != nil {
+		t.Fatalf("SetPageWidth: %v", err)
+	}
 	if orig := sp.PageWidth(); orig == nil || *orig != 12240 {
 		t.Error("original should be unchanged")
 	}
@@ -623,7 +671,10 @@ func TestCT_SectPr_HeaderFooterRef(t *testing.T) {
 	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
 
 	// Add header ref
-	sp.AddHeaderRef(enum.WdHeaderFooterIndexPrimary, "rId1")
+	_, err := sp.AddHeaderRef(enum.WdHeaderFooterIndexPrimary, "rId1")
+	if err != nil {
+		t.Fatalf("AddHeaderRef: %v", err)
+	}
 	ref, err := sp.GetHeaderRef(enum.WdHeaderFooterIndexPrimary)
 	if err != nil {
 		t.Fatal(err)
@@ -637,7 +688,9 @@ func TestCT_SectPr_HeaderFooterRef(t *testing.T) {
 	}
 
 	// Add footer ref
-	sp.AddFooterRef(enum.WdHeaderFooterIndexPrimary, "rId2")
+	if _, err = sp.AddFooterRef(enum.WdHeaderFooterIndexPrimary, "rId2"); err != nil {
+		t.Fatalf("AddFooterRef: %v", err)
+	}
 	fRef, err := sp.GetFooterRef(enum.WdHeaderFooterIndexPrimary)
 	if err != nil {
 		t.Fatal(err)
@@ -701,8 +754,12 @@ func TestStyleIdFromName(t *testing.T) {
 func TestCT_Styles_GetByID(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
-	s.SetStyleId("Heading1")
-	s.SetNameVal("heading 1")
+	if err := s.SetStyleId("Heading1"); err != nil {
+		t.Fatalf("SetStyleId: %v", err)
+	}
+	if err := s.SetNameVal("heading 1"); err != nil {
+		t.Fatalf("SetNameVal: %v", err)
+	}
 
 	found := styles.GetByID("Heading1")
 	if found == nil {
@@ -720,8 +777,12 @@ func TestCT_Styles_GetByID(t *testing.T) {
 func TestCT_Styles_GetByName(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
-	s.SetStyleId("Normal")
-	s.SetNameVal("Normal")
+	if err := s.SetStyleId("Normal"); err != nil {
+		t.Fatalf("SetStyleId: %v", err)
+	}
+	if err := s.SetNameVal("Normal"); err != nil {
+		t.Fatalf("SetNameVal: %v", err)
+	}
 
 	found := styles.GetByName("Normal")
 	if found == nil {
@@ -735,13 +796,19 @@ func TestCT_Styles_GetByName(t *testing.T) {
 func TestCT_Styles_DefaultFor(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
-	s.SetStyleId("Normal")
+	if err := s.SetStyleId("Normal"); err != nil {
+		t.Fatalf("SetStyleId: %v", err)
+	}
 	xmlType, err := enum.WdStyleTypeParagraph.ToXml()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	s.SetType(xmlType)
-	s.SetDefault(true)
+	if err := s.SetType(xmlType); err != nil {
+		t.Fatalf("SetType: %v", err)
+	}
+	if err := s.SetDefault(true); err != nil {
+		t.Fatalf("SetDefault: %v", err)
+	}
 
 	def := styles.DefaultFor(enum.WdStyleTypeParagraph)
 	if def == nil {
@@ -796,11 +863,15 @@ func TestCT_Style_NameVal_RoundTrip(t *testing.T) {
 	if s.NameVal() != "" {
 		t.Errorf("expected empty, got %q", s.NameVal())
 	}
-	s.SetNameVal("Normal")
+	if err := s.SetNameVal("Normal"); err != nil {
+		t.Fatalf("SetNameVal: %v", err)
+	}
 	if s.NameVal() != "Normal" {
 		t.Errorf("expected Normal, got %q", s.NameVal())
 	}
-	s.SetNameVal("")
+	if err := s.SetNameVal(""); err != nil {
+		t.Fatalf("SetNameVal: %v", err)
+	}
 	if s.NameVal() != "" {
 		t.Errorf("expected empty after clear, got %q", s.NameVal())
 	}
@@ -812,7 +883,9 @@ func TestCT_Style_BasedOnVal_RoundTrip(t *testing.T) {
 	if s.BasedOnVal() != "" {
 		t.Errorf("expected empty, got %q", s.BasedOnVal())
 	}
-	s.SetBasedOnVal("Normal")
+	if err := s.SetBasedOnVal("Normal"); err != nil {
+		t.Fatalf("SetBasedOnVal: %v", err)
+	}
 	if s.BasedOnVal() != "Normal" {
 		t.Errorf("expected Normal, got %q", s.BasedOnVal())
 	}
@@ -821,11 +894,15 @@ func TestCT_Style_BasedOnVal_RoundTrip(t *testing.T) {
 func TestCT_Style_NextVal_RoundTrip(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
-	s.SetNextVal("Normal")
+	if err := s.SetNextVal("Normal"); err != nil {
+		t.Fatalf("SetNextVal: %v", err)
+	}
 	if s.NextVal() != "Normal" {
 		t.Errorf("expected Normal, got %q", s.NextVal())
 	}
-	s.SetNextVal("")
+	if err := s.SetNextVal(""); err != nil {
+		t.Fatalf("SetNextVal: %v", err)
+	}
 	if s.NextVal() != "" {
 		t.Errorf("expected empty, got %q", s.NextVal())
 	}
@@ -837,11 +914,15 @@ func TestCT_Style_LockedVal_RoundTrip(t *testing.T) {
 	if s.LockedVal() {
 		t.Error("expected false by default")
 	}
-	s.SetLockedVal(true)
+	if err := s.SetLockedVal(true); err != nil {
+		t.Fatalf("SetLockedVal: %v", err)
+	}
 	if !s.LockedVal() {
 		t.Error("expected true")
 	}
-	s.SetLockedVal(false)
+	if err := s.SetLockedVal(false); err != nil {
+		t.Fatalf("SetLockedVal: %v", err)
+	}
 	if s.LockedVal() {
 		t.Error("expected false after clear")
 	}
@@ -853,7 +934,9 @@ func TestCT_Style_SemiHiddenVal_RoundTrip(t *testing.T) {
 	if s.SemiHiddenVal() {
 		t.Error("expected false")
 	}
-	s.SetSemiHiddenVal(true)
+	if err := s.SetSemiHiddenVal(true); err != nil {
+		t.Fatalf("SetSemiHiddenVal: %v", err)
+	}
 	if !s.SemiHiddenVal() {
 		t.Error("expected true")
 	}
@@ -879,12 +962,16 @@ func TestCT_Style_UiPriorityVal_RoundTrip(t *testing.T) {
 		t.Error("expected nil")
 	}
 	v := 99
-	s.SetUiPriorityVal(&v)
+	if err := s.SetUiPriorityVal(&v); err != nil {
+		t.Fatalf("SetUiPriorityVal: %v", err)
+	}
 	got := s.UiPriorityVal()
 	if got == nil || *got != 99 {
 		t.Errorf("expected 99, got %v", got)
 	}
-	s.SetUiPriorityVal(nil)
+	if err := s.SetUiPriorityVal(nil); err != nil {
+		t.Fatalf("SetUiPriorityVal: %v", err)
+	}
 	if s.UiPriorityVal() != nil {
 		t.Error("expected nil after clear")
 	}
@@ -893,12 +980,20 @@ func TestCT_Style_UiPriorityVal_RoundTrip(t *testing.T) {
 func TestCT_Style_BaseStyle(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	normal := styles.AddStyle()
-	normal.SetStyleId("Normal")
-	normal.SetNameVal("Normal")
+	if err := normal.SetStyleId("Normal"); err != nil {
+		t.Fatalf("SetStyleId: %v", err)
+	}
+	if err := normal.SetNameVal("Normal"); err != nil {
+		t.Fatalf("SetNameVal: %v", err)
+	}
 
 	heading := styles.AddStyle()
-	heading.SetStyleId("Heading1")
-	heading.SetBasedOnVal("Normal")
+	if err := heading.SetStyleId("Heading1"); err != nil {
+		t.Fatalf("SetStyleId: %v", err)
+	}
+	if err := heading.SetBasedOnVal("Normal"); err != nil {
+		t.Fatalf("SetBasedOnVal: %v", err)
+	}
 
 	base := heading.BaseStyle()
 	if base == nil {
@@ -912,11 +1007,17 @@ func TestCT_Style_BaseStyle(t *testing.T) {
 func TestCT_Style_NextStyle(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	normal := styles.AddStyle()
-	normal.SetStyleId("Normal")
+	if err := normal.SetStyleId("Normal"); err != nil {
+		t.Fatalf("SetStyleId: %v", err)
+	}
 
 	heading := styles.AddStyle()
-	heading.SetStyleId("Heading1")
-	heading.SetNextVal("Normal")
+	if err := heading.SetStyleId("Heading1"); err != nil {
+		t.Fatalf("SetStyleId: %v", err)
+	}
+	if err := heading.SetNextVal("Normal"); err != nil {
+		t.Fatalf("SetNextVal: %v", err)
+	}
 
 	next := heading.NextStyle()
 	if next == nil {
@@ -930,7 +1031,9 @@ func TestCT_Style_NextStyle(t *testing.T) {
 func TestCT_Style_Delete(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
-	s.SetStyleId("ToDelete")
+	if err := s.SetStyleId("ToDelete"); err != nil {
+		t.Fatalf("SetStyleId: %v", err)
+	}
 	if styles.GetByID("ToDelete") == nil {
 		t.Fatal("style should exist before delete")
 	}
@@ -962,8 +1065,12 @@ func TestCT_LatentStyles_GetByName(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	ls := styles.GetOrAddLatentStyles()
 	exc := ls.AddLsdException()
-	exc.SetName("Heading 1")
-	exc.SetUiPriority(9)
+	if err := exc.SetName("Heading 1"); err != nil {
+		t.Fatalf("SetName: %v", err)
+	}
+	if err := exc.SetUiPriority(9); err != nil {
+		t.Fatalf("SetUiPriority: %v", err)
+	}
 
 	found := ls.GetByName("Heading 1")
 	if found == nil {
@@ -981,7 +1088,9 @@ func TestCT_LsdException_Delete(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	ls := styles.GetOrAddLatentStyles()
 	exc := ls.AddLsdException()
-	exc.SetName("ToRemove")
+	if err := exc.SetName("ToRemove"); err != nil {
+		t.Fatalf("SetName: %v", err)
+	}
 	if ls.GetByName("ToRemove") == nil {
 		t.Fatal("should exist")
 	}
@@ -995,7 +1104,9 @@ func TestCT_LsdException_OnOffProp(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	ls := styles.GetOrAddLatentStyles()
 	exc := ls.AddLsdException()
-	exc.SetName("Test")
+	if err := exc.SetName("Test"); err != nil {
+		t.Fatalf("SetName: %v", err)
+	}
 
 	// nil by default (attr not set)
 	if exc.OnOffProp("w:locked") != nil {
@@ -1003,12 +1114,16 @@ func TestCT_LsdException_OnOffProp(t *testing.T) {
 		// OnOffProp reads raw attr
 	}
 	tr := true
-	exc.SetOnOffProp("w:locked", &tr)
+	if err := exc.SetOnOffProp("w:locked", &tr); err != nil {
+		t.Fatalf("SetOnOffProp: %v", err)
+	}
 	got := exc.OnOffProp("w:locked")
 	if got == nil || !*got {
 		t.Error("expected locked=true")
 	}
-	exc.SetOnOffProp("w:locked", nil)
+	if err := exc.SetOnOffProp("w:locked", nil); err != nil {
+		t.Fatalf("SetOnOffProp: %v", err)
+	}
 	if exc.OnOffProp("w:locked") != nil {
 		t.Error("expected nil after removal")
 	}

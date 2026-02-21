@@ -111,8 +111,13 @@ func (e *CT_Num) NumId() (int, error) {
 }
 
 // SetNumId sets the required "w:numId" attribute.
-func (e *CT_Num) SetNumId(v int) {
-	e.SetAttr("w:numId", formatIntAttr(v))
+func (e *CT_Num) SetNumId(v int) error {
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Num.SetNumId: %w", err)
+	}
+	e.SetAttr("w:numId", s)
+	return nil
 }
 
 // --- CT_NumLvl ---
@@ -174,6 +179,11 @@ func (e *CT_NumLvl) Ilvl() (int, error) {
 }
 
 // SetIlvl sets the required "w:ilvl" attribute.
-func (e *CT_NumLvl) SetIlvl(v int) {
-	e.SetAttr("w:ilvl", formatIntAttr(v))
+func (e *CT_NumLvl) SetIlvl(v int) error {
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_NumLvl.SetIlvl: %w", err)
+	}
+	e.SetAttr("w:ilvl", s)
+	return nil
 }

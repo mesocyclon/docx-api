@@ -530,12 +530,17 @@ func (e *CT_Style) Type() string {
 
 // SetType sets the "w:type" attribute.
 // Passing "" removes it.
-func (e *CT_Style) SetType(v string) {
+func (e *CT_Style) SetType(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:type")
-		return
+		return nil
 	}
-	e.SetAttr("w:type", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Style.SetType: %w", err)
+	}
+	e.SetAttr("w:type", s)
+	return nil
 }
 
 // StyleId returns the value of the "w:styleId" attribute, or "" if absent.
@@ -549,12 +554,17 @@ func (e *CT_Style) StyleId() string {
 
 // SetStyleId sets the "w:styleId" attribute.
 // Passing "" removes it.
-func (e *CT_Style) SetStyleId(v string) {
+func (e *CT_Style) SetStyleId(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:styleId")
-		return
+		return nil
 	}
-	e.SetAttr("w:styleId", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Style.SetStyleId: %w", err)
+	}
+	e.SetAttr("w:styleId", s)
+	return nil
 }
 
 // Default returns the value of the "w:default" attribute, or false if absent.
@@ -568,12 +578,17 @@ func (e *CT_Style) Default() bool {
 
 // SetDefault sets the "w:default" attribute.
 // Passing false removes it.
-func (e *CT_Style) SetDefault(v bool) {
+func (e *CT_Style) SetDefault(v bool) error {
 	if v == false {
 		e.RemoveAttr("w:default")
-		return
+		return nil
 	}
-	e.SetAttr("w:default", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Style.SetDefault: %w", err)
+	}
+	e.SetAttr("w:default", s)
+	return nil
 }
 
 // CustomStyle returns the value of the "w:customStyle" attribute, or false if absent.
@@ -587,12 +602,17 @@ func (e *CT_Style) CustomStyle() bool {
 
 // SetCustomStyle sets the "w:customStyle" attribute.
 // Passing false removes it.
-func (e *CT_Style) SetCustomStyle(v bool) {
+func (e *CT_Style) SetCustomStyle(v bool) error {
 	if v == false {
 		e.RemoveAttr("w:customStyle")
-		return
+		return nil
 	}
-	e.SetAttr("w:customStyle", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Style.SetCustomStyle: %w", err)
+	}
+	e.SetAttr("w:customStyle", s)
+	return nil
 }
 
 // --- CT_LatentStyles ---
@@ -647,12 +667,17 @@ func (e *CT_LatentStyles) Count() int {
 
 // SetCount sets the "w:count" attribute.
 // Passing 0 removes it.
-func (e *CT_LatentStyles) SetCount(v int) {
+func (e *CT_LatentStyles) SetCount(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:count")
-		return
+		return nil
 	}
-	e.SetAttr("w:count", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LatentStyles.SetCount: %w", err)
+	}
+	e.SetAttr("w:count", s)
+	return nil
 }
 
 // DefLockedState returns the value of the "w:defLockedState" attribute, or false if absent.
@@ -666,12 +691,17 @@ func (e *CT_LatentStyles) DefLockedState() bool {
 
 // SetDefLockedState sets the "w:defLockedState" attribute.
 // Passing false removes it.
-func (e *CT_LatentStyles) SetDefLockedState(v bool) {
+func (e *CT_LatentStyles) SetDefLockedState(v bool) error {
 	if v == false {
 		e.RemoveAttr("w:defLockedState")
-		return
+		return nil
 	}
-	e.SetAttr("w:defLockedState", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LatentStyles.SetDefLockedState: %w", err)
+	}
+	e.SetAttr("w:defLockedState", s)
+	return nil
 }
 
 // DefQFormat returns the value of the "w:defQFormat" attribute, or false if absent.
@@ -685,12 +715,17 @@ func (e *CT_LatentStyles) DefQFormat() bool {
 
 // SetDefQFormat sets the "w:defQFormat" attribute.
 // Passing false removes it.
-func (e *CT_LatentStyles) SetDefQFormat(v bool) {
+func (e *CT_LatentStyles) SetDefQFormat(v bool) error {
 	if v == false {
 		e.RemoveAttr("w:defQFormat")
-		return
+		return nil
 	}
-	e.SetAttr("w:defQFormat", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LatentStyles.SetDefQFormat: %w", err)
+	}
+	e.SetAttr("w:defQFormat", s)
+	return nil
 }
 
 // DefSemiHidden returns the value of the "w:defSemiHidden" attribute, or false if absent.
@@ -704,12 +739,17 @@ func (e *CT_LatentStyles) DefSemiHidden() bool {
 
 // SetDefSemiHidden sets the "w:defSemiHidden" attribute.
 // Passing false removes it.
-func (e *CT_LatentStyles) SetDefSemiHidden(v bool) {
+func (e *CT_LatentStyles) SetDefSemiHidden(v bool) error {
 	if v == false {
 		e.RemoveAttr("w:defSemiHidden")
-		return
+		return nil
 	}
-	e.SetAttr("w:defSemiHidden", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LatentStyles.SetDefSemiHidden: %w", err)
+	}
+	e.SetAttr("w:defSemiHidden", s)
+	return nil
 }
 
 // DefUIPriority returns the value of the "w:defUIPriority" attribute, or 0 if absent.
@@ -723,12 +763,17 @@ func (e *CT_LatentStyles) DefUIPriority() int {
 
 // SetDefUIPriority sets the "w:defUIPriority" attribute.
 // Passing 0 removes it.
-func (e *CT_LatentStyles) SetDefUIPriority(v int) {
+func (e *CT_LatentStyles) SetDefUIPriority(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:defUIPriority")
-		return
+		return nil
 	}
-	e.SetAttr("w:defUIPriority", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LatentStyles.SetDefUIPriority: %w", err)
+	}
+	e.SetAttr("w:defUIPriority", s)
+	return nil
 }
 
 // DefUnhideWhenUsed returns the value of the "w:defUnhideWhenUsed" attribute, or false if absent.
@@ -742,12 +787,17 @@ func (e *CT_LatentStyles) DefUnhideWhenUsed() bool {
 
 // SetDefUnhideWhenUsed sets the "w:defUnhideWhenUsed" attribute.
 // Passing false removes it.
-func (e *CT_LatentStyles) SetDefUnhideWhenUsed(v bool) {
+func (e *CT_LatentStyles) SetDefUnhideWhenUsed(v bool) error {
 	if v == false {
 		e.RemoveAttr("w:defUnhideWhenUsed")
-		return
+		return nil
 	}
-	e.SetAttr("w:defUnhideWhenUsed", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LatentStyles.SetDefUnhideWhenUsed: %w", err)
+	}
+	e.SetAttr("w:defUnhideWhenUsed", s)
+	return nil
 }
 
 // --- CT_LsdException ---
@@ -768,12 +818,17 @@ func (e *CT_LsdException) Locked() bool {
 
 // SetLocked sets the "w:locked" attribute.
 // Passing false removes it.
-func (e *CT_LsdException) SetLocked(v bool) {
+func (e *CT_LsdException) SetLocked(v bool) error {
 	if v == false {
 		e.RemoveAttr("w:locked")
-		return
+		return nil
 	}
-	e.SetAttr("w:locked", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LsdException.SetLocked: %w", err)
+	}
+	e.SetAttr("w:locked", s)
+	return nil
 }
 
 // QFormat returns the value of the "w:qFormat" attribute, or false if absent.
@@ -787,12 +842,17 @@ func (e *CT_LsdException) QFormat() bool {
 
 // SetQFormat sets the "w:qFormat" attribute.
 // Passing false removes it.
-func (e *CT_LsdException) SetQFormat(v bool) {
+func (e *CT_LsdException) SetQFormat(v bool) error {
 	if v == false {
 		e.RemoveAttr("w:qFormat")
-		return
+		return nil
 	}
-	e.SetAttr("w:qFormat", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LsdException.SetQFormat: %w", err)
+	}
+	e.SetAttr("w:qFormat", s)
+	return nil
 }
 
 // SemiHidden returns the value of the "w:semiHidden" attribute, or false if absent.
@@ -806,12 +866,17 @@ func (e *CT_LsdException) SemiHidden() bool {
 
 // SetSemiHidden sets the "w:semiHidden" attribute.
 // Passing false removes it.
-func (e *CT_LsdException) SetSemiHidden(v bool) {
+func (e *CT_LsdException) SetSemiHidden(v bool) error {
 	if v == false {
 		e.RemoveAttr("w:semiHidden")
-		return
+		return nil
 	}
-	e.SetAttr("w:semiHidden", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LsdException.SetSemiHidden: %w", err)
+	}
+	e.SetAttr("w:semiHidden", s)
+	return nil
 }
 
 // UiPriority returns the value of the "w:uiPriority" attribute, or 0 if absent.
@@ -825,12 +890,17 @@ func (e *CT_LsdException) UiPriority() int {
 
 // SetUiPriority sets the "w:uiPriority" attribute.
 // Passing 0 removes it.
-func (e *CT_LsdException) SetUiPriority(v int) {
+func (e *CT_LsdException) SetUiPriority(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:uiPriority")
-		return
+		return nil
 	}
-	e.SetAttr("w:uiPriority", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LsdException.SetUiPriority: %w", err)
+	}
+	e.SetAttr("w:uiPriority", s)
+	return nil
 }
 
 // UnhideWhenUsed returns the value of the "w:unhideWhenUsed" attribute, or false if absent.
@@ -844,12 +914,17 @@ func (e *CT_LsdException) UnhideWhenUsed() bool {
 
 // SetUnhideWhenUsed sets the "w:unhideWhenUsed" attribute.
 // Passing false removes it.
-func (e *CT_LsdException) SetUnhideWhenUsed(v bool) {
+func (e *CT_LsdException) SetUnhideWhenUsed(v bool) error {
 	if v == false {
 		e.RemoveAttr("w:unhideWhenUsed")
-		return
+		return nil
 	}
-	e.SetAttr("w:unhideWhenUsed", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LsdException.SetUnhideWhenUsed: %w", err)
+	}
+	e.SetAttr("w:unhideWhenUsed", s)
+	return nil
 }
 
 // Name returns the value of the required "w:name" attribute.
@@ -862,6 +937,11 @@ func (e *CT_LsdException) Name() (string, error) {
 }
 
 // SetName sets the required "w:name" attribute.
-func (e *CT_LsdException) SetName(v string) {
-	e.SetAttr("w:name", v)
+func (e *CT_LsdException) SetName(v string) error {
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_LsdException.SetName: %w", err)
+	}
+	e.SetAttr("w:name", s)
+	return nil
 }

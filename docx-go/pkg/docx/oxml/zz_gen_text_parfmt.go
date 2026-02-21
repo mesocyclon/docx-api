@@ -539,12 +539,17 @@ func (e *CT_Ind) Left() int {
 
 // SetLeft sets the "w:left" attribute.
 // Passing 0 removes it.
-func (e *CT_Ind) SetLeft(v int) {
+func (e *CT_Ind) SetLeft(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:left")
-		return
+		return nil
 	}
-	e.SetAttr("w:left", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Ind.SetLeft: %w", err)
+	}
+	e.SetAttr("w:left", s)
+	return nil
 }
 
 // Right returns the value of the "w:right" attribute, or 0 if absent.
@@ -558,12 +563,17 @@ func (e *CT_Ind) Right() int {
 
 // SetRight sets the "w:right" attribute.
 // Passing 0 removes it.
-func (e *CT_Ind) SetRight(v int) {
+func (e *CT_Ind) SetRight(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:right")
-		return
+		return nil
 	}
-	e.SetAttr("w:right", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Ind.SetRight: %w", err)
+	}
+	e.SetAttr("w:right", s)
+	return nil
 }
 
 // FirstLine returns the value of the "w:firstLine" attribute, or 0 if absent.
@@ -577,12 +587,17 @@ func (e *CT_Ind) FirstLine() int {
 
 // SetFirstLine sets the "w:firstLine" attribute.
 // Passing 0 removes it.
-func (e *CT_Ind) SetFirstLine(v int) {
+func (e *CT_Ind) SetFirstLine(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:firstLine")
-		return
+		return nil
 	}
-	e.SetAttr("w:firstLine", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Ind.SetFirstLine: %w", err)
+	}
+	e.SetAttr("w:firstLine", s)
+	return nil
 }
 
 // Hanging returns the value of the "w:hanging" attribute, or 0 if absent.
@@ -596,12 +611,17 @@ func (e *CT_Ind) Hanging() int {
 
 // SetHanging sets the "w:hanging" attribute.
 // Passing 0 removes it.
-func (e *CT_Ind) SetHanging(v int) {
+func (e *CT_Ind) SetHanging(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:hanging")
-		return
+		return nil
 	}
-	e.SetAttr("w:hanging", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Ind.SetHanging: %w", err)
+	}
+	e.SetAttr("w:hanging", s)
+	return nil
 }
 
 // --- CT_Jc ---
@@ -621,8 +641,13 @@ func (e *CT_Jc) Val() (enum.WdParagraphAlignment, error) {
 }
 
 // SetVal sets the required "w:val" attribute.
-func (e *CT_Jc) SetVal(v enum.WdParagraphAlignment) {
-	e.SetAttr("w:val", mustToXmlEnum(v))
+func (e *CT_Jc) SetVal(v enum.WdParagraphAlignment) error {
+	s, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("CT_Jc.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
 
 // --- CT_Spacing ---
@@ -643,12 +668,17 @@ func (e *CT_Spacing) After() int {
 
 // SetAfter sets the "w:after" attribute.
 // Passing 0 removes it.
-func (e *CT_Spacing) SetAfter(v int) {
+func (e *CT_Spacing) SetAfter(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:after")
-		return
+		return nil
 	}
-	e.SetAttr("w:after", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Spacing.SetAfter: %w", err)
+	}
+	e.SetAttr("w:after", s)
+	return nil
 }
 
 // Before returns the value of the "w:before" attribute, or 0 if absent.
@@ -662,12 +692,17 @@ func (e *CT_Spacing) Before() int {
 
 // SetBefore sets the "w:before" attribute.
 // Passing 0 removes it.
-func (e *CT_Spacing) SetBefore(v int) {
+func (e *CT_Spacing) SetBefore(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:before")
-		return
+		return nil
 	}
-	e.SetAttr("w:before", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Spacing.SetBefore: %w", err)
+	}
+	e.SetAttr("w:before", s)
+	return nil
 }
 
 // Line returns the value of the "w:line" attribute, or 0 if absent.
@@ -681,12 +716,17 @@ func (e *CT_Spacing) Line() int {
 
 // SetLine sets the "w:line" attribute.
 // Passing 0 removes it.
-func (e *CT_Spacing) SetLine(v int) {
+func (e *CT_Spacing) SetLine(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:line")
-		return
+		return nil
 	}
-	e.SetAttr("w:line", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Spacing.SetLine: %w", err)
+	}
+	e.SetAttr("w:line", s)
+	return nil
 }
 
 // LineRule returns the value of the "w:lineRule" attribute, or "" if absent.
@@ -700,12 +740,17 @@ func (e *CT_Spacing) LineRule() string {
 
 // SetLineRule sets the "w:lineRule" attribute.
 // Passing "" removes it.
-func (e *CT_Spacing) SetLineRule(v string) {
+func (e *CT_Spacing) SetLineRule(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:lineRule")
-		return
+		return nil
 	}
-	e.SetAttr("w:lineRule", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Spacing.SetLineRule: %w", err)
+	}
+	e.SetAttr("w:lineRule", s)
+	return nil
 }
 
 // --- CT_TabStop ---
@@ -726,12 +771,17 @@ func (e *CT_TabStop) Leader() enum.WdTabLeader {
 
 // SetLeader sets the "w:leader" attribute.
 // Passing enum.WdTabLeader(0) removes it.
-func (e *CT_TabStop) SetLeader(v enum.WdTabLeader) {
+func (e *CT_TabStop) SetLeader(v enum.WdTabLeader) error {
 	if v == enum.WdTabLeader(0) {
 		e.RemoveAttr("w:leader")
-		return
+		return nil
 	}
-	e.SetAttr("w:leader", mustToXmlEnum(v))
+	s, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("CT_TabStop.SetLeader: %w", err)
+	}
+	e.SetAttr("w:leader", s)
+	return nil
 }
 
 // Val returns the value of the required "w:val" attribute.
@@ -744,8 +794,13 @@ func (e *CT_TabStop) Val() (enum.WdTabAlignment, error) {
 }
 
 // SetVal sets the required "w:val" attribute.
-func (e *CT_TabStop) SetVal(v enum.WdTabAlignment) {
-	e.SetAttr("w:val", mustToXmlEnum(v))
+func (e *CT_TabStop) SetVal(v enum.WdTabAlignment) error {
+	s, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("CT_TabStop.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
 
 // Pos returns the value of the required "w:pos" attribute.
@@ -758,8 +813,13 @@ func (e *CT_TabStop) Pos() (int, error) {
 }
 
 // SetPos sets the required "w:pos" attribute.
-func (e *CT_TabStop) SetPos(v int) {
-	e.SetAttr("w:pos", formatIntAttr(v))
+func (e *CT_TabStop) SetPos(v int) error {
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_TabStop.SetPos: %w", err)
+	}
+	e.SetAttr("w:pos", s)
+	return nil
 }
 
 // --- CT_TabStops ---

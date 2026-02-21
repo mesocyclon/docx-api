@@ -89,7 +89,7 @@ type attrData struct {
 	DefaultExpr string // default value expression (optional attrs)
 	ZeroExpr    string // zero value expression (required attrs)
 	ParseExpr   string // expression to parse string "val" → typed value
-	FormatExpr  string // expression to format typed "v" → string
+	FormatExpr  string // expression to format typed "v" → (string, error)
 }
 
 type choiceGroupData struct {
@@ -198,11 +198,11 @@ func (g *Generator) buildTemplateData() templateData {
 
 // resolveAttrType returns (goType, zeroExpr, defaultExpr, parseExpr, formatExpr)
 // for a given attribute type. parseExpr uses "val" as the string variable;
-// formatExpr uses "v" as the typed variable.
+// formatExpr uses "v" as the typed variable and always returns (string, error).
 func resolveAttrType(attr Attribute) (goType, zeroExpr, defaultExpr, parseExpr, formatExpr string) {
 	switch attr.Type {
 	case "string":
-		return "string", `""`, `""`, "val", "v"
+		return "string", `""`, `""`, "val", "formatStringAttr(v)"
 
 	case "int":
 		return "int", "0", "0",
@@ -224,13 +224,13 @@ func resolveAttrType(attr Attribute) (goType, zeroExpr, defaultExpr, parseExpr, 
 			fromFn := inner + "FromXml"
 			return attr.Type, "nil", "nil",
 				fmt.Sprintf("parseOptionalEnum(val, %s)", fromFn),
-				"mustToXmlEnum(*v)"
+				"(*v).ToXml()"
 		}
 		// Required or value enum
 		fromFn := attr.Type + "FromXml"
 		return attr.Type, attr.Type + "(0)", attr.Type + "(0)",
 			fmt.Sprintf("mustParseEnum(val, %s)", fromFn),
-			"mustToXmlEnum(v)"
+			"v.ToXml()"
 	}
 }
 

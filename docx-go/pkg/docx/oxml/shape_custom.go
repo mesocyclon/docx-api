@@ -47,16 +47,24 @@ func newInline(cx, cy int64, shapeId int, pic *CT_Picture) (*CT_Inline, error) {
 	if err != nil {
 		return nil, fmt.Errorf("oxml: inline missing extent: %w", err)
 	}
-	extent.SetCx(cx)
-	extent.SetCy(cy)
+	if err := extent.SetCx(cx); err != nil {
+		return nil, err
+	}
+	if err := extent.SetCy(cy); err != nil {
+		return nil, err
+	}
 
 	// Set docPr
 	docPr, err := inline.DocPr()
 	if err != nil {
 		return nil, fmt.Errorf("oxml: inline missing docPr: %w", err)
 	}
-	docPr.SetId(shapeId)
-	docPr.SetName(fmt.Sprintf("Picture %d", shapeId))
+	if err := docPr.SetId(shapeId); err != nil {
+		return nil, err
+	}
+	if err := docPr.SetName(fmt.Sprintf("Picture %d", shapeId)); err != nil {
+		return nil, err
+	}
 
 	// Set graphic data URI and insert the picture element
 	graphic, err := inline.Graphic()
@@ -67,7 +75,9 @@ func newInline(cx, cy int64, shapeId int, pic *CT_Picture) (*CT_Inline, error) {
 	if err != nil {
 		return nil, fmt.Errorf("oxml: graphic missing graphicData: %w", err)
 	}
-	gd.SetUri("http://schemas.openxmlformats.org/drawingml/2006/picture")
+	if err := gd.SetUri("http://schemas.openxmlformats.org/drawingml/2006/picture"); err != nil {
+		return nil, err
+	}
 	// Insert pic:pic into graphicData
 	gd.E.AddChild(pic.E)
 
@@ -115,19 +125,29 @@ func newPicture(picId int, filename, rId string, cx, cy int64) (*CT_Picture, err
 	if err != nil {
 		return nil, fmt.Errorf("oxml: nvPicPr missing cNvPr: %w", err)
 	}
-	cNvPr.SetId(picId)
-	cNvPr.SetName(filename)
+	if err := cNvPr.SetId(picId); err != nil {
+		return nil, err
+	}
+	if err := cNvPr.SetName(filename); err != nil {
+		return nil, err
+	}
 	blipFill, err := pic.BlipFill()
 	if err != nil {
 		return nil, fmt.Errorf("oxml: pic missing blipFill: %w", err)
 	}
-	blipFill.Blip().SetEmbed(rId)
+	if err := blipFill.Blip().SetEmbed(rId); err != nil {
+		return nil, err
+	}
 	spPr, err := pic.SpPr()
 	if err != nil {
 		return nil, fmt.Errorf("oxml: pic missing spPr: %w", err)
 	}
-	spPr.SetCx(cx)
-	spPr.SetCy(cy)
+	if err := spPr.SetCx(cx); err != nil {
+		return nil, err
+	}
+	if err := spPr.SetCy(cy); err != nil {
+		return nil, err
+	}
 
 	return pic, nil
 }
@@ -158,7 +178,9 @@ func (i *CT_Inline) SetExtentCx(v int64) error {
 	if err != nil {
 		return fmt.Errorf("SetExtentCx: %w", err)
 	}
-	extent.SetCx(v)
+	if err := extent.SetCx(v); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -168,7 +190,9 @@ func (i *CT_Inline) SetExtentCy(v int64) error {
 	if err != nil {
 		return fmt.Errorf("SetExtentCy: %w", err)
 	}
-	extent.SetCy(v)
+	if err := extent.SetCy(v); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -186,9 +210,12 @@ func (sp *CT_ShapeProperties) Cx() *int64 {
 }
 
 // SetCx sets the shape width in EMU via xfrm/ext/@cx.
-func (sp *CT_ShapeProperties) SetCx(v int64) {
+func (sp *CT_ShapeProperties) SetCx(v int64) error {
 	xfrm := sp.GetOrAddXfrm()
-	xfrm.SetCxVal(v)
+	if err := xfrm.SetCxVal(v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Cy returns the shape height in EMU via xfrm/ext/@cy, or nil if not present.
@@ -201,9 +228,12 @@ func (sp *CT_ShapeProperties) Cy() *int64 {
 }
 
 // SetCy sets the shape height in EMU via xfrm/ext/@cy.
-func (sp *CT_ShapeProperties) SetCy(v int64) {
+func (sp *CT_ShapeProperties) SetCy(v int64) error {
 	xfrm := sp.GetOrAddXfrm()
-	xfrm.SetCyVal(v)
+	if err := xfrm.SetCyVal(v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ===========================================================================
@@ -224,9 +254,12 @@ func (t *CT_Transform2D) CxVal() *int64 {
 }
 
 // SetCxVal sets the width in EMU on ext/@cx, creating ext if needed.
-func (t *CT_Transform2D) SetCxVal(v int64) {
+func (t *CT_Transform2D) SetCxVal(v int64) error {
 	ext := t.GetOrAddExt()
-	ext.SetCx(v)
+	if err := ext.SetCx(v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // CyVal returns the height in EMU from ext/@cy, or nil if ext is not present.
@@ -243,7 +276,10 @@ func (t *CT_Transform2D) CyVal() *int64 {
 }
 
 // SetCyVal sets the height in EMU on ext/@cy, creating ext if needed.
-func (t *CT_Transform2D) SetCyVal(v int64) {
+func (t *CT_Transform2D) SetCyVal(v int64) error {
 	ext := t.GetOrAddExt()
-	ext.SetCy(v)
+	if err := ext.SetCy(v); err != nil {
+		return err
+	}
+	return nil
 }

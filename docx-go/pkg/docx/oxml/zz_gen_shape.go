@@ -124,8 +124,13 @@ func (e *CT_NonVisualDrawingProps) Id() (int, error) {
 }
 
 // SetId sets the required "id" attribute.
-func (e *CT_NonVisualDrawingProps) SetId(v int) {
-	e.SetAttr("id", formatIntAttr(v))
+func (e *CT_NonVisualDrawingProps) SetId(v int) error {
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_NonVisualDrawingProps.SetId: %w", err)
+	}
+	e.SetAttr("id", s)
+	return nil
 }
 
 // Name returns the value of the required "name" attribute.
@@ -138,8 +143,13 @@ func (e *CT_NonVisualDrawingProps) Name() (string, error) {
 }
 
 // SetName sets the required "name" attribute.
-func (e *CT_NonVisualDrawingProps) SetName(v string) {
-	e.SetAttr("name", v)
+func (e *CT_NonVisualDrawingProps) SetName(v string) error {
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_NonVisualDrawingProps.SetName: %w", err)
+	}
+	e.SetAttr("name", s)
+	return nil
 }
 
 // --- CT_NonVisualPictureProperties ---
@@ -225,8 +235,13 @@ func (e *CT_GraphicalObjectData) Uri() (string, error) {
 }
 
 // SetUri sets the required "uri" attribute.
-func (e *CT_GraphicalObjectData) SetUri(v string) {
-	e.SetAttr("uri", v)
+func (e *CT_GraphicalObjectData) SetUri(v string) error {
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_GraphicalObjectData.SetUri: %w", err)
+	}
+	e.SetAttr("uri", s)
+	return nil
 }
 
 // --- CT_BlipFillProperties ---
@@ -296,12 +311,17 @@ func (e *CT_Blip) Embed() string {
 
 // SetEmbed sets the "r:embed" attribute.
 // Passing "" removes it.
-func (e *CT_Blip) SetEmbed(v string) {
+func (e *CT_Blip) SetEmbed(v string) error {
 	if v == "" {
 		e.RemoveAttr("r:embed")
-		return
+		return nil
 	}
-	e.SetAttr("r:embed", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Blip.SetEmbed: %w", err)
+	}
+	e.SetAttr("r:embed", s)
+	return nil
 }
 
 // Link returns the value of the "r:link" attribute, or "" if absent.
@@ -315,12 +335,17 @@ func (e *CT_Blip) Link() string {
 
 // SetLink sets the "r:link" attribute.
 // Passing "" removes it.
-func (e *CT_Blip) SetLink(v string) {
+func (e *CT_Blip) SetLink(v string) error {
 	if v == "" {
 		e.RemoveAttr("r:link")
-		return
+		return nil
 	}
-	e.SetAttr("r:link", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Blip.SetLink: %w", err)
+	}
+	e.SetAttr("r:link", s)
+	return nil
 }
 
 // --- CT_ShapeProperties ---
@@ -480,8 +505,13 @@ func (e *CT_PositiveSize2D) Cx() (int64, error) {
 }
 
 // SetCx sets the required "cx" attribute.
-func (e *CT_PositiveSize2D) SetCx(v int64) {
-	e.SetAttr("cx", formatInt64Attr(v))
+func (e *CT_PositiveSize2D) SetCx(v int64) error {
+	s, err := formatInt64Attr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PositiveSize2D.SetCx: %w", err)
+	}
+	e.SetAttr("cx", s)
+	return nil
 }
 
 // Cy returns the value of the required "cy" attribute.
@@ -494,8 +524,13 @@ func (e *CT_PositiveSize2D) Cy() (int64, error) {
 }
 
 // SetCy sets the required "cy" attribute.
-func (e *CT_PositiveSize2D) SetCy(v int64) {
-	e.SetAttr("cy", formatInt64Attr(v))
+func (e *CT_PositiveSize2D) SetCy(v int64) error {
+	s, err := formatInt64Attr(v)
+	if err != nil {
+		return fmt.Errorf("CT_PositiveSize2D.SetCy: %w", err)
+	}
+	e.SetAttr("cy", s)
+	return nil
 }
 
 // --- CT_Point2D ---
@@ -515,8 +550,13 @@ func (e *CT_Point2D) X() (int64, error) {
 }
 
 // SetX sets the required "x" attribute.
-func (e *CT_Point2D) SetX(v int64) {
-	e.SetAttr("x", formatInt64Attr(v))
+func (e *CT_Point2D) SetX(v int64) error {
+	s, err := formatInt64Attr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Point2D.SetX: %w", err)
+	}
+	e.SetAttr("x", s)
+	return nil
 }
 
 // Y returns the value of the required "y" attribute.
@@ -529,8 +569,13 @@ func (e *CT_Point2D) Y() (int64, error) {
 }
 
 // SetY sets the required "y" attribute.
-func (e *CT_Point2D) SetY(v int64) {
-	e.SetAttr("y", formatInt64Attr(v))
+func (e *CT_Point2D) SetY(v int64) error {
+	s, err := formatInt64Attr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Point2D.SetY: %w", err)
+	}
+	e.SetAttr("y", s)
+	return nil
 }
 
 // --- CT_PresetGeometry2D ---

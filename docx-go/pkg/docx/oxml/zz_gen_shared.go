@@ -26,8 +26,13 @@ func (e *CT_DecimalNumber) Val() (int, error) {
 }
 
 // SetVal sets the required "w:val" attribute.
-func (e *CT_DecimalNumber) SetVal(v int) {
-	e.SetAttr("w:val", formatIntAttr(v))
+func (e *CT_DecimalNumber) SetVal(v int) error {
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_DecimalNumber.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
 
 // --- CT_OnOff ---
@@ -48,12 +53,17 @@ func (e *CT_OnOff) Val() bool {
 
 // SetVal sets the "w:val" attribute.
 // Passing true removes it.
-func (e *CT_OnOff) SetVal(v bool) {
+func (e *CT_OnOff) SetVal(v bool) error {
 	if v == true {
 		e.RemoveAttr("w:val")
-		return
+		return nil
 	}
-	e.SetAttr("w:val", formatBoolAttr(v))
+	s, err := formatBoolAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_OnOff.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
 
 // --- CT_String ---
@@ -73,6 +83,11 @@ func (e *CT_String) Val() (string, error) {
 }
 
 // SetVal sets the required "w:val" attribute.
-func (e *CT_String) SetVal(v string) {
-	e.SetAttr("w:val", v)
+func (e *CT_String) SetVal(v string) error {
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_String.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }

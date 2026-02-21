@@ -56,14 +56,18 @@ func TestCT_P_Alignment_RoundTrip(t *testing.T) {
 
 	// Set center
 	center := enum.WdParagraphAlignmentCenter
-	p.SetAlignment(&center)
+	if err := p.SetAlignment(&center); err != nil {
+		t.Fatalf("SetAlignment: %v", err)
+	}
 	got := p.Alignment()
 	if got == nil || *got != enum.WdParagraphAlignmentCenter {
 		t.Errorf("expected center alignment, got %v", got)
 	}
 
 	// Set nil removes
-	p.SetAlignment(nil)
+	if err := p.SetAlignment(nil); err != nil {
+		t.Fatalf("SetAlignment(nil): %v", err)
+	}
 	if p.Alignment() != nil {
 		t.Error("expected nil alignment after setting nil")
 	}
@@ -78,13 +82,17 @@ func TestCT_P_Style_RoundTrip(t *testing.T) {
 	}
 
 	s := "Heading1"
-	p.SetStyle(&s)
+	if err := p.SetStyle(&s); err != nil {
+		t.Fatalf("SetStyle: %v", err)
+	}
 	got := p.Style()
 	if got == nil || *got != "Heading1" {
 		t.Errorf("expected Heading1 style, got %v", got)
 	}
 
-	p.SetStyle(nil)
+	if err := p.SetStyle(nil); err != nil {
+		t.Fatalf("SetStyle: %v", err)
+	}
 	if p.Style() != nil {
 		t.Error("expected nil style after removing")
 	}
@@ -241,13 +249,17 @@ func TestCT_R_Style_RoundTrip(t *testing.T) {
 	}
 
 	s := "Emphasis"
-	r.SetStyle(&s)
+	if err := r.SetStyle(&s); err != nil {
+		t.Fatalf("SetStyle: %v", err)
+	}
 	got := r.Style()
 	if got == nil || *got != "Emphasis" {
 		t.Errorf("expected Emphasis style, got %v", got)
 	}
 
-	r.SetStyle(nil)
+	if err := r.SetStyle(nil); err != nil {
+		t.Fatalf("SetStyle: %v", err)
+	}
 	if r.Style() != nil {
 		t.Error("expected nil style after removing")
 	}
@@ -282,7 +294,9 @@ func TestCT_Br_TextEquivalent(t *testing.T) {
 
 	// Page break
 	br2 := &CT_Br{Element{E: OxmlElement("w:br")}}
-	br2.SetType("page")
+	if err := br2.SetType("page"); err != nil {
+		t.Fatalf("SetType: %v", err)
+	}
 	if br2.TextEquivalent() != "" {
 		t.Error("expected empty string for page break")
 	}
@@ -301,7 +315,9 @@ func TestCT_RPr_BoldVal_TriState(t *testing.T) {
 
 	// Set true → <w:b/> (no val attr)
 	bTrue := true
-	rPr.SetBoldVal(&bTrue)
+	if err := rPr.SetBoldVal(&bTrue); err != nil {
+		t.Fatalf("SetBoldVal: %v", err)
+	}
 	got := rPr.BoldVal()
 	if got == nil || !*got {
 		t.Error("expected *true after SetBoldVal(true)")
@@ -309,14 +325,18 @@ func TestCT_RPr_BoldVal_TriState(t *testing.T) {
 
 	// Set false → <w:b w:val="false"/>
 	bFalse := false
-	rPr.SetBoldVal(&bFalse)
+	if err := rPr.SetBoldVal(&bFalse); err != nil {
+		t.Fatalf("SetBoldVal: %v", err)
+	}
 	got = rPr.BoldVal()
 	if got == nil || *got {
 		t.Error("expected *false after SetBoldVal(false)")
 	}
 
 	// Set nil → remove element
-	rPr.SetBoldVal(nil)
+	if err := rPr.SetBoldVal(nil); err != nil {
+		t.Fatalf("SetBoldVal: %v", err)
+	}
 	if rPr.BoldVal() != nil {
 		t.Error("expected nil after SetBoldVal(nil)")
 	}
@@ -327,7 +347,9 @@ func TestCT_RPr_ItalicVal_TriState(t *testing.T) {
 	rPr := &CT_RPr{Element{E: rPrEl}}
 
 	v := true
-	rPr.SetItalicVal(&v)
+	if err := rPr.SetItalicVal(&v); err != nil {
+		t.Fatalf("SetItalicVal: %v", err)
+	}
 	got := rPr.ItalicVal()
 	if got == nil || !*got {
 		t.Error("expected *true for italic")
@@ -343,13 +365,17 @@ func TestCT_RPr_ColorVal(t *testing.T) {
 	}
 
 	c := "FF0000"
-	rPr.SetColorVal(&c)
+	if err := rPr.SetColorVal(&c); err != nil {
+		t.Fatalf("SetColorVal: %v", err)
+	}
 	got := rPr.ColorVal()
 	if got == nil || *got != "FF0000" {
 		t.Errorf("expected FF0000, got %v", got)
 	}
 
-	rPr.SetColorVal(nil)
+	if err := rPr.SetColorVal(nil); err != nil {
+		t.Fatalf("SetColorVal: %v", err)
+	}
 	if rPr.ColorVal() != nil {
 		t.Error("expected nil after removing color")
 	}
@@ -364,13 +390,17 @@ func TestCT_RPr_SzVal(t *testing.T) {
 	}
 
 	var sz int64 = 24 // 12pt in half-points
-	rPr.SetSzVal(&sz)
+	if err := rPr.SetSzVal(&sz); err != nil {
+		t.Fatalf("SetSzVal: %v", err)
+	}
 	got := rPr.SzVal()
 	if got == nil || *got != 24 {
 		t.Errorf("expected 24, got %v", got)
 	}
 
-	rPr.SetSzVal(nil)
+	if err := rPr.SetSzVal(nil); err != nil {
+		t.Fatalf("SetSzVal: %v", err)
+	}
 	if rPr.SzVal() != nil {
 		t.Error("expected nil after removing sz")
 	}
@@ -385,13 +415,17 @@ func TestCT_RPr_RFontsAscii(t *testing.T) {
 	}
 
 	f := "Arial"
-	rPr.SetRFontsAscii(&f)
+	if err := rPr.SetRFontsAscii(&f); err != nil {
+		t.Fatalf("SetRFontsAscii: %v", err)
+	}
 	got := rPr.RFontsAscii()
 	if got == nil || *got != "Arial" {
 		t.Errorf("expected Arial, got %v", got)
 	}
 
-	rPr.SetRFontsAscii(nil)
+	if err := rPr.SetRFontsAscii(nil); err != nil {
+		t.Fatalf("SetRFontsAscii: %v", err)
+	}
 	if rPr.RFontsAscii() != nil {
 		t.Error("expected nil after removing font")
 	}
@@ -402,13 +436,17 @@ func TestCT_RPr_StyleVal(t *testing.T) {
 	rPr := &CT_RPr{Element{E: rPrEl}}
 
 	s := "CommentReference"
-	rPr.SetStyleVal(&s)
+	if err := rPr.SetStyleVal(&s); err != nil {
+		t.Fatalf("SetStyleVal: %v", err)
+	}
 	got := rPr.StyleVal()
 	if got == nil || *got != "CommentReference" {
 		t.Errorf("expected CommentReference, got %v", got)
 	}
 
-	rPr.SetStyleVal(nil)
+	if err := rPr.SetStyleVal(nil); err != nil {
+		t.Fatalf("SetStyleVal: %v", err)
+	}
 	if rPr.StyleVal() != nil {
 		t.Error("expected nil after removing style")
 	}
@@ -423,13 +461,17 @@ func TestCT_RPr_UVal(t *testing.T) {
 	}
 
 	u := "single"
-	rPr.SetUVal(&u)
+	if err := rPr.SetUVal(&u); err != nil {
+		t.Fatalf("SetUVal: %v", err)
+	}
 	got := rPr.UVal()
 	if got == nil || *got != "single" {
 		t.Errorf("expected single, got %v", got)
 	}
 
-	rPr.SetUVal(nil)
+	if err := rPr.SetUVal(nil); err != nil {
+		t.Fatalf("SetUVal: %v", err)
+	}
 	if rPr.UVal() != nil {
 		t.Error("expected nil after removing underline")
 	}
@@ -444,14 +486,18 @@ func TestCT_RPr_Subscript(t *testing.T) {
 	}
 
 	bTrue := true
-	rPr.SetSubscript(&bTrue)
+	if err := rPr.SetSubscript(&bTrue); err != nil {
+		t.Fatalf("SetSubscript: %v", err)
+	}
 	got := rPr.Subscript()
 	if got == nil || !*got {
 		t.Error("expected *true for subscript")
 	}
 
 	bFalse := false
-	rPr.SetSubscript(&bFalse)
+	if err := rPr.SetSubscript(&bFalse); err != nil {
+		t.Fatalf("SetSubscript: %v", err)
+	}
 	// Should remove since current is subscript and setting to false
 	if rPr.Subscript() != nil {
 		t.Error("expected nil after setting subscript to false (was subscript)")
@@ -469,7 +515,9 @@ func TestCT_PPr_SpacingBefore_RoundTrip(t *testing.T) {
 	}
 
 	v := 240 // 240 twips
-	pPr.SetSpacingBefore(&v)
+	if err := pPr.SetSpacingBefore(&v); err != nil {
+		t.Fatalf("SetSpacingBefore: %v", err)
+	}
 	got := pPr.SpacingBefore()
 	if got == nil || *got != 240 {
 		t.Errorf("expected 240, got %v", got)
@@ -481,7 +529,9 @@ func TestCT_PPr_SpacingAfter_RoundTrip(t *testing.T) {
 	pPr := &CT_PPr{Element{E: pPrEl}}
 
 	v := 120
-	pPr.SetSpacingAfter(&v)
+	if err := pPr.SetSpacingAfter(&v); err != nil {
+		t.Fatalf("SetSpacingAfter: %v", err)
+	}
 	got := pPr.SpacingAfter()
 	if got == nil || *got != 120 {
 		t.Errorf("expected 120, got %v", got)
@@ -494,7 +544,9 @@ func TestCT_PPr_SpacingLineRule(t *testing.T) {
 
 	// Set line without lineRule → default to MULTIPLE
 	line := 480
-	pPr.SetSpacingLine(&line)
+	if err := pPr.SetSpacingLine(&line); err != nil {
+		t.Fatalf("SetSpacingLine: %v", err)
+	}
 	got := pPr.SpacingLineRule()
 	if got == nil || *got != enum.WdLineSpacingMultiple {
 		t.Errorf("expected MULTIPLE default, got %v", got)
@@ -510,7 +562,9 @@ func TestCT_PPr_IndLeft_RoundTrip(t *testing.T) {
 	}
 
 	v := 720 // 720 twips = 0.5 inch
-	pPr.SetIndLeft(&v)
+	if err := pPr.SetIndLeft(&v); err != nil {
+		t.Fatalf("SetIndLeft: %v", err)
+	}
 	got := pPr.IndLeft()
 	if got == nil || *got != 720 {
 		t.Errorf("expected 720, got %v", got)
@@ -523,7 +577,9 @@ func TestCT_PPr_FirstLineIndent(t *testing.T) {
 
 	// Positive first-line indent
 	v := 360
-	pPr.SetFirstLineIndent(&v)
+	if err := pPr.SetFirstLineIndent(&v); err != nil {
+		t.Fatalf("SetFirstLineIndent: %v", err)
+	}
 	got := pPr.FirstLineIndent()
 	if got == nil || *got != 360 {
 		t.Errorf("expected 360, got %v", got)
@@ -531,14 +587,18 @@ func TestCT_PPr_FirstLineIndent(t *testing.T) {
 
 	// Negative (hanging) indent
 	neg := -720
-	pPr.SetFirstLineIndent(&neg)
+	if err := pPr.SetFirstLineIndent(&neg); err != nil {
+		t.Fatalf("SetFirstLineIndent: %v", err)
+	}
 	got = pPr.FirstLineIndent()
 	if got == nil || *got != -720 {
 		t.Errorf("expected -720 (hanging), got %v", got)
 	}
 
 	// Nil clears both
-	pPr.SetFirstLineIndent(nil)
+	if err := pPr.SetFirstLineIndent(nil); err != nil {
+		t.Fatalf("SetFirstLineIndent: %v", err)
+	}
 	got = pPr.FirstLineIndent()
 	if got != nil {
 		t.Errorf("expected nil after clearing, got %v", got)
@@ -554,13 +614,17 @@ func TestCT_PPr_KeepLines_TriState(t *testing.T) {
 	}
 
 	v := true
-	pPr.SetKeepLinesVal(&v)
+	if err := pPr.SetKeepLinesVal(&v); err != nil {
+		t.Fatalf("SetKeepLinesVal: %v", err)
+	}
 	got := pPr.KeepLinesVal()
 	if got == nil || !*got {
 		t.Error("expected *true for keepLines")
 	}
 
-	pPr.SetKeepLinesVal(nil)
+	if err := pPr.SetKeepLinesVal(nil); err != nil {
+		t.Fatalf("SetKeepLinesVal: %v", err)
+	}
 	if pPr.KeepLinesVal() != nil {
 		t.Error("expected nil after removing keepLines")
 	}
@@ -571,7 +635,9 @@ func TestCT_PPr_PageBreakBefore(t *testing.T) {
 	pPr := &CT_PPr{Element{E: pPrEl}}
 
 	v := true
-	pPr.SetPageBreakBeforeVal(&v)
+	if err := pPr.SetPageBreakBeforeVal(&v); err != nil {
+		t.Fatalf("SetPageBreakBeforeVal: %v", err)
+	}
 	got := pPr.PageBreakBeforeVal()
 	if got == nil || !*got {
 		t.Error("expected *true for pageBreakBefore")
@@ -668,9 +734,15 @@ func TestCT_TabStops_InsertTabInOrder(t *testing.T) {
 	tabsEl := OxmlElement("w:tabs")
 	tabs := &CT_TabStops{Element{E: tabsEl}}
 
-	tabs.InsertTabInOrder(2880, enum.WdTabAlignmentCenter, enum.WdTabLeaderDots)
-	tabs.InsertTabInOrder(720, enum.WdTabAlignmentLeft, enum.WdTabLeaderSpaces)
-	tabs.InsertTabInOrder(5760, enum.WdTabAlignmentRight, enum.WdTabLeaderDashes)
+	if _, err := tabs.InsertTabInOrder(2880, enum.WdTabAlignmentCenter, enum.WdTabLeaderDots); err != nil {
+		t.Fatalf("InsertTabInOrder: %v", err)
+	}
+	if _, err := tabs.InsertTabInOrder(720, enum.WdTabAlignmentLeft, enum.WdTabLeaderSpaces); err != nil {
+		t.Fatalf("InsertTabInOrder: %v", err)
+	}
+	if _, err := tabs.InsertTabInOrder(5760, enum.WdTabAlignmentRight, enum.WdTabLeaderDashes); err != nil {
+		t.Fatalf("InsertTabInOrder: %v", err)
+	}
 
 	list := tabs.TabList()
 	if len(list) != 3 {

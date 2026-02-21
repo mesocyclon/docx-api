@@ -151,12 +151,17 @@ func (e *{{.ParentType}}) {{.GoName}}() {{.GoType}} {
 
 // Set{{.GoName}} sets the "{{.AttrName}}" attribute.
 // Passing {{.DefaultExpr}} removes it.
-func (e *{{.ParentType}}) Set{{.GoName}}(v {{.GoType}}) {
+func (e *{{.ParentType}}) Set{{.GoName}}(v {{.GoType}}) error {
 	if v == {{.DefaultExpr}} {
 		e.RemoveAttr("{{.AttrName}}")
-		return
+		return nil
 	}
-	e.SetAttr("{{.AttrName}}", {{.FormatExpr}})
+	s, err := {{.FormatExpr}}
+	if err != nil {
+		return fmt.Errorf("{{.ParentType}}.Set{{.GoName}}: %w", err)
+	}
+	e.SetAttr("{{.AttrName}}", s)
+	return nil
 }
 {{end}}{{range .RequiredAttributes}}
 // {{.GoName}} returns the value of the required "{{.AttrName}}" attribute.
@@ -169,8 +174,13 @@ func (e *{{.ParentType}}) {{.GoName}}() ({{.GoType}}, error) {
 }
 
 // Set{{.GoName}} sets the required "{{.AttrName}}" attribute.
-func (e *{{.ParentType}}) Set{{.GoName}}(v {{.GoType}}) {
-	e.SetAttr("{{.AttrName}}", {{.FormatExpr}})
+func (e *{{.ParentType}}) Set{{.GoName}}(v {{.GoType}}) error {
+	s, err := {{.FormatExpr}}
+	if err != nil {
+		return fmt.Errorf("{{.ParentType}}.Set{{.GoName}}: %w", err)
+	}
+	e.SetAttr("{{.AttrName}}", s)
+	return nil
 }
 {{end}}{{range .ChoiceGroups}}
 // {{.GoName}} returns the child element belonging to this choice group,

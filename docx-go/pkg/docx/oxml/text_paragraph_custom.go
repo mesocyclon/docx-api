@@ -31,9 +31,9 @@ func (p *CT_P) Alignment() *enum.WdParagraphAlignment {
 }
 
 // SetAlignment sets the paragraph alignment. Passing nil removes the jc element.
-func (p *CT_P) SetAlignment(val *enum.WdParagraphAlignment) {
+func (p *CT_P) SetAlignment(val *enum.WdParagraphAlignment) error {
 	pPr := p.GetOrAddPPr()
-	pPr.SetJcVal(val)
+	return pPr.SetJcVal(val)
 }
 
 // ClearContent removes all child elements except <w:pPr>.
@@ -106,9 +106,12 @@ func (p *CT_P) Style() *string {
 }
 
 // SetStyle sets the paragraph style. Passing nil removes the pStyle element.
-func (p *CT_P) SetStyle(styleID *string) {
+func (p *CT_P) SetStyle(styleID *string) error {
 	pPr := p.GetOrAddPPr()
-	pPr.SetStyleVal(styleID)
+	if err := pPr.SetStyleVal(styleID); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ParagraphText returns the full text of the paragraph by concatenating text from

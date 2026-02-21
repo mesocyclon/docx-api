@@ -82,12 +82,20 @@ func (ss *CT_Styles) AddStyleOfType(name string, styleType enum.WdStyleType, bui
 		return nil, fmt.Errorf("oxml: invalid style type: %w", err)
 	}
 	style := ss.AddStyle()
-	style.SetType(xmlType)
-	if !builtin {
-		style.SetCustomStyle(true)
+	if err := style.SetType(xmlType); err != nil {
+		return nil, err
 	}
-	style.SetStyleId(StyleIdFromName(name))
-	style.SetNameVal(name)
+	if !builtin {
+		if err := style.SetCustomStyle(true); err != nil {
+			return nil, err
+		}
+	}
+	if err := style.SetStyleId(StyleIdFromName(name)); err != nil {
+		return nil, err
+	}
+	if err := style.SetNameVal(name); err != nil {
+		return nil, err
+	}
 	return style, nil
 }
 
@@ -109,12 +117,15 @@ func (s *CT_Style) NameVal() string {
 }
 
 // SetNameVal sets the w:name/@w:val. Passing "" removes the name element.
-func (s *CT_Style) SetNameVal(name string) {
+func (s *CT_Style) SetNameVal(name string) error {
 	s.RemoveName()
 	if name == "" {
-		return
+		return nil
 	}
-	s.GetOrAddName().SetVal(name)
+	if err := s.GetOrAddName().SetVal(name); err != nil {
+		return err
+	}
+	return nil
 }
 
 // BasedOnVal returns the value of w:basedOn/@w:val, or "" if not present.
@@ -131,12 +142,15 @@ func (s *CT_Style) BasedOnVal() string {
 }
 
 // SetBasedOnVal sets the basedOn value. Passing "" removes the element.
-func (s *CT_Style) SetBasedOnVal(v string) {
+func (s *CT_Style) SetBasedOnVal(v string) error {
 	s.RemoveBasedOn()
 	if v == "" {
-		return
+		return nil
 	}
-	s.GetOrAddBasedOn().SetVal(v)
+	if err := s.GetOrAddBasedOn().SetVal(v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // NextVal returns the value of w:next/@w:val, or "" if not present.
@@ -153,12 +167,15 @@ func (s *CT_Style) NextVal() string {
 }
 
 // SetNextVal sets the next style ID. Passing "" removes the element.
-func (s *CT_Style) SetNextVal(v string) {
+func (s *CT_Style) SetNextVal(v string) error {
 	s.RemoveNext()
 	if v == "" {
-		return
+		return nil
 	}
-	s.GetOrAddNext().SetVal(v)
+	if err := s.GetOrAddNext().SetVal(v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // LockedVal returns the value of w:locked, or false if not present.
@@ -171,11 +188,14 @@ func (s *CT_Style) LockedVal() bool {
 }
 
 // SetLockedVal sets the locked flag. Passing false removes the element.
-func (s *CT_Style) SetLockedVal(v bool) {
+func (s *CT_Style) SetLockedVal(v bool) error {
 	s.RemoveLocked()
 	if v {
-		s.GetOrAddLocked().SetVal(true)
+		if err := s.GetOrAddLocked().SetVal(true); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // SemiHiddenVal returns the value of w:semiHidden, or false if not present.
@@ -188,11 +208,14 @@ func (s *CT_Style) SemiHiddenVal() bool {
 }
 
 // SetSemiHiddenVal sets the semiHidden flag.
-func (s *CT_Style) SetSemiHiddenVal(v bool) {
+func (s *CT_Style) SetSemiHiddenVal(v bool) error {
 	s.RemoveSemiHidden()
 	if v {
-		s.GetOrAddSemiHidden().SetVal(true)
+		if err := s.GetOrAddSemiHidden().SetVal(true); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // UnhideWhenUsedVal returns the value of w:unhideWhenUsed, or false.
@@ -205,11 +228,14 @@ func (s *CT_Style) UnhideWhenUsedVal() bool {
 }
 
 // SetUnhideWhenUsedVal sets the unhideWhenUsed flag.
-func (s *CT_Style) SetUnhideWhenUsedVal(v bool) {
+func (s *CT_Style) SetUnhideWhenUsedVal(v bool) error {
 	s.RemoveUnhideWhenUsed()
 	if v {
-		s.GetOrAddUnhideWhenUsed().SetVal(true)
+		if err := s.GetOrAddUnhideWhenUsed().SetVal(true); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // QFormatVal returns the value of w:qFormat, or false.
@@ -243,12 +269,15 @@ func (s *CT_Style) UiPriorityVal() *int {
 }
 
 // SetUiPriorityVal sets the uiPriority. Passing nil removes the element.
-func (s *CT_Style) SetUiPriorityVal(v *int) {
+func (s *CT_Style) SetUiPriorityVal(v *int) error {
 	s.RemoveUiPriority()
 	if v == nil {
-		return
+		return nil
 	}
-	s.GetOrAddUiPriority().SetVal(*v)
+	if err := s.GetOrAddUiPriority().SetVal(*v); err != nil {
+		return err
+	}
+	return nil
 }
 
 // BaseStyle returns the sibling CT_Style that this style is based on, or nil.
@@ -317,8 +346,13 @@ func (ls *CT_LatentStyles) BoolProp(attrName string) bool {
 }
 
 // SetBoolProp sets the named on/off attribute.
-func (ls *CT_LatentStyles) SetBoolProp(attrName string, val bool) {
-	ls.SetAttr(attrName, formatBoolAttr(val))
+func (ls *CT_LatentStyles) SetBoolProp(attrName string, val bool) error {
+	s, err := formatBoolAttr(val)
+	if err != nil {
+		return err
+	}
+	ls.SetAttr(attrName, s)
+	return nil
 }
 
 // ===========================================================================
@@ -344,10 +378,15 @@ func (exc *CT_LsdException) OnOffProp(attrName string) *bool {
 }
 
 // SetOnOffProp sets the named on/off attribute. Passing nil removes the attribute.
-func (exc *CT_LsdException) SetOnOffProp(attrName string, val *bool) {
+func (exc *CT_LsdException) SetOnOffProp(attrName string, val *bool) error {
 	if val == nil {
 		exc.RemoveAttr(attrName)
-		return
+		return nil
 	}
-	exc.SetAttr(attrName, formatBoolAttr(*val))
+	s, err := formatBoolAttr(*val)
+	if err != nil {
+		return err
+	}
+	exc.SetAttr(attrName, s)
+	return nil
 }

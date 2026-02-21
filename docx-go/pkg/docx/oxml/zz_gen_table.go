@@ -857,12 +857,17 @@ func (e *CT_TblGridCol) W() int {
 
 // SetW sets the "w:w" attribute.
 // Passing 0 removes it.
-func (e *CT_TblGridCol) SetW(v int) {
+func (e *CT_TblGridCol) SetW(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:w")
-		return
+		return nil
 	}
-	e.SetAttr("w:w", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_TblGridCol.SetW: %w", err)
+	}
+	e.SetAttr("w:w", s)
+	return nil
 }
 
 // --- CT_Height ---
@@ -883,12 +888,17 @@ func (e *CT_Height) Val() int {
 
 // SetVal sets the "w:val" attribute.
 // Passing 0 removes it.
-func (e *CT_Height) SetVal(v int) {
+func (e *CT_Height) SetVal(v int) error {
 	if v == 0 {
 		e.RemoveAttr("w:val")
-		return
+		return nil
 	}
-	e.SetAttr("w:val", formatIntAttr(v))
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_Height.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
 
 // HRule returns the value of the "w:hRule" attribute, or enum.WdRowHeightRule(0) if absent.
@@ -902,12 +912,17 @@ func (e *CT_Height) HRule() enum.WdRowHeightRule {
 
 // SetHRule sets the "w:hRule" attribute.
 // Passing enum.WdRowHeightRule(0) removes it.
-func (e *CT_Height) SetHRule(v enum.WdRowHeightRule) {
+func (e *CT_Height) SetHRule(v enum.WdRowHeightRule) error {
 	if v == enum.WdRowHeightRule(0) {
 		e.RemoveAttr("w:hRule")
-		return
+		return nil
 	}
-	e.SetAttr("w:hRule", mustToXmlEnum(v))
+	s, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("CT_Height.SetHRule: %w", err)
+	}
+	e.SetAttr("w:hRule", s)
+	return nil
 }
 
 // --- CT_TblWidth ---
@@ -927,8 +942,13 @@ func (e *CT_TblWidth) W() (int, error) {
 }
 
 // SetW sets the required "w:w" attribute.
-func (e *CT_TblWidth) SetW(v int) {
-	e.SetAttr("w:w", formatIntAttr(v))
+func (e *CT_TblWidth) SetW(v int) error {
+	s, err := formatIntAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_TblWidth.SetW: %w", err)
+	}
+	e.SetAttr("w:w", s)
+	return nil
 }
 
 // Type returns the value of the required "w:type" attribute.
@@ -941,8 +961,13 @@ func (e *CT_TblWidth) Type() (string, error) {
 }
 
 // SetType sets the required "w:type" attribute.
-func (e *CT_TblWidth) SetType(v string) {
-	e.SetAttr("w:type", v)
+func (e *CT_TblWidth) SetType(v string) error {
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_TblWidth.SetType: %w", err)
+	}
+	e.SetAttr("w:type", s)
+	return nil
 }
 
 // --- CT_TblLayoutType ---
@@ -963,12 +988,17 @@ func (e *CT_TblLayoutType) Type() string {
 
 // SetType sets the "w:type" attribute.
 // Passing "" removes it.
-func (e *CT_TblLayoutType) SetType(v string) {
+func (e *CT_TblLayoutType) SetType(v string) error {
 	if v == "" {
 		e.RemoveAttr("w:type")
-		return
+		return nil
 	}
-	e.SetAttr("w:type", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_TblLayoutType.SetType: %w", err)
+	}
+	e.SetAttr("w:type", s)
+	return nil
 }
 
 // --- CT_TblPrEx ---
@@ -995,8 +1025,13 @@ func (e *CT_VerticalJc) Val() (enum.WdCellVerticalAlignment, error) {
 }
 
 // SetVal sets the required "w:val" attribute.
-func (e *CT_VerticalJc) SetVal(v enum.WdCellVerticalAlignment) {
-	e.SetAttr("w:val", mustToXmlEnum(v))
+func (e *CT_VerticalJc) SetVal(v enum.WdCellVerticalAlignment) error {
+	s, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("CT_VerticalJc.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
 
 // --- CT_VMerge ---
@@ -1017,10 +1052,15 @@ func (e *CT_VMerge) Val() string {
 
 // SetVal sets the "w:val" attribute.
 // Passing "continue" removes it.
-func (e *CT_VMerge) SetVal(v string) {
+func (e *CT_VMerge) SetVal(v string) error {
 	if v == "continue" {
 		e.RemoveAttr("w:val")
-		return
+		return nil
 	}
-	e.SetAttr("w:val", v)
+	s, err := formatStringAttr(v)
+	if err != nil {
+		return fmt.Errorf("CT_VMerge.SetVal: %w", err)
+	}
+	e.SetAttr("w:val", s)
+	return nil
 }
