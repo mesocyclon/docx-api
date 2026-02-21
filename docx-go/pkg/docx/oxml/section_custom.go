@@ -1,6 +1,8 @@
 package oxml
 
 import (
+	"fmt"
+
 	"github.com/beevik/etree"
 	"github.com/user/go-docx/pkg/docx/enum"
 )
@@ -127,15 +129,20 @@ func (sp *CT_SectPr) StartType() enum.WdSectionStart {
 
 // SetStartType sets the section start type. Passing WdSectionStartNewPage removes
 // the type element (since NEW_PAGE is the default).
-func (sp *CT_SectPr) SetStartType(v enum.WdSectionStart) {
+func (sp *CT_SectPr) SetStartType(v enum.WdSectionStart) error {
 	if v == enum.WdSectionStartNewPage {
 		sp.RemoveType()
-		return
+		return nil
+	}
+	xmlVal, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("oxml: invalid section start type: %w", err)
 	}
 	t := sp.GetOrAddType()
 	// Use SetAttr directly because the generated SetVal treats zero (Continuous)
 	// as "remove attribute", but we actually need to write w:val="continuous".
-	t.SetAttr("w:val", v.ToXml())
+	t.SetAttr("w:val", xmlVal)
+	return nil
 }
 
 // --- Title page ---
@@ -340,34 +347,42 @@ func (sp *CT_SectPr) AddFooterRef(hfType enum.WdHeaderFooterIndex, rId string) *
 }
 
 // GetHeaderRef returns the headerReference of the given type, or nil.
-func (sp *CT_SectPr) GetHeaderRef(hfType enum.WdHeaderFooterIndex) *CT_HdrFtrRef {
-	xmlVal := hfType.ToXml()
+// Returns an error if hfType has no XML representation.
+func (sp *CT_SectPr) GetHeaderRef(hfType enum.WdHeaderFooterIndex) (*CT_HdrFtrRef, error) {
+	xmlVal, err := hfType.ToXml()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: invalid header/footer type: %w", err)
+	}
 	for _, ref := range sp.HeaderReferenceList() {
 		v, ok := ref.GetAttr("w:type")
 		if ok && v == xmlVal {
-			return ref
+			return ref, nil
 		}
 	}
-	return nil
+	return nil, nil
 }
 
 // GetFooterRef returns the footerReference of the given type, or nil.
-func (sp *CT_SectPr) GetFooterRef(hfType enum.WdHeaderFooterIndex) *CT_HdrFtrRef {
-	xmlVal := hfType.ToXml()
+// Returns an error if hfType has no XML representation.
+func (sp *CT_SectPr) GetFooterRef(hfType enum.WdHeaderFooterIndex) (*CT_HdrFtrRef, error) {
+	xmlVal, err := hfType.ToXml()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: invalid header/footer type: %w", err)
+	}
 	for _, ref := range sp.FooterReferenceList() {
 		v, ok := ref.GetAttr("w:type")
 		if ok && v == xmlVal {
-			return ref
+			return ref, nil
 		}
 	}
-	return nil
+	return nil, nil
 }
 
 // RemoveHeaderRef removes the headerReference of the given type and returns its rId.
-// Returns "" if not found.
+// Returns "" if not found or on error.
 func (sp *CT_SectPr) RemoveHeaderRef(hfType enum.WdHeaderFooterIndex) string {
-	ref := sp.GetHeaderRef(hfType)
-	if ref == nil {
+	ref, err := sp.GetHeaderRef(hfType)
+	if err != nil || ref == nil {
 		return ""
 	}
 	rId, _ := ref.RId()
@@ -376,10 +391,10 @@ func (sp *CT_SectPr) RemoveHeaderRef(hfType enum.WdHeaderFooterIndex) string {
 }
 
 // RemoveFooterRef removes the footerReference of the given type and returns its rId.
-// Returns "" if not found.
+// Returns "" if not found or on error.
 func (sp *CT_SectPr) RemoveFooterRef(hfType enum.WdHeaderFooterIndex) string {
-	ref := sp.GetFooterRef(hfType)
-	if ref == nil {
+	ref, err := sp.GetFooterRef(hfType)
+	if err != nil || ref == nil {
 		return ""
 	}
 	rId, _ := ref.RId()

@@ -346,7 +346,7 @@ func (e *CT_HdrFtrRef) Type() (enum.WdHeaderFooterIndex, error) {
 
 // SetType sets the required "w:type" attribute.
 func (e *CT_HdrFtrRef) SetType(v enum.WdHeaderFooterIndex) {
-	e.SetAttr("w:type", v.ToXml())
+	e.SetAttr("w:type", mustToXmlEnum(v))
 }
 
 // RId returns the value of the required "r:id" attribute.
@@ -564,7 +564,7 @@ func (e *CT_PageSz) SetOrient(v enum.WdOrientation) {
 		e.RemoveAttr("w:orient")
 		return
 	}
-	e.SetAttr("w:orient", v.ToXml())
+	e.SetAttr("w:orient", mustToXmlEnum(v))
 }
 
 // --- CT_SectType ---
@@ -590,5 +590,5 @@ func (e *CT_SectType) SetVal(v enum.WdSectionStart) {
 		e.RemoveAttr("w:val")
 		return
 	}
-	e.SetAttr("w:val", v.ToXml())
+	e.SetAttr("w:val", mustToXmlEnum(v))
 }

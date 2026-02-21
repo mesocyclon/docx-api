@@ -907,7 +907,7 @@ func (e *CT_Height) SetHRule(v enum.WdRowHeightRule) {
 		e.RemoveAttr("w:hRule")
 		return
 	}
-	e.SetAttr("w:hRule", v.ToXml())
+	e.SetAttr("w:hRule", mustToXmlEnum(v))
 }
 
 // --- CT_TblWidth ---
@@ -996,7 +996,7 @@ func (e *CT_VerticalJc) Val() (enum.WdCellVerticalAlignment, error) {
 
 // SetVal sets the required "w:val" attribute.
 func (e *CT_VerticalJc) SetVal(v enum.WdCellVerticalAlignment) {
-	e.SetAttr("w:val", v.ToXml())
+	e.SetAttr("w:val", mustToXmlEnum(v))
 }
 
 // --- CT_VMerge ---

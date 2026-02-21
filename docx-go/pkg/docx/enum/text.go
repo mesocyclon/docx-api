@@ -40,7 +40,9 @@ var wdParagraphAlignmentToXml = map[WdParagraphAlignment]string{
 var wdParagraphAlignmentFromXml = invertMap(wdParagraphAlignmentToXml)
 
 // ToXml returns the XML attribute value for this alignment.
-func (v WdParagraphAlignment) ToXml() string { return wdParagraphAlignmentToXml[v] }
+func (v WdParagraphAlignment) ToXml() (string, error) {
+	return ToXml(wdParagraphAlignmentToXml, v)
+}
 
 // WdParagraphAlignmentFromXml returns the alignment for the given XML value.
 func WdParagraphAlignmentFromXml(s string) (WdParagraphAlignment, error) {
@@ -127,7 +129,8 @@ var wdColorIndexToXml = map[WdColorIndex]string{
 var wdColorIndexFromXml = invertMap(wdColorIndexToXml)
 
 // ToXml returns the XML attribute value for this color index.
-func (v WdColorIndex) ToXml() string { return wdColorIndexToXml[v] }
+// INHERITED has no XML representation.
+func (v WdColorIndex) ToXml() (string, error) { return ToXml(wdColorIndexToXml, v) }
 
 // WdColorIndexFromXml returns the color index for the given XML value.
 func WdColorIndexFromXml(s string) (WdColorIndex, error) {
@@ -207,7 +210,7 @@ var wdTabAlignmentToXml = map[WdTabAlignment]string{
 var wdTabAlignmentFromXml = invertMap(wdTabAlignmentToXml)
 
 // ToXml returns the XML attribute value for this tab alignment.
-func (v WdTabAlignment) ToXml() string { return wdTabAlignmentToXml[v] }
+func (v WdTabAlignment) ToXml() (string, error) { return ToXml(wdTabAlignmentToXml, v) }
 
 // WdTabAlignmentFromXml returns the tab alignment for the given XML value.
 func WdTabAlignmentFromXml(s string) (WdTabAlignment, error) {
@@ -243,7 +246,7 @@ var wdTabLeaderToXml = map[WdTabLeader]string{
 var wdTabLeaderFromXml = invertMap(wdTabLeaderToXml)
 
 // ToXml returns the XML attribute value for this tab leader.
-func (v WdTabLeader) ToXml() string { return wdTabLeaderToXml[v] }
+func (v WdTabLeader) ToXml() (string, error) { return ToXml(wdTabLeaderToXml, v) }
 
 // WdTabLeaderFromXml returns the tab leader for the given XML value.
 func WdTabLeaderFromXml(s string) (WdTabLeader, error) {

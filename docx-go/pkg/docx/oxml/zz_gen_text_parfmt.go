@@ -622,7 +622,7 @@ func (e *CT_Jc) Val() (enum.WdParagraphAlignment, error) {
 
 // SetVal sets the required "w:val" attribute.
 func (e *CT_Jc) SetVal(v enum.WdParagraphAlignment) {
-	e.SetAttr("w:val", v.ToXml())
+	e.SetAttr("w:val", mustToXmlEnum(v))
 }
 
 // --- CT_Spacing ---
@@ -731,7 +731,7 @@ func (e *CT_TabStop) SetLeader(v enum.WdTabLeader) {
 		e.RemoveAttr("w:leader")
 		return
 	}
-	e.SetAttr("w:leader", v.ToXml())
+	e.SetAttr("w:leader", mustToXmlEnum(v))
 }
 
 // Val returns the value of the required "w:val" attribute.
@@ -745,7 +745,7 @@ func (e *CT_TabStop) Val() (enum.WdTabAlignment, error) {
 
 // SetVal sets the required "w:val" attribute.
 func (e *CT_TabStop) SetVal(v enum.WdTabAlignment) {
-	e.SetAttr("w:val", v.ToXml())
+	e.SetAttr("w:val", mustToXmlEnum(v))
 }
 
 // Pos returns the value of the required "w:pos" attribute.

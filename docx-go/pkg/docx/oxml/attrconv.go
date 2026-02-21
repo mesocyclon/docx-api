@@ -75,3 +75,18 @@ func parseOptionalEnum[T any](s string, fromXml func(string) (T, error)) *T {
 	}
 	return &v
 }
+
+// toXmlEnum is an interface satisfied by all enum types with a ToXml method.
+type toXmlEnum interface {
+	ToXml() (string, error)
+}
+
+// mustToXmlEnum calls ToXml() on an enum value and panics if it fails.
+// Used in generated setters where error propagation is impractical.
+func mustToXmlEnum(v toXmlEnum) string {
+	s, err := v.ToXml()
+	if err != nil {
+		panic(err)
+	}
+	return s
+}

@@ -26,7 +26,7 @@ var wdHeaderFooterIndexToXml = map[WdHeaderFooterIndex]string{
 var wdHeaderFooterIndexFromXml = invertMap(wdHeaderFooterIndexToXml)
 
 // ToXml returns the XML attribute value for this header/footer index.
-func (v WdHeaderFooterIndex) ToXml() string { return wdHeaderFooterIndexToXml[v] }
+func (v WdHeaderFooterIndex) ToXml() (string, error) { return ToXml(wdHeaderFooterIndexToXml, v) }
 
 // WdHeaderFooterIndexFromXml returns the header/footer index for the given XML value.
 func WdHeaderFooterIndexFromXml(s string) (WdHeaderFooterIndex, error) {
@@ -57,7 +57,7 @@ var wdOrientationToXml = map[WdOrientation]string{
 var wdOrientationFromXml = invertMap(wdOrientationToXml)
 
 // ToXml returns the XML attribute value for this orientation.
-func (v WdOrientation) ToXml() string { return wdOrientationToXml[v] }
+func (v WdOrientation) ToXml() (string, error) { return ToXml(wdOrientationToXml, v) }
 
 // WdOrientationFromXml returns the orientation for the given XML value.
 func WdOrientationFromXml(s string) (WdOrientation, error) {
@@ -94,7 +94,7 @@ var wdSectionStartToXml = map[WdSectionStart]string{
 var wdSectionStartFromXml = invertMap(wdSectionStartToXml)
 
 // ToXml returns the XML attribute value for this section start type.
-func (v WdSectionStart) ToXml() string { return wdSectionStartToXml[v] }
+func (v WdSectionStart) ToXml() (string, error) { return ToXml(wdSectionStartToXml, v) }
 
 // WdSectionStartFromXml returns the section start type for the given XML value.
 func WdSectionStartFromXml(s string) (WdSectionStart, error) {

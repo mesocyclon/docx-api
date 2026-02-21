@@ -89,9 +89,11 @@ func openFromPhysReader(physReader *PhysPkgReader, factory *PartFactory) (*OpcPa
 		var targetPart Part
 		if !srel.IsExternal() {
 			pn := srel.TargetPartname()
-			if p, ok := parts[pn]; ok {
-				targetPart = p
+			p, ok := parts[pn]
+			if !ok {
+				return nil, fmt.Errorf("opc: package relationship %q references missing part %q", srel.RID, pn)
 			}
+			targetPart = p
 		}
 		pkg.rels.Load(srel.RID, srel.RelType, srel.TargetRef, targetPart, srel.IsExternal())
 	}
@@ -99,18 +101,17 @@ func openFromPhysReader(physReader *PhysPkgReader, factory *PartFactory) (*OpcPa
 	// Wire up part-level relationships.
 	// Mirrors the same Python loop with source = parts[source_uri].
 	for _, sp := range result.SParts {
-		part, ok := parts[sp.Partname]
-		if !ok {
-			continue
-		}
+		part := parts[sp.Partname] // guaranteed to exist: built from same SParts slice
 		rels := NewRelationships(sp.Partname.BaseURI())
 		for _, srel := range sp.SRels {
 			var targetPart Part
 			if !srel.IsExternal() {
 				pn := srel.TargetPartname()
-				if p, ok := parts[pn]; ok {
-					targetPart = p
+				p, ok := parts[pn]
+				if !ok {
+					return nil, fmt.Errorf("opc: part %q relationship %q references missing part %q", sp.Partname, srel.RID, pn)
 				}
+				targetPart = p
 			}
 			rels.Load(srel.RID, srel.RelType, srel.TargetRef, targetPart, srel.IsExternal())
 		}

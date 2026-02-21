@@ -25,7 +25,7 @@ var wdStyleTypeToXml = map[WdStyleType]string{
 var wdStyleTypeFromXml = invertMap(wdStyleTypeToXml)
 
 // ToXml returns the XML attribute value for this style type.
-func (v WdStyleType) ToXml() string { return wdStyleTypeToXml[v] }
+func (v WdStyleType) ToXml() (string, error) { return ToXml(wdStyleTypeToXml, v) }
 
 // WdStyleTypeFromXml returns the style type for the given XML value.
 func WdStyleTypeFromXml(s string) (WdStyleType, error) {

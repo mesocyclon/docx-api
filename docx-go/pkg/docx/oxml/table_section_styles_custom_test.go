@@ -93,12 +93,16 @@ func TestCT_Tbl_Alignment_RoundTrip(t *testing.T) {
 		t.Errorf("expected nil, got %v", *v)
 	}
 	center := enum.WdTableAlignmentCenter
-	tbl.SetAlignmentVal(&center)
+	if err := tbl.SetAlignmentVal(&center); err != nil {
+		t.Fatal(err)
+	}
 	got := tbl.AlignmentVal()
 	if got == nil || *got != enum.WdTableAlignmentCenter {
 		t.Errorf("expected Center, got %v", got)
 	}
-	tbl.SetAlignmentVal(nil)
+	if err := tbl.SetAlignmentVal(nil); err != nil {
+		t.Fatal(err)
+	}
 	if v := tbl.AlignmentVal(); v != nil {
 		t.Errorf("expected nil after clear, got %v", *v)
 	}
@@ -444,11 +448,15 @@ func TestCT_SectPr_StartType_RoundTrip(t *testing.T) {
 	if sp.StartType() != enum.WdSectionStartNewPage {
 		t.Error("expected NEW_PAGE by default")
 	}
-	sp.SetStartType(enum.WdSectionStartContinuous)
+	if err := sp.SetStartType(enum.WdSectionStartContinuous); err != nil {
+		t.Fatal(err)
+	}
 	if sp.StartType() != enum.WdSectionStartContinuous {
 		t.Error("expected Continuous")
 	}
-	sp.SetStartType(enum.WdSectionStartNewPage)
+	if err := sp.SetStartType(enum.WdSectionStartNewPage); err != nil {
+		t.Fatal(err)
+	}
 	if sp.Type() != nil {
 		t.Error("expected type element removed for NEW_PAGE")
 	}
@@ -541,7 +549,10 @@ func TestCT_SectPr_HeaderFooterRef(t *testing.T) {
 
 	// Add header ref
 	sp.AddHeaderRef(enum.WdHeaderFooterIndexPrimary, "rId1")
-	ref := sp.GetHeaderRef(enum.WdHeaderFooterIndexPrimary)
+	ref, err := sp.GetHeaderRef(enum.WdHeaderFooterIndexPrimary)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if ref == nil {
 		t.Fatal("expected header ref")
 	}
@@ -552,7 +563,10 @@ func TestCT_SectPr_HeaderFooterRef(t *testing.T) {
 
 	// Add footer ref
 	sp.AddFooterRef(enum.WdHeaderFooterIndexPrimary, "rId2")
-	fRef := sp.GetFooterRef(enum.WdHeaderFooterIndexPrimary)
+	fRef, err := sp.GetFooterRef(enum.WdHeaderFooterIndexPrimary)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if fRef == nil {
 		t.Fatal("expected footer ref")
 	}
@@ -562,7 +576,11 @@ func TestCT_SectPr_HeaderFooterRef(t *testing.T) {
 	if removed != "rId1" {
 		t.Errorf("expected removed rId1, got %s", removed)
 	}
-	if sp.GetHeaderRef(enum.WdHeaderFooterIndexPrimary) != nil {
+	refAfter, err := sp.GetHeaderRef(enum.WdHeaderFooterIndexPrimary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if refAfter != nil {
 		t.Error("expected header ref to be removed")
 	}
 
@@ -643,7 +661,11 @@ func TestCT_Styles_DefaultFor(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	s.SetStyleId("Normal")
-	s.SetType(enum.WdStyleTypeParagraph.ToXml())
+	xmlType, err := enum.WdStyleTypeParagraph.ToXml()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	s.SetType(xmlType)
 	s.SetDefault(true)
 
 	def := styles.DefaultFor(enum.WdStyleTypeParagraph)
@@ -662,7 +684,10 @@ func TestCT_Styles_DefaultFor(t *testing.T) {
 
 func TestCT_Styles_AddStyleOfType(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
-	s := styles.AddStyleOfType("My Custom Style", enum.WdStyleTypeParagraph, false)
+	s, err := styles.AddStyleOfType("My Custom Style", enum.WdStyleTypeParagraph, false)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if s.StyleId() != "MyCustomStyle" {
 		t.Errorf("expected styleId MyCustomStyle, got %q", s.StyleId())
@@ -678,7 +703,10 @@ func TestCT_Styles_AddStyleOfType(t *testing.T) {
 	}
 
 	// Builtin
-	b := styles.AddStyleOfType("Heading 1", enum.WdStyleTypeParagraph, true)
+	b, err := styles.AddStyleOfType("Heading 1", enum.WdStyleTypeParagraph, true)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if b.CustomStyle() {
 		t.Error("expected customStyle=false for builtin")
 	}
@@ -839,11 +867,17 @@ func TestCT_Style_Delete(t *testing.T) {
 
 func TestCT_Style_IsBuiltin(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
-	s := styles.AddStyleOfType("Normal", enum.WdStyleTypeParagraph, true)
+	s, err := styles.AddStyleOfType("Normal", enum.WdStyleTypeParagraph, true)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if !s.IsBuiltin() {
 		t.Error("expected builtin")
 	}
-	custom := styles.AddStyleOfType("My Style", enum.WdStyleTypeParagraph, false)
+	custom, err := styles.AddStyleOfType("My Style", enum.WdStyleTypeParagraph, false)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if custom.IsBuiltin() {
 		t.Error("expected not builtin")
 	}

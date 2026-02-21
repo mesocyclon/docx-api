@@ -1,6 +1,7 @@
 package oxml
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/user/go-docx/pkg/docx/enum"
@@ -60,7 +61,10 @@ func (ss *CT_Styles) GetByName(name string) *CT_Style {
 // DefaultFor returns the default style for the given type, or nil.
 // If multiple defaults exist, returns the last one (per OOXML spec).
 func (ss *CT_Styles) DefaultFor(styleType enum.WdStyleType) *CT_Style {
-	xmlType := styleType.ToXml()
+	xmlType, err := styleType.ToXml()
+	if err != nil {
+		return nil
+	}
 	var last *CT_Style
 	for _, s := range ss.StyleList() {
 		if s.Type() == xmlType && s.Default() {
@@ -72,15 +76,19 @@ func (ss *CT_Styles) DefaultFor(styleType enum.WdStyleType) *CT_Style {
 
 // AddStyleOfType creates and adds a new w:style element with the given name, type,
 // and builtin flag. Returns the new style element.
-func (ss *CT_Styles) AddStyleOfType(name string, styleType enum.WdStyleType, builtin bool) *CT_Style {
+func (ss *CT_Styles) AddStyleOfType(name string, styleType enum.WdStyleType, builtin bool) (*CT_Style, error) {
+	xmlType, err := styleType.ToXml()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: invalid style type: %w", err)
+	}
 	style := ss.AddStyle()
-	style.SetType(styleType.ToXml())
+	style.SetType(xmlType)
 	if !builtin {
 		style.SetCustomStyle(true)
 	}
 	style.SetStyleId(StyleIdFromName(name))
 	style.SetNameVal(name)
-	return style
+	return style, nil
 }
 
 // ===========================================================================

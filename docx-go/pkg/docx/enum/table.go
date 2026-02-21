@@ -23,7 +23,7 @@ var wdTableAlignmentToXml = map[WdTableAlignment]string{
 var wdTableAlignmentFromXml = invertMap(wdTableAlignmentToXml)
 
 // ToXml returns the XML attribute value for this table alignment.
-func (v WdTableAlignment) ToXml() string { return wdTableAlignmentToXml[v] }
+func (v WdTableAlignment) ToXml() (string, error) { return ToXml(wdTableAlignmentToXml, v) }
 
 // WdTableAlignmentFromXml returns the table alignment for the given XML value.
 func WdTableAlignmentFromXml(s string) (WdTableAlignment, error) {
@@ -71,7 +71,9 @@ var wdCellVerticalAlignmentToXml = map[WdCellVerticalAlignment]string{
 var wdCellVerticalAlignmentFromXml = invertMap(wdCellVerticalAlignmentToXml)
 
 // ToXml returns the XML attribute value for this vertical alignment.
-func (v WdCellVerticalAlignment) ToXml() string { return wdCellVerticalAlignmentToXml[v] }
+func (v WdCellVerticalAlignment) ToXml() (string, error) {
+	return ToXml(wdCellVerticalAlignmentToXml, v)
+}
 
 // WdCellVerticalAlignmentFromXml returns the vertical alignment for the given XML value.
 func WdCellVerticalAlignmentFromXml(s string) (WdCellVerticalAlignment, error) {
@@ -104,7 +106,7 @@ var wdRowHeightRuleToXml = map[WdRowHeightRule]string{
 var wdRowHeightRuleFromXml = invertMap(wdRowHeightRuleToXml)
 
 // ToXml returns the XML attribute value for this row height rule.
-func (v WdRowHeightRule) ToXml() string { return wdRowHeightRuleToXml[v] }
+func (v WdRowHeightRule) ToXml() (string, error) { return ToXml(wdRowHeightRuleToXml, v) }
 
 // WdRowHeightRuleFromXml returns the row height rule for the given XML value.
 func WdRowHeightRuleFromXml(s string) (WdRowHeightRule, error) {

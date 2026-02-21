@@ -111,14 +111,19 @@ func (t *CT_Tbl) AlignmentVal() *enum.WdTableAlignment {
 }
 
 // SetAlignmentVal sets the table alignment. Passing nil removes jc.
-func (t *CT_Tbl) SetAlignmentVal(v *enum.WdTableAlignment) {
+func (t *CT_Tbl) SetAlignmentVal(v *enum.WdTableAlignment) error {
 	tblPr := t.TblPr()
 	tblPr.RemoveJc()
 	if v == nil {
-		return
+		return nil
+	}
+	xmlVal, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("oxml: invalid table alignment: %w", err)
 	}
 	jc := tblPr.GetOrAddJc()
-	jc.SetAttr("w:val", v.ToXml())
+	jc.SetAttr("w:val", xmlVal)
+	return nil
 }
 
 // BidiVisualVal returns the value of tblPr/bidiVisual, or nil if not present.
@@ -209,13 +214,18 @@ func (pr *CT_TblPr) AlignmentVal() *enum.WdTableAlignment {
 }
 
 // SetAlignmentVal sets the table alignment. Passing nil removes jc.
-func (pr *CT_TblPr) SetAlignmentVal(v *enum.WdTableAlignment) {
+func (pr *CT_TblPr) SetAlignmentVal(v *enum.WdTableAlignment) error {
 	pr.RemoveJc()
 	if v == nil {
-		return
+		return nil
+	}
+	xmlVal, err := v.ToXml()
+	if err != nil {
+		return fmt.Errorf("oxml: invalid table alignment: %w", err)
 	}
 	jc := pr.GetOrAddJc()
-	jc.SetAttr("w:val", v.ToXml())
+	jc.SetAttr("w:val", xmlVal)
+	return nil
 }
 
 // AutofitVal returns false when tblLayout type="fixed", true otherwise.

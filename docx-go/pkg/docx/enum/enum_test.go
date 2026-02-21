@@ -39,11 +39,19 @@ func TestWdParagraphAlignmentFromXml(t *testing.T) {
 func TestWdParagraphAlignmentToXml(t *testing.T) {
 	t.Parallel()
 	// JUSTIFY maps to "both", not "justify"
-	if WdParagraphAlignmentJustify.ToXml() != "both" {
-		t.Errorf("JUSTIFY.ToXml() = %q, want %q", WdParagraphAlignmentJustify.ToXml(), "both")
+	got, err := WdParagraphAlignmentJustify.ToXml()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
 	}
-	if WdParagraphAlignmentCenter.ToXml() != "center" {
-		t.Errorf("CENTER.ToXml() = %q, want %q", WdParagraphAlignmentCenter.ToXml(), "center")
+	if got != "both" {
+		t.Errorf("JUSTIFY.ToXml() = %q, want %q", got, "both")
+	}
+	got, err = WdParagraphAlignmentCenter.ToXml()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != "center" {
+		t.Errorf("CENTER.ToXml() = %q, want %q", got, "center")
 	}
 }
 
@@ -378,8 +386,12 @@ func TestWdRowHeightRuleRoundTrip(t *testing.T) {
 func TestWdRowHeightRuleExactly(t *testing.T) {
 	t.Parallel()
 	// EXACTLY maps to "exact" (not "exactly")
-	if WdRowHeightRuleExactly.ToXml() != "exact" {
-		t.Errorf("EXACTLY.ToXml() = %q, want %q", WdRowHeightRuleExactly.ToXml(), "exact")
+	got, err := WdRowHeightRuleExactly.ToXml()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != "exact" {
+		t.Errorf("EXACTLY.ToXml() = %q, want %q", got, "exact")
 	}
 }
 
@@ -409,5 +421,40 @@ func TestFromXmlError(t *testing.T) {
 	_, err := FromXml(map[string]int{"a": 1}, "nonexistent")
 	if err == nil {
 		t.Error("expected error for nonexistent key, got nil")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Unmapped enum value error tests (verifies unified ToXml behavior)
+// ---------------------------------------------------------------------------
+
+func TestToXmlReturnsErrorForUnmappedValues(t *testing.T) {
+	t.Parallel()
+
+	// WdColorIndex.INHERITED has no XML mapping
+	_, err := WdColorIndexInherited.ToXml()
+	if err == nil {
+		t.Error("expected error for WdColorIndexInherited.ToXml(), got nil")
+	}
+
+	// An arbitrary invalid int cast to a fully-mapped enum should also error
+	_, err = WdHeaderFooterIndex(999).ToXml()
+	if err == nil {
+		t.Error("expected error for WdHeaderFooterIndex(999).ToXml(), got nil")
+	}
+
+	_, err = WdOrientation(999).ToXml()
+	if err == nil {
+		t.Error("expected error for WdOrientation(999).ToXml(), got nil")
+	}
+
+	_, err = WdStyleType(999).ToXml()
+	if err == nil {
+		t.Error("expected error for WdStyleType(999).ToXml(), got nil")
+	}
+
+	_, err = WdParagraphAlignment(999).ToXml()
+	if err == nil {
+		t.Error("expected error for WdParagraphAlignment(999).ToXml(), got nil")
 	}
 }
