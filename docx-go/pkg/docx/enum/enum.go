@@ -25,17 +25,6 @@ func ToXml[T comparable](mapping map[T]string, val T) (string, error) {
 	return "", fmt.Errorf("enum member %v has no XML representation", val)
 }
 
-// MustToXml is like ToXml but panics if the member has no XML representation.
-// Use in generated setters and other contexts where the value is expected to be
-// valid and error propagation is impractical.
-func MustToXml[T comparable](mapping map[T]string, val T) string {
-	s, err := ToXml(mapping, val)
-	if err != nil {
-		panic(err)
-	}
-	return s
-}
-
 // invertMap creates a reverse mapping from value→key to key→value.
 func invertMap[K, V comparable](m map[K]V) map[V]K {
 	inv := make(map[V]K, len(m))
