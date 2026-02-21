@@ -52,23 +52,23 @@ func (e *CT_Tbl) insertTr(child *CT_Row) *CT_Row {
 }
 
 // TblPr returns the required <w:tblPr> child element.
-// Panics if not present (invalid XML).
-func (e *CT_Tbl) TblPr() *CT_TblPr {
+// Returns an error if not present (invalid XML).
+func (e *CT_Tbl) TblPr() (*CT_TblPr, error) {
 	child := e.FindChild("w:tblPr")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "w:tblPr", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "w:tblPr", e.Tag())
 	}
-	return &CT_TblPr{Element{E: child}}
+	return &CT_TblPr{Element{E: child}}, nil
 }
 
 // TblGrid returns the required <w:tblGrid> child element.
-// Panics if not present (invalid XML).
-func (e *CT_Tbl) TblGrid() *CT_TblGrid {
+// Returns an error if not present (invalid XML).
+func (e *CT_Tbl) TblGrid() (*CT_TblGrid, error) {
 	child := e.FindChild("w:tblGrid")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "w:tblGrid", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "w:tblGrid", e.Tag())
 	}
-	return &CT_TblGrid{Element{E: child}}
+	return &CT_TblGrid{Element{E: child}}, nil
 }
 
 // --- CT_Row ---

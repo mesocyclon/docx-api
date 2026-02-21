@@ -43,15 +43,30 @@ func newInline(cx, cy int64, shapeId int, pic *CT_Picture) (*CT_Inline, error) {
 	inline := &CT_Inline{Element{E: el}}
 
 	// Set extent dimensions
-	inline.Extent().SetCx(cx)
-	inline.Extent().SetCy(cy)
+	extent, err := inline.Extent()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: inline missing extent: %w", err)
+	}
+	extent.SetCx(cx)
+	extent.SetCy(cy)
 
 	// Set docPr
-	inline.DocPr().SetId(shapeId)
-	inline.DocPr().SetName(fmt.Sprintf("Picture %d", shapeId))
+	docPr, err := inline.DocPr()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: inline missing docPr: %w", err)
+	}
+	docPr.SetId(shapeId)
+	docPr.SetName(fmt.Sprintf("Picture %d", shapeId))
 
 	// Set graphic data URI and insert the picture element
-	gd := inline.Graphic().GraphicData()
+	graphic, err := inline.Graphic()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: inline missing graphic: %w", err)
+	}
+	gd, err := graphic.GraphicData()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: graphic missing graphicData: %w", err)
+	}
 	gd.SetUri("http://schemas.openxmlformats.org/drawingml/2006/picture")
 	// Insert pic:pic into graphicData
 	gd.E.AddChild(pic.E)
@@ -92,35 +107,69 @@ func newPicture(picId int, filename, rId string, cx, cy int64) (*CT_Picture, err
 	pic := &CT_Picture{Element{E: el}}
 
 	// Set picture properties
-	pic.NvPicPr().CNvPr().SetId(picId)
-	pic.NvPicPr().CNvPr().SetName(filename)
-	pic.BlipFill().Blip().SetEmbed(rId)
-	pic.SpPr().SetCx(cx)
-	pic.SpPr().SetCy(cy)
+	nvPicPr, err := pic.NvPicPr()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: pic missing nvPicPr: %w", err)
+	}
+	cNvPr, err := nvPicPr.CNvPr()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: nvPicPr missing cNvPr: %w", err)
+	}
+	cNvPr.SetId(picId)
+	cNvPr.SetName(filename)
+	blipFill, err := pic.BlipFill()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: pic missing blipFill: %w", err)
+	}
+	blipFill.Blip().SetEmbed(rId)
+	spPr, err := pic.SpPr()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: pic missing spPr: %w", err)
+	}
+	spPr.SetCx(cx)
+	spPr.SetCy(cy)
 
 	return pic, nil
 }
 
 // ExtentCx returns the width of the inline image in EMU.
-func (i *CT_Inline) ExtentCx() int64 {
-	v, _ := i.Extent().Cx()
-	return v
+func (i *CT_Inline) ExtentCx() (int64, error) {
+	extent, err := i.Extent()
+	if err != nil {
+		return 0, fmt.Errorf("ExtentCx: %w", err)
+	}
+	v, _ := extent.Cx()
+	return v, nil
 }
 
 // ExtentCy returns the height of the inline image in EMU.
-func (i *CT_Inline) ExtentCy() int64 {
-	v, _ := i.Extent().Cy()
-	return v
+func (i *CT_Inline) ExtentCy() (int64, error) {
+	extent, err := i.Extent()
+	if err != nil {
+		return 0, fmt.Errorf("ExtentCy: %w", err)
+	}
+	v, _ := extent.Cy()
+	return v, nil
 }
 
 // SetExtentCx sets the width of the inline image in EMU.
-func (i *CT_Inline) SetExtentCx(v int64) {
-	i.Extent().SetCx(v)
+func (i *CT_Inline) SetExtentCx(v int64) error {
+	extent, err := i.Extent()
+	if err != nil {
+		return fmt.Errorf("SetExtentCx: %w", err)
+	}
+	extent.SetCx(v)
+	return nil
 }
 
 // SetExtentCy sets the height of the inline image in EMU.
-func (i *CT_Inline) SetExtentCy(v int64) {
-	i.Extent().SetCy(v)
+func (i *CT_Inline) SetExtentCy(v int64) error {
+	extent, err := i.Extent()
+	if err != nil {
+		return fmt.Errorf("SetExtentCy: %w", err)
+	}
+	extent.SetCy(v)
+	return nil
 }
 
 // ===========================================================================

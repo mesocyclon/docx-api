@@ -28,7 +28,7 @@ type Element struct {
 // Cardinality determines which methods are generated:
 //   - "zero_or_one":       getter, GetOrAdd, Remove, add, new, insert (6 methods)
 //   - "zero_or_more":      List getter, Add, add, new, insert          (5 methods)
-//   - "one_and_only_one":  getter only (panics if absent)              (1 method)
+//   - "one_and_only_one":  getter only (returns error if absent)        (1 method)
 //   - "one_or_more":       List getter, Add, add, new, insert          (5 methods)
 type Child struct {
 	Name        string   `yaml:"name"`        // Go property name, e.g. "PPr"
@@ -50,7 +50,7 @@ type Attribute struct {
 // ChoiceGroup describes a ZeroOrOneChoice element group (e.g. EG_ColorChoice).
 type ChoiceGroup struct {
 	Name       string   `yaml:"name"`       // group property name, e.g. "ColorChoice"
-	Choices    []Choice `yaml:"choices"`     // member elements
+	Choices    []Choice `yaml:"choices"`    // member elements
 	Successors []string `yaml:"successors"` // tags for InsertElementBefore ordering
 }
 

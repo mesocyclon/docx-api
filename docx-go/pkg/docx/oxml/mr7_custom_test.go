@@ -16,17 +16,26 @@ func TestNewPicInline_Structure(t *testing.T) {
 	}
 
 	// Check extent dimensions
-	cx := inline.ExtentCx()
+	cx, err := inline.ExtentCx()
+	if err != nil {
+		t.Fatalf("ExtentCx error: %v", err)
+	}
 	if cx != 914400 {
 		t.Errorf("expected cx=914400, got %d", cx)
 	}
-	cy := inline.ExtentCy()
+	cy, err := inline.ExtentCy()
+	if err != nil {
+		t.Fatalf("ExtentCy error: %v", err)
+	}
 	if cy != 457200 {
 		t.Errorf("expected cy=457200, got %d", cy)
 	}
 
 	// Check docPr
-	docPr := inline.DocPr()
+	docPr, err := inline.DocPr()
+	if err != nil {
+		t.Fatalf("DocPr error: %v", err)
+	}
 	id, err := docPr.Id()
 	if err != nil {
 		t.Fatalf("docPr.Id() error: %v", err)
@@ -43,7 +52,14 @@ func TestNewPicInline_Structure(t *testing.T) {
 	}
 
 	// Check graphic data URI
-	gd := inline.Graphic().GraphicData()
+	graphic, err := inline.Graphic()
+	if err != nil {
+		t.Fatalf("Graphic error: %v", err)
+	}
+	gd, err := graphic.GraphicData()
+	if err != nil {
+		t.Fatalf("GraphicData error: %v", err)
+	}
 	uri, err := gd.Uri()
 	if err != nil {
 		t.Fatalf("graphicData.Uri() error: %v", err)
@@ -59,7 +75,11 @@ func TestNewPicInline_Structure(t *testing.T) {
 	}
 
 	// Check blipFill has the right rId
-	embed := pic.BlipFill().Blip().Embed()
+	blipFill, err := pic.BlipFill()
+	if err != nil {
+		t.Fatalf("BlipFill error: %v", err)
+	}
+	embed := blipFill.Blip().Embed()
 	if embed != "rId5" {
 		t.Errorf("expected blip embed='rId5', got %q", embed)
 	}
@@ -70,13 +90,25 @@ func TestCT_Inline_SetExtent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	inline.SetExtentCx(300)
-	inline.SetExtentCy(400)
-	if inline.ExtentCx() != 300 {
-		t.Errorf("expected cx=300, got %d", inline.ExtentCx())
+	if err := inline.SetExtentCx(300); err != nil {
+		t.Fatal(err)
 	}
-	if inline.ExtentCy() != 400 {
-		t.Errorf("expected cy=400, got %d", inline.ExtentCy())
+	if err := inline.SetExtentCy(400); err != nil {
+		t.Fatal(err)
+	}
+	cx, err := inline.ExtentCx()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cx != 300 {
+		t.Errorf("expected cx=300, got %d", cx)
+	}
+	cy, err := inline.ExtentCy()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cy != 400 {
+		t.Errorf("expected cy=400, got %d", cy)
 	}
 }
 
@@ -514,7 +546,10 @@ func TestCT_Numbering_AddNumWithAbstractNumId(t *testing.T) {
 	}
 
 	// Check abstractNumId
-	absNum := num.AbstractNumId()
+	absNum, err := num.AbstractNumId()
+	if err != nil {
+		t.Fatalf("AbstractNumId error: %v", err)
+	}
 	absVal, err := absNum.Val()
 	if err != nil {
 		t.Fatalf("abstractNumId val error: %v", err)
@@ -572,7 +607,11 @@ func TestNewNum(t *testing.T) {
 	if numId != 5 {
 		t.Errorf("expected numId=5, got %d", numId)
 	}
-	absVal, err := num.AbstractNumId().Val()
+	absNumId, err := num.AbstractNumId()
+	if err != nil {
+		t.Fatalf("AbstractNumId error: %v", err)
+	}
+	absVal, err := absNumId.Val()
 	if err != nil {
 		t.Fatalf("abstractNumId error: %v", err)
 	}

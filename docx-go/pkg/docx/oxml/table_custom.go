@@ -69,50 +69,63 @@ func NewTbl(rows, cols int, widthTwips int) *CT_Tbl {
 }
 
 // TblStyleVal returns the value of tblPr/tblStyle/@w:val or "" if not present.
-func (t *CT_Tbl) TblStyleVal() string {
-	tblPr := t.TblPr()
+func (t *CT_Tbl) TblStyleVal() (string, error) {
+	tblPr, err := t.TblPr()
+	if err != nil {
+		return "", fmt.Errorf("TblStyleVal: %w", err)
+	}
 	ts := tblPr.TblStyle()
 	if ts == nil {
-		return ""
+		return "", nil
 	}
 	v, err := ts.Val()
 	if err != nil {
-		return ""
+		return "", nil
 	}
-	return v
+	return v, nil
 }
 
 // SetTblStyleVal sets tblPr/tblStyle/@w:val. Passing "" removes tblStyle.
-func (t *CT_Tbl) SetTblStyleVal(styleID string) {
-	tblPr := t.TblPr()
+func (t *CT_Tbl) SetTblStyleVal(styleID string) error {
+	tblPr, err := t.TblPr()
+	if err != nil {
+		return fmt.Errorf("SetTblStyleVal: %w", err)
+	}
 	tblPr.RemoveTblStyle()
 	if styleID == "" {
-		return
+		return nil
 	}
 	tblPr.GetOrAddTblStyle().SetVal(styleID)
+	return nil
 }
 
 // AlignmentVal returns the table alignment from tblPr/jc, or nil if not set.
-func (t *CT_Tbl) AlignmentVal() *enum.WdTableAlignment {
-	tblPr := t.TblPr()
+func (t *CT_Tbl) AlignmentVal() (*enum.WdTableAlignment, error) {
+	tblPr, err := t.TblPr()
+	if err != nil {
+		return nil, fmt.Errorf("AlignmentVal: %w", err)
+	}
 	jc := tblPr.Jc()
 	if jc == nil {
-		return nil
+		return nil, nil
 	}
 	val, ok := jc.GetAttr("w:val")
 	if !ok {
-		return nil
+		return nil, nil
 	}
 	v, err := enum.WdTableAlignmentFromXml(val)
 	if err != nil {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetAlignmentVal sets the table alignment. Passing nil removes jc.
 func (t *CT_Tbl) SetAlignmentVal(v *enum.WdTableAlignment) error {
-	tblPr := t.TblPr()
+	tblPr, err := t.TblPr()
+	if err != nil {
+		return fmt.Errorf("SetAlignmentVal: %w", err)
+	}
 	tblPr.RemoveJc()
 	if v == nil {
 		return nil
@@ -127,50 +140,68 @@ func (t *CT_Tbl) SetAlignmentVal(v *enum.WdTableAlignment) error {
 }
 
 // BidiVisualVal returns the value of tblPr/bidiVisual, or nil if not present.
-func (t *CT_Tbl) BidiVisualVal() *bool {
-	tblPr := t.TblPr()
+func (t *CT_Tbl) BidiVisualVal() (*bool, error) {
+	tblPr, err := t.TblPr()
+	if err != nil {
+		return nil, fmt.Errorf("BidiVisualVal: %w", err)
+	}
 	bidi := tblPr.BidiVisual()
 	if bidi == nil {
-		return nil
+		return nil, nil
 	}
 	v := bidi.Val()
-	return &v
+	return &v, nil
 }
 
 // SetBidiVisualVal sets tblPr/bidiVisual. Passing nil removes it.
-func (t *CT_Tbl) SetBidiVisualVal(v *bool) {
-	tblPr := t.TblPr()
+func (t *CT_Tbl) SetBidiVisualVal(v *bool) error {
+	tblPr, err := t.TblPr()
+	if err != nil {
+		return fmt.Errorf("SetBidiVisualVal: %w", err)
+	}
 	if v == nil {
 		tblPr.RemoveBidiVisual()
-		return
+		return nil
 	}
 	tblPr.GetOrAddBidiVisual().SetVal(*v)
+	return nil
 }
 
 // Autofit returns false when there is a tblLayout with type="fixed", true otherwise.
-func (t *CT_Tbl) Autofit() bool {
-	tblPr := t.TblPr()
+func (t *CT_Tbl) Autofit() (bool, error) {
+	tblPr, err := t.TblPr()
+	if err != nil {
+		return false, fmt.Errorf("Autofit: %w", err)
+	}
 	layout := tblPr.TblLayout()
 	if layout == nil {
-		return true
+		return true, nil
 	}
-	return layout.Type() != "fixed"
+	return layout.Type() != "fixed", nil
 }
 
 // SetAutofit sets the table layout to "autofit" or "fixed".
-func (t *CT_Tbl) SetAutofit(v bool) {
-	tblPr := t.TblPr()
+func (t *CT_Tbl) SetAutofit(v bool) error {
+	tblPr, err := t.TblPr()
+	if err != nil {
+		return fmt.Errorf("SetAutofit: %w", err)
+	}
 	layout := tblPr.GetOrAddTblLayout()
 	if v {
 		layout.SetType("autofit")
 	} else {
 		layout.SetType("fixed")
 	}
+	return nil
 }
 
 // ColCount returns the number of grid columns defined in tblGrid.
-func (t *CT_Tbl) ColCount() int {
-	return len(t.TblGrid().GridColList())
+func (t *CT_Tbl) ColCount() (int, error) {
+	grid, err := t.TblGrid()
+	if err != nil {
+		return 0, fmt.Errorf("ColCount: %w", err)
+	}
+	return len(grid.GridColList()), nil
 }
 
 // IterTcs generates each w:tc element in this table, left to right, top to bottom.
@@ -183,13 +214,17 @@ func (t *CT_Tbl) IterTcs() []*CT_Tc {
 }
 
 // ColWidths returns the widths (in twips) of each grid column.
-func (t *CT_Tbl) ColWidths() []int {
-	cols := t.TblGrid().GridColList()
+func (t *CT_Tbl) ColWidths() ([]int, error) {
+	grid, err := t.TblGrid()
+	if err != nil {
+		return nil, fmt.Errorf("ColWidths: %w", err)
+	}
+	cols := grid.GridColList()
 	result := make([]int, len(cols))
 	for i, col := range cols {
 		result[i] = col.W()
 	}
-	return result
+	return result, nil
 }
 
 // ===========================================================================

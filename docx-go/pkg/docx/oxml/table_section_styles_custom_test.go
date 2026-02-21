@@ -13,12 +13,18 @@ import (
 func TestNewTbl_Structure(t *testing.T) {
 	tbl := NewTbl(3, 4, 9360)
 	// Check tblPr present
-	tblPr := tbl.TblPr()
+	tblPr, err := tbl.TblPr()
+	if err != nil {
+		t.Fatalf("TblPr error: %v", err)
+	}
 	if tblPr == nil {
 		t.Fatal("expected tblPr, got nil")
 	}
 	// Check tblGrid
-	grid := tbl.TblGrid()
+	grid, err := tbl.TblGrid()
+	if err != nil {
+		t.Fatalf("TblGrid error: %v", err)
+	}
 	cols := grid.GridColList()
 	if len(cols) != 4 {
 		t.Errorf("expected 4 gridCol, got %d", len(cols))
@@ -46,14 +52,21 @@ func TestNewTbl_Structure(t *testing.T) {
 
 func TestCT_Tbl_ColCount(t *testing.T) {
 	tbl := NewTbl(2, 5, 10000)
-	if got := tbl.ColCount(); got != 5 {
+	got, err := tbl.ColCount()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != 5 {
 		t.Errorf("expected ColCount=5, got %d", got)
 	}
 }
 
 func TestCT_Tbl_ColWidths(t *testing.T) {
 	tbl := NewTbl(1, 3, 9000)
-	widths := tbl.ColWidths()
+	widths, err := tbl.ColWidths()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if len(widths) != 3 {
 		t.Fatalf("expected 3 widths, got %d", len(widths))
 	}
@@ -74,53 +87,95 @@ func TestCT_Tbl_IterTcs(t *testing.T) {
 
 func TestCT_Tbl_TblStyleVal_RoundTrip(t *testing.T) {
 	tbl := NewTbl(1, 1, 1000)
-	if v := tbl.TblStyleVal(); v != "" {
+	v, err := tbl.TblStyleVal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != "" {
 		t.Errorf("expected empty, got %q", v)
 	}
-	tbl.SetTblStyleVal("TableGrid")
-	if v := tbl.TblStyleVal(); v != "TableGrid" {
+	if err := tbl.SetTblStyleVal("TableGrid"); err != nil {
+		t.Fatal(err)
+	}
+	v, err = tbl.TblStyleVal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != "TableGrid" {
 		t.Errorf("expected TableGrid, got %q", v)
 	}
-	tbl.SetTblStyleVal("")
-	if v := tbl.TblStyleVal(); v != "" {
+	if err := tbl.SetTblStyleVal(""); err != nil {
+		t.Fatal(err)
+	}
+	v, err = tbl.TblStyleVal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != "" {
 		t.Errorf("expected empty after clear, got %q", v)
 	}
 }
 
 func TestCT_Tbl_Alignment_RoundTrip(t *testing.T) {
 	tbl := NewTbl(1, 1, 1000)
-	if v := tbl.AlignmentVal(); v != nil {
+	v, err := tbl.AlignmentVal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != nil {
 		t.Errorf("expected nil, got %v", *v)
 	}
 	center := enum.WdTableAlignmentCenter
 	if err := tbl.SetAlignmentVal(&center); err != nil {
 		t.Fatal(err)
 	}
-	got := tbl.AlignmentVal()
+	got, err := tbl.AlignmentVal()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got == nil || *got != enum.WdTableAlignmentCenter {
 		t.Errorf("expected Center, got %v", got)
 	}
 	if err := tbl.SetAlignmentVal(nil); err != nil {
 		t.Fatal(err)
 	}
-	if v := tbl.AlignmentVal(); v != nil {
+	v, err = tbl.AlignmentVal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != nil {
 		t.Errorf("expected nil after clear, got %v", *v)
 	}
 }
 
 func TestCT_Tbl_BidiVisualVal_RoundTrip(t *testing.T) {
 	tbl := NewTbl(1, 1, 1000)
-	if v := tbl.BidiVisualVal(); v != nil {
+	v, err := tbl.BidiVisualVal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != nil {
 		t.Errorf("expected nil, got %v", *v)
 	}
 	tr := true
-	tbl.SetBidiVisualVal(&tr)
-	got := tbl.BidiVisualVal()
+	if err := tbl.SetBidiVisualVal(&tr); err != nil {
+		t.Fatal(err)
+	}
+	got, err := tbl.BidiVisualVal()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got == nil || *got != true {
 		t.Errorf("expected true, got %v", got)
 	}
-	tbl.SetBidiVisualVal(nil)
-	if v := tbl.BidiVisualVal(); v != nil {
+	if err := tbl.SetBidiVisualVal(nil); err != nil {
+		t.Fatal(err)
+	}
+	v, err = tbl.BidiVisualVal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != nil {
 		t.Errorf("expected nil, got %v", *v)
 	}
 }
@@ -128,15 +183,31 @@ func TestCT_Tbl_BidiVisualVal_RoundTrip(t *testing.T) {
 func TestCT_Tbl_Autofit_RoundTrip(t *testing.T) {
 	tbl := NewTbl(1, 1, 1000)
 	// Default should be true (no tblLayout means autofit)
-	if !tbl.Autofit() {
+	v, err := tbl.Autofit()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !v {
 		t.Error("expected autofit=true by default")
 	}
-	tbl.SetAutofit(false)
-	if tbl.Autofit() {
+	if err := tbl.SetAutofit(false); err != nil {
+		t.Fatal(err)
+	}
+	v, err = tbl.Autofit()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v {
 		t.Error("expected autofit=false after set")
 	}
-	tbl.SetAutofit(true)
-	if !tbl.Autofit() {
+	if err := tbl.SetAutofit(true); err != nil {
+		t.Fatal(err)
+	}
+	v, err = tbl.Autofit()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !v {
 		t.Error("expected autofit=true after reset")
 	}
 }
@@ -352,7 +423,11 @@ func TestCT_Tc_NextTc(t *testing.T) {
 
 func TestCT_TblGridCol_GridColIdx(t *testing.T) {
 	tbl := NewTbl(1, 4, 4000)
-	cols := tbl.TblGrid().GridColList()
+	grid, err := tbl.TblGrid()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cols := grid.GridColList()
 	for i, col := range cols {
 		if got := col.GridColIdx(); got != i {
 			t.Errorf("col %d: expected idx %d, got %d", i, i, got)

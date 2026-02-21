@@ -96,13 +96,13 @@ func (e *{{.ParentType}}) insert{{.GoName}}(child *{{.Type}}) *{{.Type}} {
 }
 {{end}}{{range .OneAndOnlyOneChildren}}
 // {{.GoName}} returns the required <{{.Tag}}> child element.
-// Panics if not present (invalid XML).
-func (e *{{.ParentType}}) {{.GoName}}() *{{.Type}} {
+// Returns an error if not present (invalid XML).
+func (e *{{.ParentType}}) {{.GoName}}() (*{{.Type}}, error) {
 	child := e.FindChild("{{.Tag}}")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "{{.Tag}}", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "{{.Tag}}", e.Tag())
 	}
-	return &{{.Type}}{Element{E: child}}
+	return &{{.Type}}{Element{E: child}}, nil
 }
 {{end}}{{range .OneOrMoreChildren}}
 // {{.GoName}}List returns all <{{.Tag}}> child elements.

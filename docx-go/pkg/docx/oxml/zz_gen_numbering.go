@@ -92,13 +92,13 @@ func (e *CT_Num) insertLvlOverride(child *CT_NumLvl) *CT_NumLvl {
 }
 
 // AbstractNumId returns the required <w:abstractNumId> child element.
-// Panics if not present (invalid XML).
-func (e *CT_Num) AbstractNumId() *CT_DecimalNumber {
+// Returns an error if not present (invalid XML).
+func (e *CT_Num) AbstractNumId() (*CT_DecimalNumber, error) {
 	child := e.FindChild("w:abstractNumId")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "w:abstractNumId", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "w:abstractNumId", e.Tag())
 	}
-	return &CT_DecimalNumber{Element{E: child}}
+	return &CT_DecimalNumber{Element{E: child}}, nil
 }
 
 // NumId returns the value of the required "w:numId" attribute.

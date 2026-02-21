@@ -17,33 +17,33 @@ type CT_Inline struct {
 }
 
 // Extent returns the required <wp:extent> child element.
-// Panics if not present (invalid XML).
-func (e *CT_Inline) Extent() *CT_PositiveSize2D {
+// Returns an error if not present (invalid XML).
+func (e *CT_Inline) Extent() (*CT_PositiveSize2D, error) {
 	child := e.FindChild("wp:extent")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "wp:extent", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "wp:extent", e.Tag())
 	}
-	return &CT_PositiveSize2D{Element{E: child}}
+	return &CT_PositiveSize2D{Element{E: child}}, nil
 }
 
 // DocPr returns the required <wp:docPr> child element.
-// Panics if not present (invalid XML).
-func (e *CT_Inline) DocPr() *CT_NonVisualDrawingProps {
+// Returns an error if not present (invalid XML).
+func (e *CT_Inline) DocPr() (*CT_NonVisualDrawingProps, error) {
 	child := e.FindChild("wp:docPr")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "wp:docPr", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "wp:docPr", e.Tag())
 	}
-	return &CT_NonVisualDrawingProps{Element{E: child}}
+	return &CT_NonVisualDrawingProps{Element{E: child}}, nil
 }
 
 // Graphic returns the required <a:graphic> child element.
-// Panics if not present (invalid XML).
-func (e *CT_Inline) Graphic() *CT_GraphicalObject {
+// Returns an error if not present (invalid XML).
+func (e *CT_Inline) Graphic() (*CT_GraphicalObject, error) {
 	child := e.FindChild("a:graphic")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "a:graphic", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "a:graphic", e.Tag())
 	}
-	return &CT_GraphicalObject{Element{E: child}}
+	return &CT_GraphicalObject{Element{E: child}}, nil
 }
 
 // --- CT_Anchor ---
@@ -61,33 +61,33 @@ type CT_Picture struct {
 }
 
 // NvPicPr returns the required <pic:nvPicPr> child element.
-// Panics if not present (invalid XML).
-func (e *CT_Picture) NvPicPr() *CT_PictureNonVisual {
+// Returns an error if not present (invalid XML).
+func (e *CT_Picture) NvPicPr() (*CT_PictureNonVisual, error) {
 	child := e.FindChild("pic:nvPicPr")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "pic:nvPicPr", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "pic:nvPicPr", e.Tag())
 	}
-	return &CT_PictureNonVisual{Element{E: child}}
+	return &CT_PictureNonVisual{Element{E: child}}, nil
 }
 
 // BlipFill returns the required <pic:blipFill> child element.
-// Panics if not present (invalid XML).
-func (e *CT_Picture) BlipFill() *CT_BlipFillProperties {
+// Returns an error if not present (invalid XML).
+func (e *CT_Picture) BlipFill() (*CT_BlipFillProperties, error) {
 	child := e.FindChild("pic:blipFill")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "pic:blipFill", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "pic:blipFill", e.Tag())
 	}
-	return &CT_BlipFillProperties{Element{E: child}}
+	return &CT_BlipFillProperties{Element{E: child}}, nil
 }
 
 // SpPr returns the required <pic:spPr> child element.
-// Panics if not present (invalid XML).
-func (e *CT_Picture) SpPr() *CT_ShapeProperties {
+// Returns an error if not present (invalid XML).
+func (e *CT_Picture) SpPr() (*CT_ShapeProperties, error) {
 	child := e.FindChild("pic:spPr")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "pic:spPr", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "pic:spPr", e.Tag())
 	}
-	return &CT_ShapeProperties{Element{E: child}}
+	return &CT_ShapeProperties{Element{E: child}}, nil
 }
 
 // --- CT_PictureNonVisual ---
@@ -98,13 +98,13 @@ type CT_PictureNonVisual struct {
 }
 
 // CNvPr returns the required <pic:cNvPr> child element.
-// Panics if not present (invalid XML).
-func (e *CT_PictureNonVisual) CNvPr() *CT_NonVisualDrawingProps {
+// Returns an error if not present (invalid XML).
+func (e *CT_PictureNonVisual) CNvPr() (*CT_NonVisualDrawingProps, error) {
 	child := e.FindChild("pic:cNvPr")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "pic:cNvPr", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "pic:cNvPr", e.Tag())
 	}
-	return &CT_NonVisualDrawingProps{Element{E: child}}
+	return &CT_NonVisualDrawingProps{Element{E: child}}, nil
 }
 
 // --- CT_NonVisualDrawingProps ---
@@ -157,13 +157,13 @@ type CT_GraphicalObject struct {
 }
 
 // GraphicData returns the required <a:graphicData> child element.
-// Panics if not present (invalid XML).
-func (e *CT_GraphicalObject) GraphicData() *CT_GraphicalObjectData {
+// Returns an error if not present (invalid XML).
+func (e *CT_GraphicalObject) GraphicData() (*CT_GraphicalObjectData, error) {
 	child := e.FindChild("a:graphicData")
 	if child == nil {
-		panic(fmt.Sprintf("required <%s> child not present in <%s>", "a:graphicData", e.Tag()))
+		return nil, fmt.Errorf("required <%s> child not present in <%s>", "a:graphicData", e.Tag())
 	}
-	return &CT_GraphicalObjectData{Element{E: child}}
+	return &CT_GraphicalObjectData{Element{E: child}}, nil
 }
 
 // --- CT_GraphicalObjectData ---

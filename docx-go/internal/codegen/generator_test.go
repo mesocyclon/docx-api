@@ -113,9 +113,9 @@ func TestOneAndOnlyOne_Generates1Method(t *testing.T) {
 		},
 	})
 
-	// 1 method: getter with panic
-	assertContains(t, code, "func (e *CT_Document) Body() *CT_Body")
-	assertContains(t, code, "panic(")
+	// 1 method: getter with error return
+	assertContains(t, code, "func (e *CT_Document) Body() (*CT_Body, error)")
+	assertNotContains(t, code, "panic(")
 
 	// Should NOT have add/remove/insert methods
 	assertNotContains(t, code, "func (e *CT_Document) AddBody()")
