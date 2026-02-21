@@ -89,8 +89,8 @@ func (cs *CT_Comments) nextAvailableCommentID() int {
 // ===========================================================================
 
 // InnerContentElements returns all <w:p> and <w:tbl> direct children in document order.
-func (c *CT_Comment) InnerContentElements() []interface{} {
-	var result []interface{}
+func (c *CT_Comment) InnerContentElements() []BlockItem {
+	var result []BlockItem
 	for _, child := range c.E.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
 			result = append(result, &CT_P{Element{E: child}})

@@ -44,8 +44,8 @@ func (doc *CT_Document) SectPrList() []*CT_SectPr {
 
 // InnerContentElements returns all <w:p> and <w:tbl> direct children in document order.
 // Elements inside wrapper elements (w:ins, w:sdt, etc.) are not included.
-func (b *CT_Body) InnerContentElements() []interface{} {
-	var result []interface{}
+func (b *CT_Body) InnerContentElements() []BlockItem {
+	var result []BlockItem
 	for _, child := range b.E.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
 			result = append(result, &CT_P{Element{E: child}})

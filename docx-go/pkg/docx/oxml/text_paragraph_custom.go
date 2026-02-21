@@ -51,8 +51,8 @@ func (p *CT_P) ClearContent() {
 
 // InnerContentElements returns run and hyperlink children of the <w:p> element,
 // in document order.
-func (p *CT_P) InnerContentElements() []interface{} {
-	var result []interface{}
+func (p *CT_P) InnerContentElements() []InlineItem {
+	var result []InlineItem
 	for _, child := range p.E.ChildElements() {
 		if child.Space == "w" && child.Tag == "r" {
 			result = append(result, &CT_R{Element{E: child}})

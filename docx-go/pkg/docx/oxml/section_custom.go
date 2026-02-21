@@ -460,8 +460,8 @@ func (sp *CT_SectPr) PrecedingSectPr() *CT_SectPr {
 // ===========================================================================
 
 // InnerContentElements returns all w:p and w:tbl direct children in document order.
-func (hf *CT_HdrFtr) InnerContentElements() []interface{} {
-	var result []interface{}
+func (hf *CT_HdrFtr) InnerContentElements() []BlockItem {
+	var result []BlockItem
 	for _, child := range hf.E.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
 			result = append(result, &CT_P{Element{E: child}})
@@ -471,4 +471,3 @@ func (hf *CT_HdrFtr) InnerContentElements() []interface{} {
 	}
 	return result
 }
-
