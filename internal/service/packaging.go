@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/vortex/docx-go/packaging"
+	"github.com/vortex/docx-api/internal/packaging"
 )
 
 // DocumentInfo holds metadata extracted after opening a document.

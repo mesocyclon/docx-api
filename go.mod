@@ -2,6 +2,8 @@ module github.com/vortex/docx-api
 
 go 1.25.5
 
-require github.com/vortex/docx-go v0.0.0
+require github.com/user/go-docx v0.0.0
 
-replace github.com/vortex/docx-go => ./docx-go
+require github.com/beevik/etree v1.6.0 // indirect
+
+replace github.com/user/go-docx => ./docx-go
