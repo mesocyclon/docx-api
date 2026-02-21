@@ -1,7 +1,5 @@
 bin/
 tmp/
 coverage.out
-*.docx
-!test/testdata/*.docx
 .env
 .env.*
