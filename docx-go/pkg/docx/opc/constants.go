@@ -78,6 +78,35 @@ const (
 )
 
 // --------------------------------------------------------------------------
+// OOXML Strict namespace prefixes
+// --------------------------------------------------------------------------
+//
+// ISO 29500 Strict uses different namespace URIs for relationship types.
+// We normalize strict → transitional at read time so that all downstream
+// code can compare against the RT* constants without branching.
+
+const (
+	// Strict relationship namespace prefix (replaces NsOfcRelationships).
+	nsStrictOfcRel = "http://purl.oclc.org/ooxml/officeDocument/relationships/"
+	// Transitional relationship namespace prefix.
+	nsTransitionalOfcRel = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/"
+)
+
+// NormalizeRelType converts an OOXML Strict relationship type URI to its
+// Transitional equivalent.  Transitional URIs pass through unchanged.
+//
+// Example:
+//
+//	"http://purl.oclc.org/ooxml/officeDocument/relationships/officeDocument"
+//	→ "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
+func NormalizeRelType(relType string) string {
+	if strings.HasPrefix(relType, nsStrictOfcRel) {
+		return nsTransitionalOfcRel + relType[len(nsStrictOfcRel):]
+	}
+	return relType
+}
+
+// --------------------------------------------------------------------------
 // Relationship Target Mode
 // --------------------------------------------------------------------------
 

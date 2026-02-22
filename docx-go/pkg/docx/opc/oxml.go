@@ -133,7 +133,7 @@ func ParseRelationships(blob []byte, baseURI string) ([]SerializedRelationship, 
 		result = append(result, SerializedRelationship{
 			BaseURI:    baseURI,
 			RID:        r.ID,
-			RelType:    r.Type,
+			RelType:    NormalizeRelType(r.Type),
 			TargetRef:  r.Target,
 			TargetMode: targetMode,
 		})
