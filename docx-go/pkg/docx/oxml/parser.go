@@ -127,22 +127,7 @@ func HasNsDecl(el *etree.Element, prefix string) (string, bool) {
 func OxmlElementWithAttrs(nspTag string, attrs map[string]string, nsDecls ...string) *etree.Element {
 	el := OxmlElement(nspTag, nsDecls...)
 	for name, value := range attrs {
-		if _, local, ok := splitPrefix(name); ok {
-			el.CreateAttr(name, value)
-		} else {
-			_ = local
-			el.CreateAttr(name, value)
-		}
+		el.CreateAttr(name, value)
 	}
 	return el
-}
-
-// splitPrefix splits "w:val" into ("w", "val", true) or returns ("", name, false).
-func splitPrefix(name string) (string, string, bool) {
-	for i, c := range name {
-		if c == ':' {
-			return name[:i], name[i+1:], true
-		}
-	}
-	return "", name, false
 }

@@ -22,10 +22,21 @@ var ErrMemberNotFound = errors.New("opc: member not found in package")
 // decompression attacks that could cause out-of-memory conditions.
 var ErrPartTooLarge = errors.New("opc: decompressed part exceeds size limit")
 
+// ErrTooManyEntries is returned when the ZIP archive contains more
+// entries than MaxEntries. This protects against ZIP bombs that use
+// millions of tiny or empty entries to exhaust memory during central
+// directory parsing.
+var ErrTooManyEntries = errors.New("opc: too many entries in ZIP archive")
+
 // DefaultMaxPartSize is the default maximum decompressed size for a single
 // part within an OPC package (256 MB). Override per-reader via
 // PhysPkgReader.MaxPartSize.
 const DefaultMaxPartSize int64 = 256 << 20 // 256 MB
+
+// DefaultMaxEntries is the default maximum number of entries allowed in
+// a ZIP-based OPC package. A typical .docx contains 20–50 entries;
+// 10 000 provides generous headroom while blocking million-entry bombs.
+const DefaultMaxEntries = 10_000
 
 // --------------------------------------------------------------------------
 // PhysPkgReader — reads a ZIP-based OPC package
@@ -45,7 +56,7 @@ func NewPhysPkgReader(r io.ReaderAt, size int64) (*PhysPkgReader, error) {
 	if err != nil {
 		return nil, fmt.Errorf("opc: opening zip: %w", err)
 	}
-	return newPhysPkgReaderFromZip(zr, nil), nil
+	return newPhysPkgReaderFromZip(zr, nil)
 }
 
 // NewPhysPkgReaderFromFile opens a PhysPkgReader from a file path.
@@ -64,7 +75,7 @@ func NewPhysPkgReaderFromFile(path string) (*PhysPkgReader, error) {
 		f.Close()
 		return nil, fmt.Errorf("opc: opening zip %q: %w", path, err)
 	}
-	return newPhysPkgReaderFromZip(zr, f), nil
+	return newPhysPkgReaderFromZip(zr, f)
 }
 
 // NewPhysPkgReaderFromBytes creates a PhysPkgReader from in-memory bytes.
@@ -73,7 +84,14 @@ func NewPhysPkgReaderFromBytes(data []byte) (*PhysPkgReader, error) {
 	return NewPhysPkgReader(r, int64(len(data)))
 }
 
-func newPhysPkgReaderFromZip(zr *zip.Reader, closer io.Closer) *PhysPkgReader {
+func newPhysPkgReaderFromZip(zr *zip.Reader, closer io.Closer) (*PhysPkgReader, error) {
+	if len(zr.File) > DefaultMaxEntries {
+		if closer != nil {
+			closer.Close()
+		}
+		return nil, fmt.Errorf("%w: archive contains %d entries (limit %d)",
+			ErrTooManyEntries, len(zr.File), DefaultMaxEntries)
+	}
 	files := make(map[string]*zip.File, len(zr.File))
 	for _, f := range zr.File {
 		files[f.Name] = f
@@ -82,7 +100,7 @@ func newPhysPkgReaderFromZip(zr *zip.Reader, closer io.Closer) *PhysPkgReader {
 		reader: zr,
 		closer: closer,
 		files:  files,
-	}
+	}, nil
 }
 
 // BlobFor returns the contents of the part at the given PackURI.
