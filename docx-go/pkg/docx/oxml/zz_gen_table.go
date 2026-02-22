@@ -846,28 +846,28 @@ type CT_TblGridCol struct {
 	Element
 }
 
-// W returns the value of the "w:w" attribute, or 0 if absent.
+// W returns the value of the "w:w" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_TblGridCol) W() (int, error) {
+func (e *CT_TblGridCol) W() (*int, error) {
 	val, ok := e.GetAttr("w:w")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:w", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:w", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetW sets the "w:w" attribute.
-// Passing 0 removes it.
-func (e *CT_TblGridCol) SetW(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_TblGridCol) SetW(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:w")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_TblGridCol.SetW: %w", err)
 	}
@@ -882,28 +882,28 @@ type CT_Height struct {
 	Element
 }
 
-// Val returns the value of the "w:val" attribute, or 0 if absent.
+// Val returns the value of the "w:val" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_Height) Val() (int, error) {
+func (e *CT_Height) Val() (*int, error) {
 	val, ok := e.GetAttr("w:val")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:val", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:val", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetVal sets the "w:val" attribute.
-// Passing 0 removes it.
-func (e *CT_Height) SetVal(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_Height) SetVal(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:val")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_Height.SetVal: %w", err)
 	}

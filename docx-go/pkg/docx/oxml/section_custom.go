@@ -42,14 +42,7 @@ func (sp *CT_SectPr) PageWidth() (*int, error) {
 	if pgSz == nil {
 		return nil, nil
 	}
-	v, err := pgSz.W()
-	if err != nil {
-		return nil, err
-	}
-	if v == 0 {
-		return nil, nil
-	}
-	return &v, nil
+	return pgSz.W()
 }
 
 // SetPageWidth sets the page width in twips.
@@ -57,13 +50,13 @@ func (sp *CT_SectPr) SetPageWidth(twips *int) error {
 	if twips == nil {
 		pgSz := sp.PgSz()
 		if pgSz != nil {
-			if err := pgSz.SetW(0); err != nil {
+			if err := pgSz.SetW(nil); err != nil {
 				return err
 			}
 		}
 		return nil
 	}
-	if err := sp.GetOrAddPgSz().SetW(*twips); err != nil {
+	if err := sp.GetOrAddPgSz().SetW(twips); err != nil {
 		return err
 	}
 	return nil
@@ -75,14 +68,7 @@ func (sp *CT_SectPr) PageHeight() (*int, error) {
 	if pgSz == nil {
 		return nil, nil
 	}
-	v, err := pgSz.H()
-	if err != nil {
-		return nil, err
-	}
-	if v == 0 {
-		return nil, nil
-	}
-	return &v, nil
+	return pgSz.H()
 }
 
 // SetPageHeight sets the page height in twips.
@@ -90,13 +76,13 @@ func (sp *CT_SectPr) SetPageHeight(twips *int) error {
 	if twips == nil {
 		pgSz := sp.PgSz()
 		if pgSz != nil {
-			if err := pgSz.SetH(0); err != nil {
+			if err := pgSz.SetH(nil); err != nil {
 				return err
 			}
 		}
 		return nil
 	}
-	if err := sp.GetOrAddPgSz().SetH(*twips); err != nil {
+	if err := sp.GetOrAddPgSz().SetH(twips); err != nil {
 		return err
 	}
 	return nil
@@ -194,29 +180,13 @@ func (sp *CT_SectPr) TopMargin() (*int, error) {
 	if pgMar == nil {
 		return nil, nil
 	}
-	v, err := pgMar.Top()
-	if err != nil {
-		return nil, err
-	}
-	if v == 0 {
-		return nil, nil
-	}
-	return &v, nil
+	return pgMar.Top()
 }
 
 // SetTopMargin sets the top margin in twips. Passing nil removes the attribute.
 func (sp *CT_SectPr) SetTopMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
-	if twips == nil {
-		if err := pgMar.SetTop(0); err != nil {
-			return err
-		}
-	} else {
-		if err := pgMar.SetTop(*twips); err != nil {
-			return err
-		}
-	}
-	return nil
+	return pgMar.SetTop(twips)
 }
 
 // BottomMargin returns the bottom margin in twips, or nil.
@@ -225,29 +195,13 @@ func (sp *CT_SectPr) BottomMargin() (*int, error) {
 	if pgMar == nil {
 		return nil, nil
 	}
-	v, err := pgMar.Bottom()
-	if err != nil {
-		return nil, err
-	}
-	if v == 0 {
-		return nil, nil
-	}
-	return &v, nil
+	return pgMar.Bottom()
 }
 
 // SetBottomMargin sets the bottom margin in twips.
 func (sp *CT_SectPr) SetBottomMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
-	if twips == nil {
-		if err := pgMar.SetBottom(0); err != nil {
-			return err
-		}
-	} else {
-		if err := pgMar.SetBottom(*twips); err != nil {
-			return err
-		}
-	}
-	return nil
+	return pgMar.SetBottom(twips)
 }
 
 // LeftMargin returns the left margin in twips, or nil.
@@ -256,29 +210,13 @@ func (sp *CT_SectPr) LeftMargin() (*int, error) {
 	if pgMar == nil {
 		return nil, nil
 	}
-	v, err := pgMar.Left()
-	if err != nil {
-		return nil, err
-	}
-	if v == 0 {
-		return nil, nil
-	}
-	return &v, nil
+	return pgMar.Left()
 }
 
 // SetLeftMargin sets the left margin in twips.
 func (sp *CT_SectPr) SetLeftMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
-	if twips == nil {
-		if err := pgMar.SetLeft(0); err != nil {
-			return err
-		}
-	} else {
-		if err := pgMar.SetLeft(*twips); err != nil {
-			return err
-		}
-	}
-	return nil
+	return pgMar.SetLeft(twips)
 }
 
 // RightMargin returns the right margin in twips, or nil.
@@ -287,29 +225,13 @@ func (sp *CT_SectPr) RightMargin() (*int, error) {
 	if pgMar == nil {
 		return nil, nil
 	}
-	v, err := pgMar.Right()
-	if err != nil {
-		return nil, err
-	}
-	if v == 0 {
-		return nil, nil
-	}
-	return &v, nil
+	return pgMar.Right()
 }
 
 // SetRightMargin sets the right margin in twips.
 func (sp *CT_SectPr) SetRightMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
-	if twips == nil {
-		if err := pgMar.SetRight(0); err != nil {
-			return err
-		}
-	} else {
-		if err := pgMar.SetRight(*twips); err != nil {
-			return err
-		}
-	}
-	return nil
+	return pgMar.SetRight(twips)
 }
 
 // HeaderMargin returns the header distance from top edge in twips, or nil.
@@ -318,29 +240,13 @@ func (sp *CT_SectPr) HeaderMargin() (*int, error) {
 	if pgMar == nil {
 		return nil, nil
 	}
-	v, err := pgMar.Header()
-	if err != nil {
-		return nil, err
-	}
-	if v == 0 {
-		return nil, nil
-	}
-	return &v, nil
+	return pgMar.Header()
 }
 
 // SetHeaderMargin sets the header margin in twips.
 func (sp *CT_SectPr) SetHeaderMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
-	if twips == nil {
-		if err := pgMar.SetHeader(0); err != nil {
-			return err
-		}
-	} else {
-		if err := pgMar.SetHeader(*twips); err != nil {
-			return err
-		}
-	}
-	return nil
+	return pgMar.SetHeader(twips)
 }
 
 // FooterMargin returns the footer distance from bottom edge in twips, or nil.
@@ -349,29 +255,13 @@ func (sp *CT_SectPr) FooterMargin() (*int, error) {
 	if pgMar == nil {
 		return nil, nil
 	}
-	v, err := pgMar.Footer()
-	if err != nil {
-		return nil, err
-	}
-	if v == 0 {
-		return nil, nil
-	}
-	return &v, nil
+	return pgMar.Footer()
 }
 
 // SetFooterMargin sets the footer margin in twips.
 func (sp *CT_SectPr) SetFooterMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
-	if twips == nil {
-		if err := pgMar.SetFooter(0); err != nil {
-			return err
-		}
-	} else {
-		if err := pgMar.SetFooter(*twips); err != nil {
-			return err
-		}
-	}
-	return nil
+	return pgMar.SetFooter(twips)
 }
 
 // GutterMargin returns the gutter in twips, or nil.
@@ -380,29 +270,13 @@ func (sp *CT_SectPr) GutterMargin() (*int, error) {
 	if pgMar == nil {
 		return nil, nil
 	}
-	v, err := pgMar.Gutter()
-	if err != nil {
-		return nil, err
-	}
-	if v == 0 {
-		return nil, nil
-	}
-	return &v, nil
+	return pgMar.Gutter()
 }
 
 // SetGutterMargin sets the gutter in twips.
 func (sp *CT_SectPr) SetGutterMargin(twips *int) error {
 	pgMar := sp.GetOrAddPgMar()
-	if twips == nil {
-		if err := pgMar.SetGutter(0); err != nil {
-			return err
-		}
-	} else {
-		if err := pgMar.SetGutter(*twips); err != nil {
-			return err
-		}
-	}
-	return nil
+	return pgMar.SetGutter(twips)
 }
 
 // --- Header/Footer references ---

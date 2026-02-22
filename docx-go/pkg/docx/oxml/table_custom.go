@@ -231,7 +231,9 @@ func (t *CT_Tbl) ColWidths() ([]int, error) {
 		if err != nil {
 			return nil, fmt.Errorf("ColWidths: grid col %d: %w", i, err)
 		}
-		result[i] = w
+		if w != nil {
+			result[i] = *w
+		}
 	}
 	return result, nil
 }
@@ -402,7 +404,7 @@ func (r *CT_Row) SetTrHeightVal(twips *int) error {
 	}
 	trPr := r.GetOrAddTrPr()
 	h := trPr.GetOrAddTrHeight()
-	if err := h.SetVal(*twips); err != nil {
+	if err := h.SetVal(twips); err != nil {
 		return err
 	}
 	return nil
@@ -462,14 +464,7 @@ func (pr *CT_TrPr) TrHeightValTwips() (*int, error) {
 	if h == nil {
 		return nil, nil
 	}
-	v, err := h.Val()
-	if err != nil {
-		return nil, err
-	}
-	if v == 0 {
-		return nil, nil
-	}
-	return &v, nil
+	return h.Val()
 }
 
 // SetTrHeightValTwips sets the trHeight value. Passing nil removes trHeight.
@@ -479,7 +474,7 @@ func (pr *CT_TrPr) SetTrHeightValTwips(twips *int) error {
 		return nil
 	}
 	h := pr.GetOrAddTrHeight()
-	if err := h.SetVal(*twips); err != nil {
+	if err := h.SetVal(twips); err != nil {
 		return err
 	}
 	return nil

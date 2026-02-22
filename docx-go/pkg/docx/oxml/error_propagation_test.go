@@ -277,18 +277,19 @@ func TestGen_CT_PageMar_Top_HappyPath(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if v != 0 {
-		t.Errorf("expected 0 for absent attr, got %d", v)
+	if v != nil {
+		t.Errorf("expected nil for absent attr, got %d", *v)
 	}
-	if err := m.SetTop(1440); err != nil {
+	val := 1440
+	if err := m.SetTop(&val); err != nil {
 		t.Fatal(err)
 	}
 	v, err = m.Top()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if v != 1440 {
-		t.Errorf("expected 1440, got %d", v)
+	if v == nil || *v != 1440 {
+		t.Errorf("expected 1440, got %v", v)
 	}
 }
 
@@ -318,5 +319,151 @@ func TestCustom_SectPr_Margins_HappyRoundTrip(t *testing.T) {
 	}
 	if got == nil || *got != 1440 {
 		t.Errorf("expected 1440, got %v", got)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Group 7 — Zero vs absent (nullable semantics)
+// ---------------------------------------------------------------------------
+
+func TestGen_CT_PageMar_Top_ZeroIsNotAbsent(t *testing.T) {
+	el := OxmlElement("w:pgMar")
+	m := &CT_PageMar{Element{E: el}}
+
+	// Absent → nil
+	v, err := m.Top()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != nil {
+		t.Error("absent Top should be nil")
+	}
+
+	// Set 0 → &0, NOT nil
+	zero := 0
+	if err := m.SetTop(&zero); err != nil {
+		t.Fatal(err)
+	}
+	v, err = m.Top()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v == nil {
+		t.Fatal("Top=0 should NOT be nil")
+	}
+	if *v != 0 {
+		t.Errorf("expected 0, got %d", *v)
+	}
+
+	// Verify XML attr actually present
+	if _, ok := m.GetAttr("w:top"); !ok {
+		t.Error("w:top attr should be present after SetTop(0)")
+	}
+
+	// Set nil → remove attr
+	if err := m.SetTop(nil); err != nil {
+		t.Fatal(err)
+	}
+	v, err = m.Top()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != nil {
+		t.Error("should be nil after SetTop(nil)")
+	}
+	if _, ok := m.GetAttr("w:top"); ok {
+		t.Error("w:top attr should be removed after SetTop(nil)")
+	}
+}
+
+func TestGen_CT_Ind_Left_ZeroIsNotAbsent(t *testing.T) {
+	el := OxmlElement("w:ind")
+	ind := &CT_Ind{Element{E: el}}
+
+	// Absent → nil
+	v, err := ind.Left()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != nil {
+		t.Error("absent Left should be nil")
+	}
+
+	// Set 0 → &0
+	zero := 0
+	if err := ind.SetLeft(&zero); err != nil {
+		t.Fatal(err)
+	}
+	v, err = ind.Left()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v == nil {
+		t.Fatal("Left=0 should NOT be nil")
+	}
+	if *v != 0 {
+		t.Errorf("expected 0, got %d", *v)
+	}
+}
+
+func TestGen_CT_Spacing_Before_ZeroIsNotAbsent(t *testing.T) {
+	el := OxmlElement("w:spacing")
+	sp := &CT_Spacing{Element{E: el}}
+
+	// Absent → nil
+	v, err := sp.Before()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v != nil {
+		t.Error("absent Before should be nil")
+	}
+
+	// Set 0 → &0
+	zero := 0
+	if err := sp.SetBefore(&zero); err != nil {
+		t.Fatal(err)
+	}
+	v, err = sp.Before()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v == nil {
+		t.Fatal("Before=0 should NOT be nil")
+	}
+	if *v != 0 {
+		t.Errorf("expected 0, got %d", *v)
+	}
+}
+
+func TestCustom_SectPr_TopMargin_ZeroRoundTrip(t *testing.T) {
+	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
+
+	// Set zero margin
+	zero := 0
+	if err := sp.SetTopMargin(&zero); err != nil {
+		t.Fatal(err)
+	}
+	got, err := sp.TopMargin()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got == nil {
+		t.Fatal("TopMargin=0 should NOT be nil")
+	}
+	if *got != 0 {
+		t.Errorf("expected 0, got %d", *got)
+	}
+
+	// Set nil → remove
+	if err := sp.SetTopMargin(nil); err != nil {
+		t.Fatal(err)
+	}
+	got, err = sp.TopMargin()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != nil {
+		t.Error("expected nil after SetTopMargin(nil)")
 	}
 }

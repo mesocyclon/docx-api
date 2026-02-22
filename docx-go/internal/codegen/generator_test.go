@@ -185,12 +185,14 @@ func TestOptionalAttribute_IntType(t *testing.T) {
 		}},
 	})
 
-	// Failable optional: returns (int, error)
-	assertContains(t, code, "func (e *CT_Spacing) Before() (int, error)")
-	assertContains(t, code, "func (e *CT_Spacing) SetBefore(v int) error")
+	// Failable optional: returns (*int, error) with pointer semantics
+	assertContains(t, code, "func (e *CT_Spacing) Before() (*int, error)")
+	assertContains(t, code, "func (e *CT_Spacing) SetBefore(v *int) error")
 	assertContains(t, code, "parseIntAttr(val)")
-	assertContains(t, code, "formatIntAttr(v)")
+	assertContains(t, code, "formatIntAttr(*v)")
 	assertContains(t, code, "ParseAttrError")
+	assertContains(t, code, "return &parsed, nil")
+	assertContains(t, code, "if v == nil {")
 }
 
 func TestRequiredAttribute_GeneratesGetterWithError(t *testing.T) {
@@ -550,12 +552,30 @@ func TestResolveAttrType_String(t *testing.T) {
 
 func TestResolveAttrType_Int(t *testing.T) {
 	t.Parallel()
-	rt := resolveAttrType(Attribute{Type: "int"})
+	rt := resolveAttrType(Attribute{Type: "int", Required: true})
 	assertEqual(t, "int", rt.GoType)
 	assertEqual(t, "parseIntAttr(val)", rt.ParseExpr)
 	assertEqual(t, "formatIntAttr(v)", rt.FormatExpr)
 	if !rt.Failable {
 		t.Error("int should be failable")
+	}
+	if rt.IsPointer {
+		t.Error("required int should not be IsPointer")
+	}
+}
+
+func TestResolveAttrType_OptionalInt(t *testing.T) {
+	t.Parallel()
+	rt := resolveAttrType(Attribute{Type: "int", Required: false})
+	assertEqual(t, "*int", rt.GoType)
+	assertEqual(t, "nil", rt.DefaultExpr)
+	assertEqual(t, "parseIntAttr(val)", rt.ParseExpr)
+	assertEqual(t, "formatIntAttr(*v)", rt.FormatExpr)
+	if !rt.Failable {
+		t.Error("optional int should be failable")
+	}
+	if !rt.IsPointer {
+		t.Error("optional int should be IsPointer")
 	}
 }
 
@@ -572,12 +592,30 @@ func TestResolveAttrType_Bool(t *testing.T) {
 
 func TestResolveAttrType_Int64(t *testing.T) {
 	t.Parallel()
-	rt := resolveAttrType(Attribute{Type: "int64"})
+	rt := resolveAttrType(Attribute{Type: "int64", Required: true})
 	assertEqual(t, "int64", rt.GoType)
 	assertEqual(t, "parseInt64Attr(val)", rt.ParseExpr)
 	assertEqual(t, "formatInt64Attr(v)", rt.FormatExpr)
 	if !rt.Failable {
 		t.Error("int64 should be failable")
+	}
+	if rt.IsPointer {
+		t.Error("required int64 should not be IsPointer")
+	}
+}
+
+func TestResolveAttrType_OptionalInt64(t *testing.T) {
+	t.Parallel()
+	rt := resolveAttrType(Attribute{Type: "int64", Required: false})
+	assertEqual(t, "*int64", rt.GoType)
+	assertEqual(t, "nil", rt.DefaultExpr)
+	assertEqual(t, "parseInt64Attr(val)", rt.ParseExpr)
+	assertEqual(t, "formatInt64Attr(*v)", rt.FormatExpr)
+	if !rt.Failable {
+		t.Error("optional int64 should be failable")
+	}
+	if !rt.IsPointer {
+		t.Error("optional int64 should be IsPointer")
 	}
 }
 

@@ -384,28 +384,28 @@ type CT_PageMar struct {
 	Element
 }
 
-// Top returns the value of the "w:top" attribute, or 0 if absent.
+// Top returns the value of the "w:top" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_PageMar) Top() (int, error) {
+func (e *CT_PageMar) Top() (*int, error) {
 	val, ok := e.GetAttr("w:top")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:top", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:top", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetTop sets the "w:top" attribute.
-// Passing 0 removes it.
-func (e *CT_PageMar) SetTop(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_PageMar) SetTop(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:top")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_PageMar.SetTop: %w", err)
 	}
@@ -413,28 +413,28 @@ func (e *CT_PageMar) SetTop(v int) error {
 	return nil
 }
 
-// Right returns the value of the "w:right" attribute, or 0 if absent.
+// Right returns the value of the "w:right" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_PageMar) Right() (int, error) {
+func (e *CT_PageMar) Right() (*int, error) {
 	val, ok := e.GetAttr("w:right")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:right", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:right", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetRight sets the "w:right" attribute.
-// Passing 0 removes it.
-func (e *CT_PageMar) SetRight(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_PageMar) SetRight(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:right")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_PageMar.SetRight: %w", err)
 	}
@@ -442,28 +442,28 @@ func (e *CT_PageMar) SetRight(v int) error {
 	return nil
 }
 
-// Bottom returns the value of the "w:bottom" attribute, or 0 if absent.
+// Bottom returns the value of the "w:bottom" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_PageMar) Bottom() (int, error) {
+func (e *CT_PageMar) Bottom() (*int, error) {
 	val, ok := e.GetAttr("w:bottom")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:bottom", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:bottom", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetBottom sets the "w:bottom" attribute.
-// Passing 0 removes it.
-func (e *CT_PageMar) SetBottom(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_PageMar) SetBottom(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:bottom")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_PageMar.SetBottom: %w", err)
 	}
@@ -471,28 +471,28 @@ func (e *CT_PageMar) SetBottom(v int) error {
 	return nil
 }
 
-// Left returns the value of the "w:left" attribute, or 0 if absent.
+// Left returns the value of the "w:left" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_PageMar) Left() (int, error) {
+func (e *CT_PageMar) Left() (*int, error) {
 	val, ok := e.GetAttr("w:left")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:left", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:left", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetLeft sets the "w:left" attribute.
-// Passing 0 removes it.
-func (e *CT_PageMar) SetLeft(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_PageMar) SetLeft(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:left")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_PageMar.SetLeft: %w", err)
 	}
@@ -500,28 +500,28 @@ func (e *CT_PageMar) SetLeft(v int) error {
 	return nil
 }
 
-// Header returns the value of the "w:header" attribute, or 0 if absent.
+// Header returns the value of the "w:header" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_PageMar) Header() (int, error) {
+func (e *CT_PageMar) Header() (*int, error) {
 	val, ok := e.GetAttr("w:header")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:header", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:header", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetHeader sets the "w:header" attribute.
-// Passing 0 removes it.
-func (e *CT_PageMar) SetHeader(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_PageMar) SetHeader(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:header")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_PageMar.SetHeader: %w", err)
 	}
@@ -529,28 +529,28 @@ func (e *CT_PageMar) SetHeader(v int) error {
 	return nil
 }
 
-// Footer returns the value of the "w:footer" attribute, or 0 if absent.
+// Footer returns the value of the "w:footer" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_PageMar) Footer() (int, error) {
+func (e *CT_PageMar) Footer() (*int, error) {
 	val, ok := e.GetAttr("w:footer")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:footer", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:footer", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetFooter sets the "w:footer" attribute.
-// Passing 0 removes it.
-func (e *CT_PageMar) SetFooter(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_PageMar) SetFooter(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:footer")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_PageMar.SetFooter: %w", err)
 	}
@@ -558,28 +558,28 @@ func (e *CT_PageMar) SetFooter(v int) error {
 	return nil
 }
 
-// Gutter returns the value of the "w:gutter" attribute, or 0 if absent.
+// Gutter returns the value of the "w:gutter" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_PageMar) Gutter() (int, error) {
+func (e *CT_PageMar) Gutter() (*int, error) {
 	val, ok := e.GetAttr("w:gutter")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:gutter", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:gutter", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetGutter sets the "w:gutter" attribute.
-// Passing 0 removes it.
-func (e *CT_PageMar) SetGutter(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_PageMar) SetGutter(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:gutter")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_PageMar.SetGutter: %w", err)
 	}
@@ -594,28 +594,28 @@ type CT_PageSz struct {
 	Element
 }
 
-// W returns the value of the "w:w" attribute, or 0 if absent.
+// W returns the value of the "w:w" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_PageSz) W() (int, error) {
+func (e *CT_PageSz) W() (*int, error) {
 	val, ok := e.GetAttr("w:w")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:w", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:w", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetW sets the "w:w" attribute.
-// Passing 0 removes it.
-func (e *CT_PageSz) SetW(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_PageSz) SetW(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:w")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_PageSz.SetW: %w", err)
 	}
@@ -623,28 +623,28 @@ func (e *CT_PageSz) SetW(v int) error {
 	return nil
 }
 
-// H returns the value of the "w:h" attribute, or 0 if absent.
+// H returns the value of the "w:h" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_PageSz) H() (int, error) {
+func (e *CT_PageSz) H() (*int, error) {
 	val, ok := e.GetAttr("w:h")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:h", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:h", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetH sets the "w:h" attribute.
-// Passing 0 removes it.
-func (e *CT_PageSz) SetH(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_PageSz) SetH(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:h")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_PageSz.SetH: %w", err)
 	}

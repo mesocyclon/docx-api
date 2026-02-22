@@ -35,8 +35,8 @@ func TestNewTbl_Structure(t *testing.T) {
 		if err != nil {
 			t.Fatalf("W: %v", err)
 		}
-		if w != 2340 { // 9360/4
-			t.Errorf("expected col width 2340, got %d", w)
+		if w == nil || *w != 2340 { // 9360/4
+			t.Errorf("expected col width 2340, got %v", w)
 		}
 	}
 	// Check rows
@@ -1188,7 +1188,8 @@ func TestCT_LatentStyles_GetByName(t *testing.T) {
 	if err := exc.SetName("Heading 1"); err != nil {
 		t.Fatalf("SetName: %v", err)
 	}
-	if err := exc.SetUiPriority(9); err != nil {
+	prio := 9
+	if err := exc.SetUiPriority(&prio); err != nil {
 		t.Fatalf("SetUiPriority: %v", err)
 	}
 
@@ -1198,8 +1199,8 @@ func TestCT_LatentStyles_GetByName(t *testing.T) {
 	}
 	if up, err := found.UiPriority(); err != nil {
 		t.Fatalf("UiPriority: %v", err)
-	} else if up != 9 {
-		t.Errorf("expected priority 9, got %d", up)
+	} else if up == nil || *up != 9 {
+		t.Errorf("expected priority 9, got %v", up)
 	}
 	if ls.GetByName("NoSuch") != nil {
 		t.Error("expected nil for unknown")

@@ -82,14 +82,7 @@ func (pPr *CT_PPr) SetSpacingBefore(v *int) error {
 		return nil
 	}
 	spacing := pPr.GetOrAddSpacing()
-	if v == nil {
-		spacing.SetBefore(0) // removes attr via generated code
-	} else {
-		if err := spacing.SetBefore(*v); err != nil {
-			return err
-		}
-	}
-	return nil
+	return spacing.SetBefore(v)
 }
 
 // SpacingAfter returns the value of w:spacing/@w:after in twips, or nil if not present.
@@ -115,16 +108,7 @@ func (pPr *CT_PPr) SetSpacingAfter(v *int) error {
 		return nil
 	}
 	spacing := pPr.GetOrAddSpacing()
-	if v == nil {
-		if err := spacing.SetAfter(0); err != nil {
-			return err
-		}
-	} else {
-		if err := spacing.SetAfter(*v); err != nil {
-			return err
-		}
-	}
-	return nil
+	return spacing.SetAfter(v)
 }
 
 // SpacingLine returns the value of w:spacing/@w:line in twips, or nil if not present.
@@ -150,16 +134,7 @@ func (pPr *CT_PPr) SetSpacingLine(v *int) error {
 		return nil
 	}
 	spacing := pPr.GetOrAddSpacing()
-	if v == nil {
-		if err := spacing.SetLine(0); err != nil {
-			return err
-		}
-	} else {
-		if err := spacing.SetLine(*v); err != nil {
-			return err
-		}
-	}
-	return nil
+	return spacing.SetLine(v)
 }
 
 // SpacingLineRule returns the line spacing rule, or nil if not present.
@@ -215,15 +190,7 @@ func (pPr *CT_PPr) IndLeft() (*int, error) {
 	if ind == nil {
 		return nil, nil
 	}
-	_, ok := ind.GetAttr("w:left")
-	if !ok {
-		return nil, nil
-	}
-	v, err := ind.Left()
-	if err != nil {
-		return nil, err
-	}
-	return &v, nil
+	return ind.Left()
 }
 
 // SetIndLeft sets the w:ind/@w:left in twips.
@@ -232,16 +199,7 @@ func (pPr *CT_PPr) SetIndLeft(v *int) error {
 		return nil
 	}
 	ind := pPr.GetOrAddInd()
-	if v == nil {
-		if err := ind.SetLeft(0); err != nil {
-			return err
-		}
-	} else {
-		if err := ind.SetLeft(*v); err != nil {
-			return err
-		}
-	}
-	return nil
+	return ind.SetLeft(v)
 }
 
 // IndRight returns the value of w:ind/@w:right in twips, or nil if not present.
@@ -250,15 +208,7 @@ func (pPr *CT_PPr) IndRight() (*int, error) {
 	if ind == nil {
 		return nil, nil
 	}
-	_, ok := ind.GetAttr("w:right")
-	if !ok {
-		return nil, nil
-	}
-	v, err := ind.Right()
-	if err != nil {
-		return nil, err
-	}
-	return &v, nil
+	return ind.Right()
 }
 
 // SetIndRight sets the w:ind/@w:right in twips.
@@ -267,16 +217,7 @@ func (pPr *CT_PPr) SetIndRight(v *int) error {
 		return nil
 	}
 	ind := pPr.GetOrAddInd()
-	if v == nil {
-		if err := ind.SetRight(0); err != nil {
-			return err
-		}
-	} else {
-		if err := ind.SetRight(*v); err != nil {
-			return err
-		}
-	}
-	return nil
+	return ind.SetRight(v)
 }
 
 // FirstLineIndent returns a calculated indentation from w:ind/@w:firstLine and
@@ -293,18 +234,17 @@ func (pPr *CT_PPr) FirstLineIndent() (*int, error) {
 		if err != nil {
 			return nil, err
 		}
-		v := -h
+		if h == nil {
+			return nil, nil
+		}
+		v := -(*h)
 		return &v, nil
 	}
 	_, hasFirstLine := ind.GetAttr("w:firstLine")
 	if !hasFirstLine {
 		return nil, nil
 	}
-	v, err := ind.FirstLine()
-	if err != nil {
-		return nil, err
-	}
-	return &v, nil
+	return ind.FirstLine()
 }
 
 // SetFirstLineIndent sets the first-line indent. Negative values become hanging indents.
@@ -314,21 +254,22 @@ func (pPr *CT_PPr) SetFirstLineIndent(v *int) error {
 		return nil
 	}
 	ind := pPr.GetOrAddInd()
-	if err := ind.SetFirstLine(0); err != nil {
+	if err := ind.SetFirstLine(nil); err != nil {
 		return err
 	}
-	if err := ind.SetHanging(0); err != nil {
+	if err := ind.SetHanging(nil); err != nil {
 		return err
 	}
 	if v == nil {
 		return nil
 	}
 	if *v < 0 {
-		if err := ind.SetHanging(-*v); err != nil {
+		neg := -(*v)
+		if err := ind.SetHanging(&neg); err != nil {
 			return err
 		}
 	} else {
-		if err := ind.SetFirstLine(*v); err != nil {
+		if err := ind.SetFirstLine(v); err != nil {
 			return err
 		}
 	}

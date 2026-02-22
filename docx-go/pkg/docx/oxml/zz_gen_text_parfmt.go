@@ -528,28 +528,28 @@ type CT_Ind struct {
 	Element
 }
 
-// Left returns the value of the "w:left" attribute, or 0 if absent.
+// Left returns the value of the "w:left" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_Ind) Left() (int, error) {
+func (e *CT_Ind) Left() (*int, error) {
 	val, ok := e.GetAttr("w:left")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:left", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:left", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetLeft sets the "w:left" attribute.
-// Passing 0 removes it.
-func (e *CT_Ind) SetLeft(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_Ind) SetLeft(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:left")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_Ind.SetLeft: %w", err)
 	}
@@ -557,28 +557,28 @@ func (e *CT_Ind) SetLeft(v int) error {
 	return nil
 }
 
-// Right returns the value of the "w:right" attribute, or 0 if absent.
+// Right returns the value of the "w:right" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_Ind) Right() (int, error) {
+func (e *CT_Ind) Right() (*int, error) {
 	val, ok := e.GetAttr("w:right")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:right", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:right", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetRight sets the "w:right" attribute.
-// Passing 0 removes it.
-func (e *CT_Ind) SetRight(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_Ind) SetRight(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:right")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_Ind.SetRight: %w", err)
 	}
@@ -586,28 +586,28 @@ func (e *CT_Ind) SetRight(v int) error {
 	return nil
 }
 
-// FirstLine returns the value of the "w:firstLine" attribute, or 0 if absent.
+// FirstLine returns the value of the "w:firstLine" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_Ind) FirstLine() (int, error) {
+func (e *CT_Ind) FirstLine() (*int, error) {
 	val, ok := e.GetAttr("w:firstLine")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:firstLine", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:firstLine", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetFirstLine sets the "w:firstLine" attribute.
-// Passing 0 removes it.
-func (e *CT_Ind) SetFirstLine(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_Ind) SetFirstLine(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:firstLine")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_Ind.SetFirstLine: %w", err)
 	}
@@ -615,28 +615,28 @@ func (e *CT_Ind) SetFirstLine(v int) error {
 	return nil
 }
 
-// Hanging returns the value of the "w:hanging" attribute, or 0 if absent.
+// Hanging returns the value of the "w:hanging" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_Ind) Hanging() (int, error) {
+func (e *CT_Ind) Hanging() (*int, error) {
 	val, ok := e.GetAttr("w:hanging")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:hanging", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:hanging", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetHanging sets the "w:hanging" attribute.
-// Passing 0 removes it.
-func (e *CT_Ind) SetHanging(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_Ind) SetHanging(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:hanging")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_Ind.SetHanging: %w", err)
 	}
@@ -681,28 +681,28 @@ type CT_Spacing struct {
 	Element
 }
 
-// After returns the value of the "w:after" attribute, or 0 if absent.
+// After returns the value of the "w:after" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_Spacing) After() (int, error) {
+func (e *CT_Spacing) After() (*int, error) {
 	val, ok := e.GetAttr("w:after")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:after", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:after", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetAfter sets the "w:after" attribute.
-// Passing 0 removes it.
-func (e *CT_Spacing) SetAfter(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_Spacing) SetAfter(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:after")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_Spacing.SetAfter: %w", err)
 	}
@@ -710,28 +710,28 @@ func (e *CT_Spacing) SetAfter(v int) error {
 	return nil
 }
 
-// Before returns the value of the "w:before" attribute, or 0 if absent.
+// Before returns the value of the "w:before" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_Spacing) Before() (int, error) {
+func (e *CT_Spacing) Before() (*int, error) {
 	val, ok := e.GetAttr("w:before")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:before", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:before", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetBefore sets the "w:before" attribute.
-// Passing 0 removes it.
-func (e *CT_Spacing) SetBefore(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_Spacing) SetBefore(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:before")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_Spacing.SetBefore: %w", err)
 	}
@@ -739,28 +739,28 @@ func (e *CT_Spacing) SetBefore(v int) error {
 	return nil
 }
 
-// Line returns the value of the "w:line" attribute, or 0 if absent.
+// Line returns the value of the "w:line" attribute, or nil if absent.
 // Returns an error if the attribute is present but cannot be parsed.
-func (e *CT_Spacing) Line() (int, error) {
+func (e *CT_Spacing) Line() (*int, error) {
 	val, ok := e.GetAttr("w:line")
 	if !ok {
-		return 0, nil
+		return nil, nil
 	}
 	parsed, err := parseIntAttr(val)
 	if err != nil {
-		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:line", RawValue: val, Err: err}
+		return nil, &ParseAttrError{Element: e.Tag(), Attr: "w:line", RawValue: val, Err: err}
 	}
-	return parsed, nil
+	return &parsed, nil
 }
 
 // SetLine sets the "w:line" attribute.
-// Passing 0 removes it.
-func (e *CT_Spacing) SetLine(v int) error {
-	if v == 0 {
+// Passing nil removes it.
+func (e *CT_Spacing) SetLine(v *int) error {
+	if v == nil {
 		e.RemoveAttr("w:line")
 		return nil
 	}
-	s, err := formatIntAttr(v)
+	s, err := formatIntAttr(*v)
 	if err != nil {
 		return fmt.Errorf("CT_Spacing.SetLine: %w", err)
 	}

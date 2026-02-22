@@ -224,17 +224,31 @@ func resolveAttrType(attr Attribute) resolvedType {
 		}
 
 	case "int":
+		if attr.Required {
+			return resolvedType{
+				GoType: "int", ZeroExpr: "0", DefaultExpr: "0",
+				ParseExpr: "parseIntAttr(val)", FormatExpr: "formatIntAttr(v)",
+				Failable: true,
+			}
+		}
 		return resolvedType{
-			GoType: "int", ZeroExpr: "0", DefaultExpr: "0",
-			ParseExpr: "parseIntAttr(val)", FormatExpr: "formatIntAttr(v)",
-			Failable: true,
+			GoType: "*int", ZeroExpr: "nil", DefaultExpr: "nil",
+			ParseExpr: "parseIntAttr(val)", FormatExpr: "formatIntAttr(*v)",
+			Failable: true, IsPointer: true,
 		}
 
 	case "int64":
+		if attr.Required {
+			return resolvedType{
+				GoType: "int64", ZeroExpr: "0", DefaultExpr: "0",
+				ParseExpr: "parseInt64Attr(val)", FormatExpr: "formatInt64Attr(v)",
+				Failable: true,
+			}
+		}
 		return resolvedType{
-			GoType: "int64", ZeroExpr: "0", DefaultExpr: "0",
-			ParseExpr: "parseInt64Attr(val)", FormatExpr: "formatInt64Attr(v)",
-			Failable: true,
+			GoType: "*int64", ZeroExpr: "nil", DefaultExpr: "nil",
+			ParseExpr: "parseInt64Attr(val)", FormatExpr: "formatInt64Attr(*v)",
+			Failable: true, IsPointer: true,
 		}
 
 	case "bool":
