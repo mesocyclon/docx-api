@@ -2,6 +2,7 @@ package opc
 
 import (
 	"bytes"
+	"errors"
 	"testing"
 
 	"github.com/user/go-docx/pkg/docx/templates"
@@ -126,4 +127,104 @@ func TestPhysPkgWriter_RoundTrip(t *testing.T) {
 	if string(blob) != "<root/>" {
 		t.Errorf("got %q, want %q", string(blob), "<root/>")
 	}
+}
+
+// TestNewPhysPkgReader_OLE2_ReturnsEncryptedError verifies that opening an
+// OLE2 Compound Document (encrypted .docx) returns ErrEncryptedPackage with
+// a clear message, not a confusing "not a valid zip file" error.
+func TestNewPhysPkgReader_OLE2_ReturnsEncryptedError(t *testing.T) {
+	t.Parallel()
+
+	// Minimal OLE2 header: 8-byte magic + padding to a plausible size.
+	// Real encrypted .docx files start with these exact bytes.
+	ole2Header := make([]byte, 512)
+	copy(ole2Header, []byte{0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1})
+
+	_, err := NewPhysPkgReaderFromBytes(ole2Header)
+	if err == nil {
+		t.Fatal("expected error for OLE2 input, got nil")
+	}
+
+	if !errors.Is(err, ErrEncryptedPackage) {
+		t.Errorf("expected ErrEncryptedPackage, got: %v", err)
+	}
+
+	// Must NOT match ErrNotZipPackage — it's more specific.
+	if errors.Is(err, ErrNotZipPackage) {
+		t.Error("OLE2 error should not also match ErrNotZipPackage")
+	}
+
+	// Error message should mention encryption.
+	msg := err.Error()
+	if !containsSubstring(msg, "encrypted") && !containsSubstring(msg, "OLE2") {
+		t.Errorf("error message should mention encryption, got: %s", msg)
+	}
+}
+
+// TestNewPhysPkgReader_RandomBytes_ReturnsNotZipError verifies that garbage
+// input returns ErrNotZipPackage with a clear message.
+func TestNewPhysPkgReader_RandomBytes_ReturnsNotZipError(t *testing.T) {
+	t.Parallel()
+
+	garbage := []byte("this is not a zip file at all, just random text content")
+
+	_, err := NewPhysPkgReaderFromBytes(garbage)
+	if err == nil {
+		t.Fatal("expected error for garbage input, got nil")
+	}
+
+	if !errors.Is(err, ErrNotZipPackage) {
+		t.Errorf("expected ErrNotZipPackage, got: %v", err)
+	}
+
+	// Must NOT match ErrEncryptedPackage.
+	if errors.Is(err, ErrEncryptedPackage) {
+		t.Error("garbage input should not match ErrEncryptedPackage")
+	}
+}
+
+// TestNewPhysPkgReader_EmptyInput_ReturnsNotZipError verifies that empty
+// input returns ErrNotZipPackage.
+func TestNewPhysPkgReader_EmptyInput_ReturnsNotZipError(t *testing.T) {
+	t.Parallel()
+
+	_, err := NewPhysPkgReaderFromBytes([]byte{})
+	if err == nil {
+		t.Fatal("expected error for empty input, got nil")
+	}
+
+	if !errors.Is(err, ErrNotZipPackage) {
+		t.Errorf("expected ErrNotZipPackage, got: %v", err)
+	}
+}
+
+// TestNewPhysPkgReader_ErrorsUnwrap verifies that the original zip error
+// is preserved in the error chain for debugging.
+func TestNewPhysPkgReader_ErrorsUnwrap(t *testing.T) {
+	t.Parallel()
+
+	garbage := []byte("not a zip")
+	_, err := NewPhysPkgReaderFromBytes(garbage)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+
+	// The original zip error should be reachable via Unwrap.
+	msg := err.Error()
+	if !containsSubstring(msg, "zip") {
+		t.Errorf("error chain should include original zip error, got: %s", msg)
+	}
+}
+
+func containsSubstring(s, substr string) bool {
+	return len(s) >= len(substr) && searchSubstring(s, substr)
+}
+
+func searchSubstring(s, substr string) bool {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return true
+		}
+	}
+	return false
 }

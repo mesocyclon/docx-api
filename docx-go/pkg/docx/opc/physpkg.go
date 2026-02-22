@@ -17,6 +17,15 @@ import (
 // _ZipPkgReader.rels_xml_for.
 var ErrMemberNotFound = errors.New("opc: member not found in package")
 
+// ErrNotZipPackage is returned when the input cannot be read as a ZIP
+// archive.  Callers can test with errors.Is(err, ErrNotZipPackage).
+var ErrNotZipPackage = errors.New("opc: not a ZIP-based OPC package")
+
+// ErrEncryptedPackage is returned when the input appears to be an OLE2
+// Compound Document (encrypted .docx).  Such files require decryption
+// before they can be opened as OPC packages.
+var ErrEncryptedPackage = errors.New("opc: file is encrypted (OLE2 Compound Document, not a ZIP-based package)")
+
 // ErrPartTooLarge is returned by BlobFor when a decompressed part
 // exceeds MaxPartSize. This protects against zip bombs and other
 // decompression attacks that could cause out-of-memory conditions.
@@ -54,7 +63,7 @@ type PhysPkgReader struct {
 func NewPhysPkgReader(r io.ReaderAt, size int64) (*PhysPkgReader, error) {
 	zr, err := zip.NewReader(r, size)
 	if err != nil {
-		return nil, fmt.Errorf("opc: opening zip: %w", err)
+		return nil, wrapZipOpenError(err, r)
 	}
 	return newPhysPkgReaderFromZip(zr, nil)
 }
@@ -72,8 +81,9 @@ func NewPhysPkgReaderFromFile(path string) (*PhysPkgReader, error) {
 	}
 	zr, err := zip.NewReader(f, info.Size())
 	if err != nil {
+		wrapped := wrapZipOpenError(err, f)
 		f.Close()
-		return nil, fmt.Errorf("opc: opening zip %q: %w", path, err)
+		return nil, fmt.Errorf("opening %q: %w", path, wrapped)
 	}
 	return newPhysPkgReaderFromZip(zr, f)
 }
@@ -180,6 +190,22 @@ func (p *PhysPkgReader) Close() error {
 		return p.closer.Close()
 	}
 	return nil
+}
+
+// ole2Magic is the signature of an OLE2 Compound Document (D0 CF 11 E0 A1 B1 1A E1).
+// Encrypted .docx/.xlsx/.pptx files are wrapped in this format.
+var ole2Magic = []byte{0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1}
+
+// wrapZipOpenError enriches a zip.NewReader failure with a more specific
+// sentinel error by inspecting the first bytes of the input.
+func wrapZipOpenError(zipErr error, r io.ReaderAt) error {
+	var header [8]byte
+	if n, _ := r.ReadAt(header[:], 0); n >= len(ole2Magic) {
+		if bytes.Equal(header[:len(ole2Magic)], ole2Magic) {
+			return fmt.Errorf("%w: %w", ErrEncryptedPackage, zipErr)
+		}
+	}
+	return fmt.Errorf("%w: %w", ErrNotZipPackage, zipErr)
 }
 
 // --------------------------------------------------------------------------
