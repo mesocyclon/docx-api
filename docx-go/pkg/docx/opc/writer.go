@@ -24,7 +24,11 @@ func (pw *PackageWriter) Write(w io.Writer, pkgRels *Relationships, parts []Part
 
 	// 3. Write each part's blob and its .rels (if any)
 	for _, part := range parts {
-		if err := physWriter.Write(part.PartName(), part.Blob()); err != nil {
+		blob, err := part.Blob()
+		if err != nil {
+			return fmt.Errorf("opc: serializing part %q: %w", part.PartName(), err)
+		}
+		if err := physWriter.Write(part.PartName(), blob); err != nil {
 			return fmt.Errorf("opc: writing part %q: %w", part.PartName(), err)
 		}
 		if part.Rels() != nil && part.Rels().Len() > 0 {

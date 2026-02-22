@@ -1,6 +1,8 @@
 package opc
 
 import (
+	"fmt"
+
 	"github.com/beevik/etree"
 )
 
@@ -12,7 +14,7 @@ import (
 type Part interface {
 	PartName() PackURI
 	ContentType() string
-	Blob() []byte
+	Blob() ([]byte, error)
 	Rels() *Relationships
 	SetRels(rels *Relationships)
 	BeforeMarshal()
@@ -45,7 +47,7 @@ func NewBasePart(partName PackURI, contentType string, blob []byte, pkg *OpcPack
 
 func (p *BasePart) PartName() PackURI           { return p.partName }
 func (p *BasePart) ContentType() string         { return p.contentType }
-func (p *BasePart) Blob() []byte                { return p.blob }
+func (p *BasePart) Blob() ([]byte, error)       { return p.blob, nil }
 func (p *BasePart) Rels() *Relationships        { return p.rels }
 func (p *BasePart) SetRels(rels *Relationships) { p.rels = rels }
 func (p *BasePart) Package() *OpcPackage        { return p.pkg }
@@ -107,17 +109,20 @@ func (p *XmlPart) SetElement(el *etree.Element) {
 // Blob serializes the XML element to bytes.
 // Output is compact (no insignificant whitespace), matching Python's
 // serialize_part_xml behavior.
-func (p *XmlPart) Blob() []byte {
+func (p *XmlPart) Blob() ([]byte, error) {
 	if p.element == nil {
-		return nil
+		return nil, nil
 	}
 	doc := etree.NewDocument()
 	doc.CreateProcInst("xml", `version="1.0" encoding="UTF-8" standalone="yes"`)
 	doc.SetRoot(p.element.Copy())
 	// No doc.Indent() — compact output, matching Python.
 	doc.WriteSettings.CanonicalEndTags = true
-	b, _ := doc.WriteToBytes()
-	return b
+	b, err := doc.WriteToBytes()
+	if err != nil {
+		return nil, fmt.Errorf("opc: serializing XML part %q: %w", p.partName, err)
+	}
+	return b, nil
 }
 
 // --------------------------------------------------------------------------

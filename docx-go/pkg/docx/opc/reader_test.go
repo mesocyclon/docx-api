@@ -138,7 +138,11 @@ func TestOpcPackage_SaveRoundTrip(t *testing.T) {
 	}
 
 	// Blob should be non-empty
-	if len(docPart.Blob()) == 0 {
+	blob, err := docPart.Blob()
+	if err != nil {
+		t.Fatalf("Blob() returned error: %v", err)
+	}
+	if len(blob) == 0 {
 		t.Error("expected non-empty blob for document part after round-trip")
 	}
 

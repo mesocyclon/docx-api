@@ -130,9 +130,13 @@ func classify(pkg *opc.OpcPackage) (*Document, error) {
 		case opc.RTOfficeDocument:
 			doc.docPart = rel.TargetPart
 		case opc.RTCoreProperties:
-			doc.CoreProps = parseCoreProps(rel.TargetPart.Blob())
+			if b, err := rel.TargetPart.Blob(); err == nil {
+				doc.CoreProps = parseCoreProps(b)
+			}
 		case opc.RTExtendedProperties:
-			doc.AppProps = parseAppProps(rel.TargetPart.Blob())
+			if b, err := rel.TargetPart.Blob(); err == nil {
+				doc.AppProps = parseAppProps(b)
+			}
 		}
 	}
 
@@ -151,7 +155,10 @@ func classify(pkg *opc.OpcPackage) (*Document, error) {
 			}
 			part := rel.TargetPart
 			classified[part.PartName()] = true
-			blob := part.Blob()
+			blob, err := part.Blob()
+			if err != nil {
+				return nil, fmt.Errorf("packaging: reading part %q: %w", part.PartName(), err)
+			}
 
 			switch rel.RelType {
 			case opc.RTStyles:
@@ -198,10 +205,14 @@ func classify(pkg *opc.OpcPackage) (*Document, error) {
 		if classified[part.PartName()] {
 			continue
 		}
+		blob, err := part.Blob()
+		if err != nil {
+			return nil, fmt.Errorf("packaging: reading unknown part %q: %w", part.PartName(), err)
+		}
 		doc.UnknownParts = append(doc.UnknownParts, UnknownPart{
 			PartName:    string(part.PartName()),
 			ContentType: part.ContentType(),
-			Blob:        part.Blob(),
+			Blob:        blob,
 		})
 	}
 
