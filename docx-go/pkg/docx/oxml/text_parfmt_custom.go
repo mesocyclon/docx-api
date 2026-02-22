@@ -8,16 +8,16 @@ import (
 // --- CT_PPr custom methods ---
 
 // JcVal returns the paragraph justification value, or nil if not set.
-func (pPr *CT_PPr) JcVal() *enum.WdParagraphAlignment {
+func (pPr *CT_PPr) JcVal() (*enum.WdParagraphAlignment, error) {
 	jc := pPr.Jc()
 	if jc == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := jc.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetJcVal sets the justification value. Passing nil removes the jc element.
@@ -32,16 +32,16 @@ func (pPr *CT_PPr) SetJcVal(v *enum.WdParagraphAlignment) error {
 // --- Style ---
 
 // StyleVal returns the paragraph style string, or nil if not set.
-func (pPr *CT_PPr) StyleVal() *string {
+func (pPr *CT_PPr) StyleVal() (*string, error) {
 	pStyle := pPr.PStyle()
 	if pStyle == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := pStyle.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetStyleVal sets the paragraph style. Passing nil removes pStyle.
@@ -59,17 +59,20 @@ func (pPr *CT_PPr) SetStyleVal(v *string) error {
 // --- Spacing properties ---
 
 // SpacingBefore returns the value of w:spacing/@w:before in twips, or nil if not present.
-func (pPr *CT_PPr) SpacingBefore() *int {
+func (pPr *CT_PPr) SpacingBefore() (*int, error) {
 	spacing := pPr.Spacing()
 	if spacing == nil {
-		return nil
+		return nil, nil
 	}
 	v, ok := spacing.GetAttr("w:before")
 	if !ok {
-		return nil
+		return nil, nil
 	}
-	i := parseIntAttr(v)
-	return &i
+	i, err := parseIntAttr(v)
+	if err != nil {
+		return nil, err
+	}
+	return &i, nil
 }
 
 // SetSpacingBefore sets the w:spacing/@w:before value in twips.
@@ -90,17 +93,20 @@ func (pPr *CT_PPr) SetSpacingBefore(v *int) error {
 }
 
 // SpacingAfter returns the value of w:spacing/@w:after in twips, or nil if not present.
-func (pPr *CT_PPr) SpacingAfter() *int {
+func (pPr *CT_PPr) SpacingAfter() (*int, error) {
 	spacing := pPr.Spacing()
 	if spacing == nil {
-		return nil
+		return nil, nil
 	}
 	v, ok := spacing.GetAttr("w:after")
 	if !ok {
-		return nil
+		return nil, nil
 	}
-	i := parseIntAttr(v)
-	return &i
+	i, err := parseIntAttr(v)
+	if err != nil {
+		return nil, err
+	}
+	return &i, nil
 }
 
 // SetSpacingAfter sets the w:spacing/@w:after value in twips.
@@ -122,17 +128,20 @@ func (pPr *CT_PPr) SetSpacingAfter(v *int) error {
 }
 
 // SpacingLine returns the value of w:spacing/@w:line in twips, or nil if not present.
-func (pPr *CT_PPr) SpacingLine() *int {
+func (pPr *CT_PPr) SpacingLine() (*int, error) {
 	spacing := pPr.Spacing()
 	if spacing == nil {
-		return nil
+		return nil, nil
 	}
 	v, ok := spacing.GetAttr("w:line")
 	if !ok {
-		return nil
+		return nil, nil
 	}
-	i := parseIntAttr(v)
-	return &i
+	i, err := parseIntAttr(v)
+	if err != nil {
+		return nil, err
+	}
+	return &i, nil
 }
 
 // SetSpacingLine sets the w:spacing/@w:line value.
@@ -155,10 +164,10 @@ func (pPr *CT_PPr) SetSpacingLine(v *int) error {
 
 // SpacingLineRule returns the line spacing rule, or nil if not present.
 // Defaults to WdLineSpacingMultiple if spacing/@w:line is present but lineRule is absent.
-func (pPr *CT_PPr) SpacingLineRule() *enum.WdLineSpacing {
+func (pPr *CT_PPr) SpacingLineRule() (*enum.WdLineSpacing, error) {
 	spacing := pPr.Spacing()
 	if spacing == nil {
-		return nil
+		return nil, nil
 	}
 	lr := spacing.LineRule()
 	if lr == "" {
@@ -166,15 +175,15 @@ func (pPr *CT_PPr) SpacingLineRule() *enum.WdLineSpacing {
 		_, hasLine := spacing.GetAttr("w:line")
 		if hasLine {
 			v := enum.WdLineSpacingMultiple
-			return &v
+			return &v, nil
 		}
-		return nil
+		return nil, nil
 	}
 	v, err := enum.WdLineSpacingFromXml(lr)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetSpacingLineRule sets the line spacing rule.
@@ -201,17 +210,20 @@ func (pPr *CT_PPr) SetSpacingLineRule(v *enum.WdLineSpacing) error {
 // --- Indentation properties ---
 
 // IndLeft returns the value of w:ind/@w:left in twips, or nil if not present.
-func (pPr *CT_PPr) IndLeft() *int {
+func (pPr *CT_PPr) IndLeft() (*int, error) {
 	ind := pPr.Ind()
 	if ind == nil {
-		return nil
+		return nil, nil
 	}
 	_, ok := ind.GetAttr("w:left")
 	if !ok {
-		return nil
+		return nil, nil
 	}
-	v := ind.Left()
-	return &v
+	v, err := ind.Left()
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
 }
 
 // SetIndLeft sets the w:ind/@w:left in twips.
@@ -233,17 +245,20 @@ func (pPr *CT_PPr) SetIndLeft(v *int) error {
 }
 
 // IndRight returns the value of w:ind/@w:right in twips, or nil if not present.
-func (pPr *CT_PPr) IndRight() *int {
+func (pPr *CT_PPr) IndRight() (*int, error) {
 	ind := pPr.Ind()
 	if ind == nil {
-		return nil
+		return nil, nil
 	}
 	_, ok := ind.GetAttr("w:right")
 	if !ok {
-		return nil
+		return nil, nil
 	}
-	v := ind.Right()
-	return &v
+	v, err := ind.Right()
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
 }
 
 // SetIndRight sets the w:ind/@w:right in twips.
@@ -267,22 +282,29 @@ func (pPr *CT_PPr) SetIndRight(v *int) error {
 // FirstLineIndent returns a calculated indentation from w:ind/@w:firstLine and
 // w:ind/@w:hanging. A hanging indent is returned as negative.
 // Returns nil if no w:ind element.
-func (pPr *CT_PPr) FirstLineIndent() *int {
+func (pPr *CT_PPr) FirstLineIndent() (*int, error) {
 	ind := pPr.Ind()
 	if ind == nil {
-		return nil
+		return nil, nil
 	}
 	_, hasHanging := ind.GetAttr("w:hanging")
 	if hasHanging {
-		v := -ind.Hanging()
-		return &v
+		h, err := ind.Hanging()
+		if err != nil {
+			return nil, err
+		}
+		v := -h
+		return &v, nil
 	}
 	_, hasFirstLine := ind.GetAttr("w:firstLine")
 	if !hasFirstLine {
-		return nil
+		return nil, nil
 	}
-	v := ind.FirstLine()
-	return &v
+	v, err := ind.FirstLine()
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
 }
 
 // SetFirstLineIndent sets the first-line indent. Negative values become hanging indents.

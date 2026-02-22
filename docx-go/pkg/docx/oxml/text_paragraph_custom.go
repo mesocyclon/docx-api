@@ -22,10 +22,10 @@ func (p *CT_P) AddPBefore() *CT_P {
 }
 
 // Alignment returns the paragraph alignment from pPr/jc, or nil if not set.
-func (p *CT_P) Alignment() *enum.WdParagraphAlignment {
+func (p *CT_P) Alignment() (*enum.WdParagraphAlignment, error) {
 	pPr := p.PPr()
 	if pPr == nil {
-		return nil
+		return nil, nil
 	}
 	return pPr.JcVal()
 }
@@ -97,10 +97,10 @@ func (p *CT_P) SetSectPr(sectPr *CT_SectPr) {
 }
 
 // Style returns the styleId of the paragraph, or nil if not set.
-func (p *CT_P) Style() *string {
+func (p *CT_P) Style() (*string, error) {
 	pPr := p.PPr()
 	if pPr == nil {
-		return nil
+		return nil, nil
 	}
 	return pPr.StyleVal()
 }

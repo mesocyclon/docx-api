@@ -185,29 +185,12 @@ func TestOptionalAttribute_IntType(t *testing.T) {
 		}},
 	})
 
-	assertContains(t, code, "func (e *CT_Spacing) Before() int")
+	// Failable optional: returns (int, error)
+	assertContains(t, code, "func (e *CT_Spacing) Before() (int, error)")
 	assertContains(t, code, "func (e *CT_Spacing) SetBefore(v int) error")
 	assertContains(t, code, "parseIntAttr(val)")
 	assertContains(t, code, "formatIntAttr(v)")
-}
-
-func TestOptionalAttribute_BoolType(t *testing.T) {
-	t.Parallel()
-	code := generateCode(t, Schema{
-		Package: "oxml",
-		Elements: []Element{{
-			Name: "CT_OnOff",
-			Tag:  "w:onoff",
-			Attributes: []Attribute{{
-				Name: "Val", AttrName: "val",
-				Type: "bool", Required: false,
-			}},
-		}},
-	})
-
-	assertContains(t, code, "func (e *CT_OnOff) Val() bool")
-	assertContains(t, code, "parseBoolAttr(val)")
-	assertContains(t, code, "formatBoolAttr(v)")
+	assertContains(t, code, "ParseAttrError")
 }
 
 func TestRequiredAttribute_GeneratesGetterWithError(t *testing.T) {
@@ -224,9 +207,51 @@ func TestRequiredAttribute_GeneratesGetterWithError(t *testing.T) {
 		}},
 	})
 
+	// Infallible required string — no ParseAttrError, just missing-attr error
 	assertContains(t, code, "func (e *CT_SchemeClr) Val() (string, error)")
 	assertContains(t, code, "func (e *CT_SchemeClr) SetVal(v string) error")
 	assertContains(t, code, "required attribute")
+	assertNotContains(t, code, "ParseAttrError")
+}
+
+func TestRequiredAttribute_IntType_PropagatesParseError(t *testing.T) {
+	t.Parallel()
+	code := generateCode(t, Schema{
+		Package: "oxml",
+		Elements: []Element{{
+			Name: "CT_DecimalNumber",
+			Tag:  "w:num",
+			Attributes: []Attribute{{
+				Name: "Val", AttrName: "w:val",
+				Type: "int", Required: true,
+			}},
+		}},
+	})
+
+	// Failable required int: has ParseAttrError for parse failures
+	assertContains(t, code, "func (e *CT_DecimalNumber) Val() (int, error)")
+	assertContains(t, code, "parseIntAttr(val)")
+	assertContains(t, code, "ParseAttrError")
+	assertContains(t, code, "required attribute")
+}
+
+func TestOptionalAttribute_BoolType_StaysInfallible(t *testing.T) {
+	t.Parallel()
+	code := generateCode(t, Schema{
+		Package: "oxml",
+		Elements: []Element{{
+			Name: "CT_OnOff",
+			Tag:  "w:onoff",
+			Attributes: []Attribute{{
+				Name: "Val", AttrName: "val",
+				Type: "bool", Required: false,
+			}},
+		}},
+	})
+
+	// Infallible optional bool: returns T (no error)
+	assertContains(t, code, "func (e *CT_OnOff) Val() bool")
+	assertNotContains(t, code, "ParseAttrError")
 }
 
 func TestOptionalEnumAttribute_SetterReturnsError(t *testing.T) {
@@ -244,9 +269,13 @@ func TestOptionalEnumAttribute_SetterReturnsError(t *testing.T) {
 		}},
 	})
 
+	// Failable optional enum: returns (enum, error)
+	assertContains(t, code, "func (e *CT_PageSz) Orient() (enum.WdOrientation, error)")
 	assertContains(t, code, "func (e *CT_PageSz) SetOrient(v enum.WdOrientation) error")
 	assertContains(t, code, "v.ToXml()")
-	assertNotContains(t, code, "mustToXmlEnum")
+	assertContains(t, code, "parseEnum(val,")
+	assertContains(t, code, "ParseAttrError")
+	assertNotContains(t, code, "mustParseEnum")
 	assertNotContains(t, code, "panic(")
 }
 
@@ -265,9 +294,12 @@ func TestRequiredEnumAttribute_SetterReturnsError(t *testing.T) {
 		}},
 	})
 
+	assertContains(t, code, "func (e *CT_Jc) Val() (enum.WdParagraphAlignment, error)")
 	assertContains(t, code, "func (e *CT_Jc) SetVal(v enum.WdParagraphAlignment) error")
 	assertContains(t, code, "v.ToXml()")
-	assertNotContains(t, code, "mustToXmlEnum")
+	assertContains(t, code, "parseEnum(val,")
+	assertContains(t, code, "ParseAttrError")
+	assertNotContains(t, code, "mustParseEnum")
 	assertNotContains(t, code, "panic(")
 }
 
@@ -505,55 +537,79 @@ func TestGenerate_SuccessorsPreserveOrder(t *testing.T) {
 
 func TestResolveAttrType_String(t *testing.T) {
 	t.Parallel()
-	goType, zero, def, parse, format := resolveAttrType(Attribute{Type: "string"})
-	assertEqual(t, "string", goType)
-	assertEqual(t, `""`, zero)
-	assertEqual(t, `""`, def)
-	assertEqual(t, "val", parse)
-	assertEqual(t, "formatStringAttr(v)", format)
+	rt := resolveAttrType(Attribute{Type: "string"})
+	assertEqual(t, "string", rt.GoType)
+	assertEqual(t, `""`, rt.ZeroExpr)
+	assertEqual(t, `""`, rt.DefaultExpr)
+	assertEqual(t, "val", rt.ParseExpr)
+	assertEqual(t, "formatStringAttr(v)", rt.FormatExpr)
+	if rt.Failable {
+		t.Error("string should not be failable")
+	}
 }
 
 func TestResolveAttrType_Int(t *testing.T) {
 	t.Parallel()
-	goType, _, _, parse, format := resolveAttrType(Attribute{Type: "int"})
-	assertEqual(t, "int", goType)
-	assertEqual(t, "parseIntAttr(val)", parse)
-	assertEqual(t, "formatIntAttr(v)", format)
+	rt := resolveAttrType(Attribute{Type: "int"})
+	assertEqual(t, "int", rt.GoType)
+	assertEqual(t, "parseIntAttr(val)", rt.ParseExpr)
+	assertEqual(t, "formatIntAttr(v)", rt.FormatExpr)
+	if !rt.Failable {
+		t.Error("int should be failable")
+	}
 }
 
 func TestResolveAttrType_Bool(t *testing.T) {
 	t.Parallel()
-	goType, _, _, parse, format := resolveAttrType(Attribute{Type: "bool"})
-	assertEqual(t, "bool", goType)
-	assertEqual(t, "parseBoolAttr(val)", parse)
-	assertEqual(t, "formatBoolAttr(v)", format)
+	rt := resolveAttrType(Attribute{Type: "bool"})
+	assertEqual(t, "bool", rt.GoType)
+	assertEqual(t, "parseBoolAttr(val)", rt.ParseExpr)
+	assertEqual(t, "formatBoolAttr(v)", rt.FormatExpr)
+	if rt.Failable {
+		t.Error("bool should not be failable")
+	}
 }
 
 func TestResolveAttrType_Int64(t *testing.T) {
 	t.Parallel()
-	goType, _, _, parse, format := resolveAttrType(Attribute{Type: "int64"})
-	assertEqual(t, "int64", goType)
-	assertEqual(t, "parseInt64Attr(val)", parse)
-	assertEqual(t, "formatInt64Attr(v)", format)
+	rt := resolveAttrType(Attribute{Type: "int64"})
+	assertEqual(t, "int64", rt.GoType)
+	assertEqual(t, "parseInt64Attr(val)", rt.ParseExpr)
+	assertEqual(t, "formatInt64Attr(v)", rt.FormatExpr)
+	if !rt.Failable {
+		t.Error("int64 should be failable")
+	}
 }
 
 func TestResolveAttrType_Enum(t *testing.T) {
 	t.Parallel()
-	goType, zero, _, parse, format := resolveAttrType(Attribute{Type: "enum.WdAlign"})
-	assertEqual(t, "enum.WdAlign", goType)
-	assertEqual(t, "enum.WdAlign(0)", zero)
-	assertEqual(t, "mustParseEnum(val, enum.WdAlignFromXml)", parse)
-	assertEqual(t, "v.ToXml()", format)
+	rt := resolveAttrType(Attribute{Type: "enum.WdAlign"})
+	assertEqual(t, "enum.WdAlign", rt.GoType)
+	assertEqual(t, "enum.WdAlign(0)", rt.ZeroExpr)
+	assertEqual(t, "parseEnum(val, enum.WdAlignFromXml)", rt.ParseExpr)
+	assertEqual(t, "v.ToXml()", rt.FormatExpr)
+	if !rt.Failable {
+		t.Error("enum should be failable")
+	}
+	if rt.IsPointer {
+		t.Error("value enum should not be IsPointer")
+	}
 }
 
 func TestResolveAttrType_OptionalEnum(t *testing.T) {
 	t.Parallel()
-	goType, zero, def, parse, format := resolveAttrType(Attribute{Type: "*enum.WdAlign"})
-	assertEqual(t, "*enum.WdAlign", goType)
-	assertEqual(t, "nil", zero)
-	assertEqual(t, "nil", def)
-	assertEqual(t, "parseOptionalEnum(val, enum.WdAlignFromXml)", parse)
-	assertEqual(t, "(*v).ToXml()", format)
+	rt := resolveAttrType(Attribute{Type: "*enum.WdAlign"})
+	assertEqual(t, "*enum.WdAlign", rt.GoType)
+	assertEqual(t, "nil", rt.ZeroExpr)
+	assertEqual(t, "nil", rt.DefaultExpr)
+	assertEqual(t, "parseEnum(val, enum.WdAlignFromXml)", rt.ParseExpr)
+	assertEqual(t, "(*v).ToXml()", rt.FormatExpr)
+	if !rt.Failable {
+		t.Error("*enum should be failable")
+	}
+	if !rt.IsPointer {
+		t.Error("*enum should be IsPointer")
+	}
 }
 
 // --- Helpers ---

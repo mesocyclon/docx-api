@@ -1294,7 +1294,11 @@ func (e *CT_HpsMeasure) Val() (int64, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "w:val", e.Tag())
 	}
-	return parseInt64Attr(val), nil
+	parsed, err := parseInt64Attr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:val", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetVal sets the required "w:val" attribute.

@@ -120,7 +120,11 @@ func (e *CT_NonVisualDrawingProps) Id() (int, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "id", e.Tag())
 	}
-	return parseIntAttr(val), nil
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "id", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetId sets the required "id" attribute.
@@ -501,7 +505,11 @@ func (e *CT_PositiveSize2D) Cx() (int64, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "cx", e.Tag())
 	}
-	return parseInt64Attr(val), nil
+	parsed, err := parseInt64Attr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "cx", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetCx sets the required "cx" attribute.
@@ -520,7 +528,11 @@ func (e *CT_PositiveSize2D) Cy() (int64, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "cy", e.Tag())
 	}
-	return parseInt64Attr(val), nil
+	parsed, err := parseInt64Attr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "cy", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetCy sets the required "cy" attribute.
@@ -546,7 +558,11 @@ func (e *CT_Point2D) X() (int64, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "x", e.Tag())
 	}
-	return parseInt64Attr(val), nil
+	parsed, err := parseInt64Attr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "x", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetX sets the required "x" attribute.
@@ -565,7 +581,11 @@ func (e *CT_Point2D) Y() (int64, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "y", e.Tag())
 	}
-	return parseInt64Attr(val), nil
+	parsed, err := parseInt64Attr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "y", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetY sets the required "y" attribute.

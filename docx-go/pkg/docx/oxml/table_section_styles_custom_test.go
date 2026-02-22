@@ -31,7 +31,10 @@ func TestNewTbl_Structure(t *testing.T) {
 	}
 	// Check column widths
 	for _, col := range cols {
-		w := col.W()
+		w, err := col.W()
+		if err != nil {
+			t.Fatalf("W: %v", err)
+		}
 		if w != 2340 { // 9360/4
 			t.Errorf("expected col width 2340, got %d", w)
 		}
@@ -248,14 +251,19 @@ func TestCT_Row_TcAtGridOffset(t *testing.T) {
 func TestCT_Row_TrHeight_RoundTrip(t *testing.T) {
 	tbl := NewTbl(1, 1, 1000)
 	tr := tbl.TrList()[0]
-	if v := tr.TrHeightVal(); v != nil {
+	if v, err := tr.TrHeightVal(); err != nil {
+		t.Fatalf("TrHeightVal: %v", err)
+	} else if v != nil {
 		t.Errorf("expected nil, got %d", *v)
 	}
 	h := 720
 	if err := tr.SetTrHeightVal(&h); err != nil {
 		t.Fatalf("SetTrHeightVal: %v", err)
 	}
-	got := tr.TrHeightVal()
+	got, err := tr.TrHeightVal()
+	if err != nil {
+		t.Fatalf("TrHeightVal: %v", err)
+	}
 	if got == nil || *got != 720 {
 		t.Errorf("expected 720, got %v", got)
 	}
@@ -263,7 +271,10 @@ func TestCT_Row_TrHeight_RoundTrip(t *testing.T) {
 	if err := tr.SetTrHeightHRule(&rule); err != nil {
 		t.Fatalf("SetTrHeightHRule: %v", err)
 	}
-	gotRule := tr.TrHeightHRule()
+	gotRule, err := tr.TrHeightHRule()
+	if err != nil {
+		t.Fatalf("TrHeightHRule: %v", err)
+	}
 	if gotRule == nil || *gotRule != enum.WdRowHeightRuleExactly {
 		t.Errorf("expected Exactly, got %v", gotRule)
 	}
@@ -279,17 +290,29 @@ func TestNewTc(t *testing.T) {
 
 func TestCT_Tc_GridSpan_RoundTrip(t *testing.T) {
 	tc := NewTc()
-	if v := tc.GridSpanVal(); v != 1 {
+	v, err := tc.GridSpanVal()
+	if err != nil {
+		t.Fatalf("GridSpanVal: %v", err)
+	}
+	if v != 1 {
 		t.Errorf("expected 1, got %d", v)
 	}
 	if err := tc.SetGridSpanVal(3); err != nil {
 		t.Fatalf("SetGridSpanVal: %v", err)
 	}
-	if v := tc.GridSpanVal(); v != 3 {
+	v, err = tc.GridSpanVal()
+	if err != nil {
+		t.Fatalf("GridSpanVal: %v", err)
+	}
+	if v != 3 {
 		t.Errorf("expected 3, got %d", v)
 	}
 	tc.SetGridSpanVal(1) // should remove
-	if v := tc.GridSpanVal(); v != 1 {
+	v, err = tc.GridSpanVal()
+	if err != nil {
+		t.Fatalf("GridSpanVal: %v", err)
+	}
+	if v != 1 {
 		t.Errorf("expected 1 after reset, got %d", v)
 	}
 }
@@ -317,13 +340,20 @@ func TestCT_Tc_VMerge_RoundTrip(t *testing.T) {
 
 func TestCT_Tc_Width_RoundTrip(t *testing.T) {
 	tc := NewTc()
-	if v := tc.WidthTwips(); v != nil {
-		t.Errorf("expected nil, got %d", *v)
+	v2, err := tc.WidthTwips()
+	if err != nil {
+		t.Fatalf("WidthTwips: %v", err)
+	}
+	if v2 != nil {
+		t.Errorf("expected nil, got %d", *v2)
 	}
 	if err := tc.SetWidthTwips(2880); err != nil {
 		t.Fatalf("SetWidthTwips: %v", err)
 	}
-	got := tc.WidthTwips()
+	got, err := tc.WidthTwips()
+	if err != nil {
+		t.Fatalf("WidthTwips: %v", err)
+	}
 	if got == nil || *got != 2880 {
 		t.Errorf("expected 2880, got %v", got)
 	}
@@ -331,21 +361,30 @@ func TestCT_Tc_Width_RoundTrip(t *testing.T) {
 
 func TestCT_Tc_VAlign_RoundTrip(t *testing.T) {
 	tc := NewTc()
-	if v := tc.VAlignVal(); v != nil {
-		t.Errorf("expected nil, got %v", *v)
+	va, err := tc.VAlignVal()
+	if err != nil {
+		t.Fatalf("VAlignVal: %v", err)
+	}
+	if va != nil {
+		t.Errorf("expected nil, got %v", *va)
 	}
 	center := enum.WdCellVerticalAlignmentCenter
 	if err := tc.SetVAlignVal(&center); err != nil {
 		t.Fatalf("SetVAlignVal: %v", err)
 	}
-	got := tc.VAlignVal()
+	got, err := tc.VAlignVal()
+	if err != nil {
+		t.Fatalf("VAlignVal: %v", err)
+	}
 	if got == nil || *got != enum.WdCellVerticalAlignmentCenter {
 		t.Errorf("expected center, got %v", got)
 	}
 	if err := tc.SetVAlignVal(nil); err != nil {
 		t.Fatalf("SetVAlignVal(nil): %v", err)
 	}
-	if v := tc.VAlignVal(); v != nil {
+	if v, err := tc.VAlignVal(); err != nil {
+		t.Fatalf("VAlignVal: %v", err)
+	} else if v != nil {
 		t.Errorf("expected nil after clear, got %v", *v)
 	}
 }
@@ -388,7 +427,9 @@ func TestCT_Tc_GridOffset(t *testing.T) {
 	tcs := tbl.TrList()[0].TcList()
 	offsets := []int{0, 1, 2}
 	for i, tc := range tcs {
-		if got := tc.GridOffset(); got != offsets[i] {
+		if got, err := tc.GridOffset(); err != nil {
+			t.Fatalf("GridOffset: %v", err)
+		} else if got != offsets[i] {
 			t.Errorf("cell %d: expected offset %d, got %d", i, offsets[i], got)
 		}
 	}
@@ -397,13 +438,19 @@ func TestCT_Tc_GridOffset(t *testing.T) {
 func TestCT_Tc_LeftRight(t *testing.T) {
 	tbl := NewTbl(1, 3, 3000)
 	tcs := tbl.TrList()[0].TcList()
-	if got := tcs[0].Left(); got != 0 {
+	if got, err := tcs[0].Left(); err != nil {
+		t.Fatalf("Left: %v", err)
+	} else if got != 0 {
 		t.Errorf("expected left=0, got %d", got)
 	}
-	if got := tcs[0].Right(); got != 1 {
+	if got, err := tcs[0].Right(); err != nil {
+		t.Fatalf("Right: %v", err)
+	} else if got != 1 {
 		t.Errorf("expected right=1, got %d", got)
 	}
-	if got := tcs[2].Right(); got != 3 {
+	if got, err := tcs[2].Right(); err != nil {
+		t.Fatalf("Right: %v", err)
+	} else if got != 3 {
 		t.Errorf("expected right=3, got %d", got)
 	}
 }
@@ -411,13 +458,19 @@ func TestCT_Tc_LeftRight(t *testing.T) {
 func TestCT_Tc_TopBottom(t *testing.T) {
 	tbl := NewTbl(2, 1, 1000)
 	tcs := tbl.IterTcs()
-	if got := tcs[0].Top(); got != 0 {
+	if got, err := tcs[0].Top(); err != nil {
+		t.Fatalf("Top: %v", err)
+	} else if got != 0 {
 		t.Errorf("expected top=0, got %d", got)
 	}
-	if got := tcs[0].Bottom(); got != 1 {
+	if got, err := tcs[0].Bottom(); err != nil {
+		t.Fatalf("Bottom: %v", err)
+	} else if got != 1 {
 		t.Errorf("expected bottom=1, got %d", got)
 	}
-	if got := tcs[1].Top(); got != 1 {
+	if got, err := tcs[1].Top(); err != nil {
+		t.Fatalf("Top: %v", err)
+	} else if got != 1 {
 		t.Errorf("expected top=1, got %d", got)
 	}
 }
@@ -459,7 +512,10 @@ func TestCT_TblWidth_WidthTwips(t *testing.T) {
 	if tcW == nil {
 		t.Fatal("expected tcW")
 	}
-	w := tcW.WidthTwips()
+	w, err := tcW.WidthTwips()
+	if err != nil {
+		t.Fatalf("WidthTwips: %v", err)
+	}
 	if w == nil || *w != 2000 {
 		t.Errorf("expected 2000, got %v", w)
 	}
@@ -472,8 +528,12 @@ func TestCT_Tc_Merge_Horizontal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if topTc.GridSpanVal() != 3 {
-		t.Errorf("expected gridSpan=3, got %d", topTc.GridSpanVal())
+	gsv, err := topTc.GridSpanVal()
+	if err != nil {
+		t.Fatalf("GridSpanVal: %v", err)
+	}
+	if gsv != 3 {
+		t.Errorf("expected gridSpan=3, got %d", gsv)
 	}
 	// After merge, row should have only 1 tc
 	remaining := tbl.TrList()[0].TcList()
@@ -488,21 +548,28 @@ func TestCT_Tc_Merge_Horizontal(t *testing.T) {
 
 func TestCT_SectPr_PageWidth_RoundTrip(t *testing.T) {
 	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
-	if v := sp.PageWidth(); v != nil {
+	if v, err := sp.PageWidth(); err != nil {
+		t.Fatalf("PageWidth: %v", err)
+	} else if v != nil {
 		t.Errorf("expected nil, got %d", *v)
 	}
 	w := 12240
 	if err := sp.SetPageWidth(&w); err != nil {
 		t.Fatalf("SetPageWidth: %v", err)
 	}
-	got := sp.PageWidth()
+	got, err := sp.PageWidth()
+	if err != nil {
+		t.Fatalf("PageWidth: %v", err)
+	}
 	if got == nil || *got != 12240 {
 		t.Errorf("expected 12240, got %v", got)
 	}
 	if err := sp.SetPageWidth(nil); err != nil {
 		t.Fatalf("SetPageWidth: %v", err)
 	}
-	if v := sp.PageWidth(); v != nil {
+	if v, err := sp.PageWidth(); err != nil {
+		t.Fatalf("PageWidth: %v", err)
+	} else if v != nil {
 		t.Errorf("expected nil after clear, got %v", *v)
 	}
 }
@@ -513,7 +580,10 @@ func TestCT_SectPr_PageHeight_RoundTrip(t *testing.T) {
 	if err := sp.SetPageHeight(&h); err != nil {
 		t.Fatalf("SetPageHeight: %v", err)
 	}
-	got := sp.PageHeight()
+	got, err := sp.PageHeight()
+	if err != nil {
+		t.Fatalf("PageHeight: %v", err)
+	}
 	if got == nil || *got != 15840 {
 		t.Errorf("expected 15840, got %v", got)
 	}
@@ -522,13 +592,17 @@ func TestCT_SectPr_PageHeight_RoundTrip(t *testing.T) {
 func TestCT_SectPr_Orientation_RoundTrip(t *testing.T) {
 	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
 	// Default portrait
-	if sp.Orientation() != enum.WdOrientationPortrait {
+	if o, err := sp.Orientation(); err != nil {
+		t.Fatalf("Orientation: %v", err)
+	} else if o != enum.WdOrientationPortrait {
 		t.Error("expected portrait by default")
 	}
 	if err := sp.SetOrientation(enum.WdOrientationLandscape); err != nil {
 		t.Fatalf("SetOrientation(landscape): %v", err)
 	}
-	if sp.Orientation() != enum.WdOrientationLandscape {
+	if o, err := sp.Orientation(); err != nil {
+		t.Fatalf("Orientation: %v", err)
+	} else if o != enum.WdOrientationLandscape {
 		t.Error("expected landscape")
 	}
 	if err := sp.SetOrientation(enum.WdOrientationPortrait); err != nil {
@@ -546,13 +620,17 @@ func TestCT_SectPr_Orientation_RoundTrip(t *testing.T) {
 
 func TestCT_SectPr_StartType_RoundTrip(t *testing.T) {
 	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
-	if sp.StartType() != enum.WdSectionStartNewPage {
+	if st, err := sp.StartType(); err != nil {
+		t.Fatalf("StartType: %v", err)
+	} else if st != enum.WdSectionStartNewPage {
 		t.Error("expected NEW_PAGE by default")
 	}
 	if err := sp.SetStartType(enum.WdSectionStartContinuous); err != nil {
 		t.Fatal(err)
 	}
-	if sp.StartType() != enum.WdSectionStartContinuous {
+	if st, err := sp.StartType(); err != nil {
+		t.Fatalf("StartType: %v", err)
+	} else if st != enum.WdSectionStartContinuous {
 		t.Error("expected Continuous")
 	}
 	if err := sp.SetStartType(enum.WdSectionStartNewPage); err != nil {
@@ -589,7 +667,10 @@ func TestCT_SectPr_Margins_RoundTrip(t *testing.T) {
 	if err := sp.SetTopMargin(&top); err != nil {
 		t.Fatalf("SetTopMargin: %v", err)
 	}
-	got := sp.TopMargin()
+	got, err := sp.TopMargin()
+	if err != nil {
+		t.Fatalf("TopMargin: %v", err)
+	}
 	if got == nil || *got != 1440 {
 		t.Errorf("top: expected 1440, got %v", got)
 	}
@@ -598,7 +679,9 @@ func TestCT_SectPr_Margins_RoundTrip(t *testing.T) {
 	if err := sp.SetBottomMargin(&bottom); err != nil {
 		t.Fatalf("SetBottomMargin: %v", err)
 	}
-	if got := sp.BottomMargin(); got == nil || *got != 1440 {
+	if got, err := sp.BottomMargin(); err != nil {
+		t.Fatalf("BottomMargin: %v", err)
+	} else if got == nil || *got != 1440 {
 		t.Errorf("bottom: expected 1440, got %v", got)
 	}
 
@@ -606,7 +689,9 @@ func TestCT_SectPr_Margins_RoundTrip(t *testing.T) {
 	if err := sp.SetLeftMargin(&left); err != nil {
 		t.Fatalf("SetLeftMargin: %v", err)
 	}
-	if got := sp.LeftMargin(); got == nil || *got != 1800 {
+	if got, err := sp.LeftMargin(); err != nil {
+		t.Fatalf("LeftMargin: %v", err)
+	} else if got == nil || *got != 1800 {
 		t.Errorf("left: expected 1800, got %v", got)
 	}
 
@@ -614,7 +699,9 @@ func TestCT_SectPr_Margins_RoundTrip(t *testing.T) {
 	if err := sp.SetRightMargin(&right); err != nil {
 		t.Fatalf("SetRightMargin: %v", err)
 	}
-	if got := sp.RightMargin(); got == nil || *got != 1800 {
+	if got, err := sp.RightMargin(); err != nil {
+		t.Fatalf("RightMargin: %v", err)
+	} else if got == nil || *got != 1800 {
 		t.Errorf("right: expected 1800, got %v", got)
 	}
 
@@ -622,7 +709,9 @@ func TestCT_SectPr_Margins_RoundTrip(t *testing.T) {
 	if err := sp.SetHeaderMargin(&hdr); err != nil {
 		t.Fatalf("SetHeaderMargin: %v", err)
 	}
-	if got := sp.HeaderMargin(); got == nil || *got != 720 {
+	if got, err := sp.HeaderMargin(); err != nil {
+		t.Fatalf("HeaderMargin: %v", err)
+	} else if got == nil || *got != 720 {
 		t.Errorf("header: expected 720, got %v", got)
 	}
 
@@ -630,7 +719,9 @@ func TestCT_SectPr_Margins_RoundTrip(t *testing.T) {
 	if err := sp.SetFooterMargin(&ftr); err != nil {
 		t.Fatalf("SetFooterMargin: %v", err)
 	}
-	if got := sp.FooterMargin(); got == nil || *got != 720 {
+	if got, err := sp.FooterMargin(); err != nil {
+		t.Fatalf("FooterMargin: %v", err)
+	} else if got == nil || *got != 720 {
 		t.Errorf("footer: expected 720, got %v", got)
 	}
 
@@ -650,7 +741,9 @@ func TestCT_SectPr_Clone(t *testing.T) {
 
 	cloned := sp.Clone()
 	// Width should be preserved
-	if cw := cloned.PageWidth(); cw == nil || *cw != 12240 {
+	if cw, err := cloned.PageWidth(); err != nil {
+		t.Fatalf("PageWidth: %v", err)
+	} else if cw == nil || *cw != 12240 {
 		t.Errorf("expected cloned width 12240, got %v", cw)
 	}
 	// rsid should be removed
@@ -662,7 +755,9 @@ func TestCT_SectPr_Clone(t *testing.T) {
 	if err := cloned.SetPageWidth(&w2); err != nil {
 		t.Fatalf("SetPageWidth: %v", err)
 	}
-	if orig := sp.PageWidth(); orig == nil || *orig != 12240 {
+	if orig, err := sp.PageWidth(); err != nil {
+		t.Fatalf("PageWidth: %v", err)
+	} else if orig == nil || *orig != 12240 {
 		t.Error("original should be unchanged")
 	}
 }
@@ -765,8 +860,10 @@ func TestCT_Styles_GetByID(t *testing.T) {
 	if found == nil {
 		t.Fatal("expected to find style by ID")
 	}
-	if found.NameVal() != "heading 1" {
-		t.Errorf("expected name 'heading 1', got %q", found.NameVal())
+	if nv, err := found.NameVal(); err != nil {
+		t.Fatalf("NameVal: %v", err)
+	} else if nv != "heading 1" {
+		t.Errorf("expected name 'heading 1', got %q", nv)
 	}
 
 	if styles.GetByID("NoSuchStyle") != nil {
@@ -834,8 +931,10 @@ func TestCT_Styles_AddStyleOfType(t *testing.T) {
 	if s.StyleId() != "MyCustomStyle" {
 		t.Errorf("expected styleId MyCustomStyle, got %q", s.StyleId())
 	}
-	if s.NameVal() != "My Custom Style" {
-		t.Errorf("expected name 'My Custom Style', got %q", s.NameVal())
+	if nv, err := s.NameVal(); err != nil {
+		t.Fatalf("NameVal: %v", err)
+	} else if nv != "My Custom Style" {
+		t.Errorf("expected name 'My Custom Style', got %q", nv)
 	}
 	if s.Type() != "paragraph" {
 		t.Errorf("expected type paragraph, got %q", s.Type())
@@ -860,34 +959,44 @@ func TestCT_Styles_AddStyleOfType(t *testing.T) {
 func TestCT_Style_NameVal_RoundTrip(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
-	if s.NameVal() != "" {
-		t.Errorf("expected empty, got %q", s.NameVal())
+	if nv, err := s.NameVal(); err != nil {
+		t.Fatalf("NameVal: %v", err)
+	} else if nv != "" {
+		t.Errorf("expected empty, got %q", nv)
 	}
 	if err := s.SetNameVal("Normal"); err != nil {
 		t.Fatalf("SetNameVal: %v", err)
 	}
-	if s.NameVal() != "Normal" {
-		t.Errorf("expected Normal, got %q", s.NameVal())
+	if nv, err := s.NameVal(); err != nil {
+		t.Fatalf("NameVal: %v", err)
+	} else if nv != "Normal" {
+		t.Errorf("expected Normal, got %q", nv)
 	}
 	if err := s.SetNameVal(""); err != nil {
 		t.Fatalf("SetNameVal: %v", err)
 	}
-	if s.NameVal() != "" {
-		t.Errorf("expected empty after clear, got %q", s.NameVal())
+	if nv, err := s.NameVal(); err != nil {
+		t.Fatalf("NameVal: %v", err)
+	} else if nv != "" {
+		t.Errorf("expected empty after clear, got %q", nv)
 	}
 }
 
 func TestCT_Style_BasedOnVal_RoundTrip(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
-	if s.BasedOnVal() != "" {
-		t.Errorf("expected empty, got %q", s.BasedOnVal())
+	if bv, err := s.BasedOnVal(); err != nil {
+		t.Fatalf("BasedOnVal: %v", err)
+	} else if bv != "" {
+		t.Errorf("expected empty, got %q", bv)
 	}
 	if err := s.SetBasedOnVal("Normal"); err != nil {
 		t.Fatalf("SetBasedOnVal: %v", err)
 	}
-	if s.BasedOnVal() != "Normal" {
-		t.Errorf("expected Normal, got %q", s.BasedOnVal())
+	if bv, err := s.BasedOnVal(); err != nil {
+		t.Fatalf("BasedOnVal: %v", err)
+	} else if bv != "Normal" {
+		t.Errorf("expected Normal, got %q", bv)
 	}
 }
 
@@ -897,14 +1006,18 @@ func TestCT_Style_NextVal_RoundTrip(t *testing.T) {
 	if err := s.SetNextVal("Normal"); err != nil {
 		t.Fatalf("SetNextVal: %v", err)
 	}
-	if s.NextVal() != "Normal" {
-		t.Errorf("expected Normal, got %q", s.NextVal())
+	if nxv, err := s.NextVal(); err != nil {
+		t.Fatalf("NextVal: %v", err)
+	} else if nxv != "Normal" {
+		t.Errorf("expected Normal, got %q", nxv)
 	}
 	if err := s.SetNextVal(""); err != nil {
 		t.Fatalf("SetNextVal: %v", err)
 	}
-	if s.NextVal() != "" {
-		t.Errorf("expected empty, got %q", s.NextVal())
+	if nxv, err := s.NextVal(); err != nil {
+		t.Fatalf("NextVal: %v", err)
+	} else if nxv != "" {
+		t.Errorf("expected empty, got %q", nxv)
 	}
 }
 
@@ -958,21 +1071,28 @@ func TestCT_Style_QFormatVal_RoundTrip(t *testing.T) {
 func TestCT_Style_UiPriorityVal_RoundTrip(t *testing.T) {
 	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
-	if s.UiPriorityVal() != nil {
+	if uv, err := s.UiPriorityVal(); err != nil {
+		t.Fatalf("UiPriorityVal: %v", err)
+	} else if uv != nil {
 		t.Error("expected nil")
 	}
 	v := 99
 	if err := s.SetUiPriorityVal(&v); err != nil {
 		t.Fatalf("SetUiPriorityVal: %v", err)
 	}
-	got := s.UiPriorityVal()
+	got, err := s.UiPriorityVal()
+	if err != nil {
+		t.Fatalf("UiPriorityVal: %v", err)
+	}
 	if got == nil || *got != 99 {
 		t.Errorf("expected 99, got %v", got)
 	}
 	if err := s.SetUiPriorityVal(nil); err != nil {
 		t.Fatalf("SetUiPriorityVal: %v", err)
 	}
-	if s.UiPriorityVal() != nil {
+	if uv, err := s.UiPriorityVal(); err != nil {
+		t.Fatalf("UiPriorityVal: %v", err)
+	} else if uv != nil {
 		t.Error("expected nil after clear")
 	}
 }
@@ -1076,8 +1196,10 @@ func TestCT_LatentStyles_GetByName(t *testing.T) {
 	if found == nil {
 		t.Fatal("expected to find exception")
 	}
-	if found.UiPriority() != 9 {
-		t.Errorf("expected priority 9, got %d", found.UiPriority())
+	if up, err := found.UiPriority(); err != nil {
+		t.Fatalf("UiPriority: %v", err)
+	} else if up != 9 {
+		t.Errorf("expected priority 9, got %d", up)
 	}
 	if ls.GetByName("NoSuch") != nil {
 		t.Error("expected nil for unknown")

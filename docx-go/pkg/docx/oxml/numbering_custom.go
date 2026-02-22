@@ -108,16 +108,16 @@ func (nl *CT_NumLvl) AddStartOverrideWithVal(val int) (*CT_DecimalNumber, error)
 // ===========================================================================
 
 // NumIdVal returns the value of the w:numId/w:val attribute, or nil if not present.
-func (np *CT_NumPr) NumIdVal() *int {
+func (np *CT_NumPr) NumIdVal() (*int, error) {
 	numId := np.NumId()
 	if numId == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := numId.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetNumIdVal sets the w:numId/w:val attribute, creating the element if needed.
@@ -129,16 +129,16 @@ func (np *CT_NumPr) SetNumIdVal(val int) error {
 }
 
 // IlvlVal returns the value of the w:ilvl/w:val attribute, or nil if not present.
-func (np *CT_NumPr) IlvlVal() *int {
+func (np *CT_NumPr) IlvlVal() (*int, error) {
 	ilvl := np.Ilvl()
 	if ilvl == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := ilvl.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetIlvlVal sets the w:ilvl/w:val attribute, creating the element if needed.

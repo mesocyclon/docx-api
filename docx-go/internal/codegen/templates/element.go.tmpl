@@ -140,6 +140,21 @@ func (e *{{.ParentType}}) insert{{.GoName}}(child *{{.Type}}) *{{.Type}} {
 	return child
 }
 {{end}}{{range .OptionalAttributes}}
+{{- if .Failable}}
+// {{.GoName}} returns the value of the "{{.AttrName}}" attribute, or {{.DefaultExpr}} if absent.
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *{{.ParentType}}) {{.GoName}}() ({{.GoType}}, error) {
+	val, ok := e.GetAttr("{{.AttrName}}")
+	if !ok {
+		return {{.DefaultExpr}}, nil
+	}
+	parsed, err := {{.ParseExpr}}
+	if err != nil {
+		return {{.DefaultExpr}}, &ParseAttrError{Element: e.Tag(), Attr: "{{.AttrName}}", RawValue: val, Err: err}
+	}
+	return {{if .IsPointer}}&parsed{{else}}parsed{{end}}, nil
+}
+{{- else}}
 // {{.GoName}} returns the value of the "{{.AttrName}}" attribute, or {{.DefaultExpr}} if absent.
 func (e *{{.ParentType}}) {{.GoName}}() {{.GoType}} {
 	val, ok := e.GetAttr("{{.AttrName}}")
@@ -148,6 +163,7 @@ func (e *{{.ParentType}}) {{.GoName}}() {{.GoType}} {
 	}
 	return {{.ParseExpr}}
 }
+{{- end}}
 
 // Set{{.GoName}} sets the "{{.AttrName}}" attribute.
 // Passing {{.DefaultExpr}} removes it.
@@ -164,6 +180,20 @@ func (e *{{.ParentType}}) Set{{.GoName}}(v {{.GoType}}) error {
 	return nil
 }
 {{end}}{{range .RequiredAttributes}}
+{{- if .Failable}}
+// {{.GoName}} returns the value of the required "{{.AttrName}}" attribute.
+func (e *{{.ParentType}}) {{.GoName}}() ({{.GoType}}, error) {
+	val, ok := e.GetAttr("{{.AttrName}}")
+	if !ok {
+		return {{.ZeroExpr}}, fmt.Errorf("required attribute %q not present on <%s>", "{{.AttrName}}", e.Tag())
+	}
+	parsed, err := {{.ParseExpr}}
+	if err != nil {
+		return {{.ZeroExpr}}, &ParseAttrError{Element: e.Tag(), Attr: "{{.AttrName}}", RawValue: val, Err: err}
+	}
+	return parsed, nil
+}
+{{- else}}
 // {{.GoName}} returns the value of the required "{{.AttrName}}" attribute.
 func (e *{{.ParentType}}) {{.GoName}}() ({{.GoType}}, error) {
 	val, ok := e.GetAttr("{{.AttrName}}")
@@ -172,6 +202,7 @@ func (e *{{.ParentType}}) {{.GoName}}() ({{.GoType}}, error) {
 	}
 	return {{.ParseExpr}}, nil
 }
+{{- end}}
 
 // Set{{.GoName}} sets the required "{{.AttrName}}" attribute.
 func (e *{{.ParentType}}) Set{{.GoName}}(v {{.GoType}}) error {

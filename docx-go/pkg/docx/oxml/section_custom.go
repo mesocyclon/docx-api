@@ -37,16 +37,19 @@ func (sp *CT_SectPr) Clone() *CT_SectPr {
 // --- Page size ---
 
 // PageWidth returns the page width in twips from pgSz/@w:w, or nil.
-func (sp *CT_SectPr) PageWidth() *int {
+func (sp *CT_SectPr) PageWidth() (*int, error) {
 	pgSz := sp.PgSz()
 	if pgSz == nil {
-		return nil
+		return nil, nil
 	}
-	v := pgSz.W()
+	v, err := pgSz.W()
+	if err != nil {
+		return nil, err
+	}
 	if v == 0 {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetPageWidth sets the page width in twips.
@@ -67,16 +70,19 @@ func (sp *CT_SectPr) SetPageWidth(twips *int) error {
 }
 
 // PageHeight returns the page height in twips from pgSz/@w:h, or nil.
-func (sp *CT_SectPr) PageHeight() *int {
+func (sp *CT_SectPr) PageHeight() (*int, error) {
 	pgSz := sp.PgSz()
 	if pgSz == nil {
-		return nil
+		return nil, nil
 	}
-	v := pgSz.H()
+	v, err := pgSz.H()
+	if err != nil {
+		return nil, err
+	}
 	if v == 0 {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetPageHeight sets the page height in twips.
@@ -99,16 +105,19 @@ func (sp *CT_SectPr) SetPageHeight(twips *int) error {
 // --- Orientation ---
 
 // Orientation returns the page orientation. Defaults to PORTRAIT when not present.
-func (sp *CT_SectPr) Orientation() enum.WdOrientation {
+func (sp *CT_SectPr) Orientation() (enum.WdOrientation, error) {
 	pgSz := sp.PgSz()
 	if pgSz == nil {
-		return enum.WdOrientationPortrait
+		return enum.WdOrientationPortrait, nil
 	}
-	v := pgSz.Orient()
+	v, err := pgSz.Orient()
+	if err != nil {
+		return enum.WdOrientation(0), err
+	}
 	if v == enum.WdOrientation(0) {
-		return enum.WdOrientationPortrait
+		return enum.WdOrientationPortrait, nil
 	}
-	return v
+	return v, nil
 }
 
 // SetOrientation sets the page orientation.
@@ -123,15 +132,15 @@ func (sp *CT_SectPr) SetOrientation(v enum.WdOrientation) error {
 // --- Start type ---
 
 // StartType returns the section start type. Defaults to NEW_PAGE when not present.
-func (sp *CT_SectPr) StartType() enum.WdSectionStart {
+func (sp *CT_SectPr) StartType() (enum.WdSectionStart, error) {
 	t := sp.Type()
 	if t == nil {
-		return enum.WdSectionStartNewPage
+		return enum.WdSectionStartNewPage, nil
 	}
 	// Check if val attribute is actually present
 	_, ok := t.GetAttr("w:val")
 	if !ok {
-		return enum.WdSectionStartNewPage
+		return enum.WdSectionStartNewPage, nil
 	}
 	return t.Val()
 }
@@ -180,16 +189,19 @@ func (sp *CT_SectPr) SetTitlePgVal(v bool) error {
 // --- Margins ---
 
 // TopMargin returns the top margin in twips, or nil if not present.
-func (sp *CT_SectPr) TopMargin() *int {
+func (sp *CT_SectPr) TopMargin() (*int, error) {
 	pgMar := sp.PgMar()
 	if pgMar == nil {
-		return nil
+		return nil, nil
 	}
-	v := pgMar.Top()
+	v, err := pgMar.Top()
+	if err != nil {
+		return nil, err
+	}
 	if v == 0 {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetTopMargin sets the top margin in twips. Passing nil removes the attribute.
@@ -208,16 +220,19 @@ func (sp *CT_SectPr) SetTopMargin(twips *int) error {
 }
 
 // BottomMargin returns the bottom margin in twips, or nil.
-func (sp *CT_SectPr) BottomMargin() *int {
+func (sp *CT_SectPr) BottomMargin() (*int, error) {
 	pgMar := sp.PgMar()
 	if pgMar == nil {
-		return nil
+		return nil, nil
 	}
-	v := pgMar.Bottom()
+	v, err := pgMar.Bottom()
+	if err != nil {
+		return nil, err
+	}
 	if v == 0 {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetBottomMargin sets the bottom margin in twips.
@@ -236,16 +251,19 @@ func (sp *CT_SectPr) SetBottomMargin(twips *int) error {
 }
 
 // LeftMargin returns the left margin in twips, or nil.
-func (sp *CT_SectPr) LeftMargin() *int {
+func (sp *CT_SectPr) LeftMargin() (*int, error) {
 	pgMar := sp.PgMar()
 	if pgMar == nil {
-		return nil
+		return nil, nil
 	}
-	v := pgMar.Left()
+	v, err := pgMar.Left()
+	if err != nil {
+		return nil, err
+	}
 	if v == 0 {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetLeftMargin sets the left margin in twips.
@@ -264,16 +282,19 @@ func (sp *CT_SectPr) SetLeftMargin(twips *int) error {
 }
 
 // RightMargin returns the right margin in twips, or nil.
-func (sp *CT_SectPr) RightMargin() *int {
+func (sp *CT_SectPr) RightMargin() (*int, error) {
 	pgMar := sp.PgMar()
 	if pgMar == nil {
-		return nil
+		return nil, nil
 	}
-	v := pgMar.Right()
+	v, err := pgMar.Right()
+	if err != nil {
+		return nil, err
+	}
 	if v == 0 {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetRightMargin sets the right margin in twips.
@@ -292,16 +313,19 @@ func (sp *CT_SectPr) SetRightMargin(twips *int) error {
 }
 
 // HeaderMargin returns the header distance from top edge in twips, or nil.
-func (sp *CT_SectPr) HeaderMargin() *int {
+func (sp *CT_SectPr) HeaderMargin() (*int, error) {
 	pgMar := sp.PgMar()
 	if pgMar == nil {
-		return nil
+		return nil, nil
 	}
-	v := pgMar.Header()
+	v, err := pgMar.Header()
+	if err != nil {
+		return nil, err
+	}
 	if v == 0 {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetHeaderMargin sets the header margin in twips.
@@ -320,16 +344,19 @@ func (sp *CT_SectPr) SetHeaderMargin(twips *int) error {
 }
 
 // FooterMargin returns the footer distance from bottom edge in twips, or nil.
-func (sp *CT_SectPr) FooterMargin() *int {
+func (sp *CT_SectPr) FooterMargin() (*int, error) {
 	pgMar := sp.PgMar()
 	if pgMar == nil {
-		return nil
+		return nil, nil
 	}
-	v := pgMar.Footer()
+	v, err := pgMar.Footer()
+	if err != nil {
+		return nil, err
+	}
 	if v == 0 {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetFooterMargin sets the footer margin in twips.
@@ -348,16 +375,19 @@ func (sp *CT_SectPr) SetFooterMargin(twips *int) error {
 }
 
 // GutterMargin returns the gutter in twips, or nil.
-func (sp *CT_SectPr) GutterMargin() *int {
+func (sp *CT_SectPr) GutterMargin() (*int, error) {
 	pgMar := sp.PgMar()
 	if pgMar == nil {
-		return nil
+		return nil, nil
 	}
-	v := pgMar.Gutter()
+	v, err := pgMar.Gutter()
+	if err != nil {
+		return nil, err
+	}
 	if v == 0 {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetGutterMargin sets the gutter in twips.

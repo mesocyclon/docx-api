@@ -232,16 +232,16 @@ func (rPr *CT_RPr) SetOMathVal(v *bool) error {
 // --- Color ---
 
 // ColorVal returns the hex color string from w:color/@w:val, or nil if not present.
-func (rPr *CT_RPr) ColorVal() *string {
+func (rPr *CT_RPr) ColorVal() (*string, error) {
 	color := rPr.Color()
 	if color == nil {
-		return nil
+		return nil, nil
 	}
 	val, err := color.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &val
+	return &val, nil
 }
 
 // SetColorVal sets the color hex value. Passing nil removes the color element.
@@ -258,20 +258,20 @@ func (rPr *CT_RPr) SetColorVal(v *string) error {
 }
 
 // ColorTheme returns the theme color from w:color/@w:themeColor, or nil if not present.
-func (rPr *CT_RPr) ColorTheme() *enum.MsoThemeColorIndex {
+func (rPr *CT_RPr) ColorTheme() (*enum.MsoThemeColorIndex, error) {
 	color := rPr.Color()
 	if color == nil {
-		return nil
+		return nil, nil
 	}
 	tc := color.ThemeColor()
 	if tc == "" {
-		return nil
+		return nil, nil
 	}
 	v, err := enum.MsoThemeColorIndexFromXml(tc)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetColorTheme sets the theme color. Passing nil removes the themeColor attribute.
@@ -296,16 +296,16 @@ func (rPr *CT_RPr) SetColorTheme(v *enum.MsoThemeColorIndex) error {
 // --- Size ---
 
 // SzVal returns the font size from w:sz/@w:val as half-points, or nil if not present.
-func (rPr *CT_RPr) SzVal() *int64 {
+func (rPr *CT_RPr) SzVal() (*int64, error) {
 	sz := rPr.Sz()
 	if sz == nil {
-		return nil
+		return nil, nil
 	}
 	val, err := sz.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &val
+	return &val, nil
 }
 
 // SetSzVal sets the font size in half-points. Passing nil removes the sz element.
@@ -410,16 +410,16 @@ func (rPr *CT_RPr) SetUVal(v *string) error {
 // --- Highlight ---
 
 // HighlightVal returns the highlight color string, or nil if not present.
-func (rPr *CT_RPr) HighlightVal() *string {
+func (rPr *CT_RPr) HighlightVal() (*string, error) {
 	h := rPr.Highlight()
 	if h == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := h.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetHighlightVal sets the highlight color. Passing nil removes the highlight element.
@@ -438,16 +438,16 @@ func (rPr *CT_RPr) SetHighlightVal(v *string) error {
 // --- Style ---
 
 // StyleVal returns the run style string from w:rStyle/@w:val, or nil if not present.
-func (rPr *CT_RPr) StyleVal() *string {
+func (rPr *CT_RPr) StyleVal() (*string, error) {
 	rStyle := rPr.RStyle()
 	if rStyle == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := rStyle.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetStyleVal sets the run style. Passing nil removes the rStyle element.
@@ -474,17 +474,17 @@ func (rPr *CT_RPr) SetStyleVal(v *string) error {
 
 // Subscript returns true if vertAlign is "subscript", false if it's something else,
 // nil if vertAlign is not present.
-func (rPr *CT_RPr) Subscript() *bool {
+func (rPr *CT_RPr) Subscript() (*bool, error) {
 	va := rPr.VertAlign()
 	if va == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := va.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	result := v == "subscript"
-	return &result
+	return &result, nil
 }
 
 // SetSubscript sets the subscript state. nil removes vertAlign,
@@ -510,17 +510,17 @@ func (rPr *CT_RPr) SetSubscript(v *bool) error {
 
 // Superscript returns true if vertAlign is "superscript", false if it's something else,
 // nil if vertAlign is not present.
-func (rPr *CT_RPr) Superscript() *bool {
+func (rPr *CT_RPr) Superscript() (*bool, error) {
 	va := rPr.VertAlign()
 	if va == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := va.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 	result := v == "superscript"
-	return &result
+	return &result, nil
 }
 
 // SetSuperscript sets the superscript state.

@@ -847,12 +847,17 @@ type CT_TblGridCol struct {
 }
 
 // W returns the value of the "w:w" attribute, or 0 if absent.
-func (e *CT_TblGridCol) W() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_TblGridCol) W() (int, error) {
 	val, ok := e.GetAttr("w:w")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:w", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetW sets the "w:w" attribute.
@@ -878,12 +883,17 @@ type CT_Height struct {
 }
 
 // Val returns the value of the "w:val" attribute, or 0 if absent.
-func (e *CT_Height) Val() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_Height) Val() (int, error) {
 	val, ok := e.GetAttr("w:val")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:val", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetVal sets the "w:val" attribute.
@@ -902,12 +912,17 @@ func (e *CT_Height) SetVal(v int) error {
 }
 
 // HRule returns the value of the "w:hRule" attribute, or enum.WdRowHeightRule(0) if absent.
-func (e *CT_Height) HRule() enum.WdRowHeightRule {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_Height) HRule() (enum.WdRowHeightRule, error) {
 	val, ok := e.GetAttr("w:hRule")
 	if !ok {
-		return enum.WdRowHeightRule(0)
+		return enum.WdRowHeightRule(0), nil
 	}
-	return mustParseEnum(val, enum.WdRowHeightRuleFromXml)
+	parsed, err := parseEnum(val, enum.WdRowHeightRuleFromXml)
+	if err != nil {
+		return enum.WdRowHeightRule(0), &ParseAttrError{Element: e.Tag(), Attr: "w:hRule", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetHRule sets the "w:hRule" attribute.
@@ -938,7 +953,11 @@ func (e *CT_TblWidth) W() (int, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "w:w", e.Tag())
 	}
-	return parseIntAttr(val), nil
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:w", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetW sets the required "w:w" attribute.
@@ -1021,7 +1040,11 @@ func (e *CT_VerticalJc) Val() (enum.WdCellVerticalAlignment, error) {
 	if !ok {
 		return enum.WdCellVerticalAlignment(0), fmt.Errorf("required attribute %q not present on <%s>", "w:val", e.Tag())
 	}
-	return mustParseEnum(val, enum.WdCellVerticalAlignmentFromXml), nil
+	parsed, err := parseEnum(val, enum.WdCellVerticalAlignmentFromXml)
+	if err != nil {
+		return enum.WdCellVerticalAlignment(0), &ParseAttrError{Element: e.Tag(), Attr: "w:val", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetVal sets the required "w:val" attribute.

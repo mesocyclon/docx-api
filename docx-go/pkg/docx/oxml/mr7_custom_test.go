@@ -121,11 +121,17 @@ func TestCT_ShapeProperties_CxCy(t *testing.T) {
 	}
 	spPr := &CT_ShapeProperties{Element{E: el}}
 
-	cx := spPr.Cx()
+	cx, err := spPr.Cx()
+	if err != nil {
+		t.Fatalf("Cx: %v", err)
+	}
 	if cx == nil || *cx != 914400 {
 		t.Errorf("expected cx=914400, got %v", cx)
 	}
-	cy := spPr.Cy()
+	cy, err := spPr.Cy()
+	if err != nil {
+		t.Fatalf("Cy: %v", err)
+	}
 	if cy == nil || *cy != 457200 {
 		t.Errorf("expected cy=457200, got %v", cy)
 	}
@@ -137,11 +143,17 @@ func TestCT_ShapeProperties_CxCy(t *testing.T) {
 	if err := spPr.SetCy(5678); err != nil {
 		t.Fatalf("SetCy: %v", err)
 	}
-	cx = spPr.Cx()
+	cx, err = spPr.Cx()
+	if err != nil {
+		t.Fatalf("Cx: %v", err)
+	}
 	if cx == nil || *cx != 1234 {
 		t.Errorf("after set, expected cx=1234, got %v", cx)
 	}
-	cy = spPr.Cy()
+	cy, err = spPr.Cy()
+	if err != nil {
+		t.Fatalf("Cy: %v", err)
+	}
 	if cy == nil || *cy != 5678 {
 		t.Errorf("after set, expected cy=5678, got %v", cy)
 	}
@@ -152,10 +164,14 @@ func TestCT_ShapeProperties_CxCy_NoXfrm(t *testing.T) {
 	el, _ := ParseXml([]byte(xml))
 	spPr := &CT_ShapeProperties{Element{E: el}}
 
-	if cx := spPr.Cx(); cx != nil {
+	if cx, err := spPr.Cx(); err != nil {
+		t.Fatalf("Cx: %v", err)
+	} else if cx != nil {
 		t.Errorf("expected nil cx on empty spPr, got %v", cx)
 	}
-	if cy := spPr.Cy(); cy != nil {
+	if cy, err := spPr.Cy(); err != nil {
+		t.Fatalf("Cy: %v", err)
+	} else if cy != nil {
 		t.Errorf("expected nil cy on empty spPr, got %v", cy)
 	}
 }
@@ -641,11 +657,17 @@ func TestCT_NumPr_ValAccessors(t *testing.T) {
 	el, _ := ParseXml([]byte(xml))
 	np := &CT_NumPr{Element{E: el}}
 
-	ilvl := np.IlvlVal()
+	ilvl, err := np.IlvlVal()
+	if err != nil {
+		t.Fatalf("IlvlVal: %v", err)
+	}
 	if ilvl == nil || *ilvl != 2 {
 		t.Errorf("expected ilvl=2, got %v", ilvl)
 	}
-	numId := np.NumIdVal()
+	numId, err := np.NumIdVal()
+	if err != nil {
+		t.Fatalf("NumIdVal: %v", err)
+	}
 	if numId == nil || *numId != 5 {
 		t.Errorf("expected numId=5, got %v", numId)
 	}
@@ -656,10 +678,14 @@ func TestCT_NumPr_ValAccessors_Empty(t *testing.T) {
 	el, _ := ParseXml([]byte(xml))
 	np := &CT_NumPr{Element{E: el}}
 
-	if np.IlvlVal() != nil {
+	if iv, err := np.IlvlVal(); err != nil {
+		t.Fatalf("IlvlVal: %v", err)
+	} else if iv != nil {
 		t.Error("expected nil ilvl on empty numPr")
 	}
-	if np.NumIdVal() != nil {
+	if nid, err := np.NumIdVal(); err != nil {
+		t.Fatalf("NumIdVal: %v", err)
+	} else if nid != nil {
 		t.Error("expected nil numId on empty numPr")
 	}
 
@@ -670,11 +696,17 @@ func TestCT_NumPr_ValAccessors_Empty(t *testing.T) {
 	if err := np.SetNumIdVal(7); err != nil {
 		t.Fatalf("SetNumIdVal: %v", err)
 	}
-	ilvl := np.IlvlVal()
+	ilvl, err := np.IlvlVal()
+	if err != nil {
+		t.Fatalf("IlvlVal: %v", err)
+	}
 	if ilvl == nil || *ilvl != 3 {
 		t.Errorf("expected ilvl=3, got %v", ilvl)
 	}
-	numId := np.NumIdVal()
+	numId, err := np.NumIdVal()
+	if err != nil {
+		t.Fatalf("NumIdVal: %v", err)
+	}
 	if numId == nil || *numId != 7 {
 		t.Errorf("expected numId=7, got %v", numId)
 	}

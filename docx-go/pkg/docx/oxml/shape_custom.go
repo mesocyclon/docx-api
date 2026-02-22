@@ -162,7 +162,10 @@ func (i *CT_Inline) ExtentCx() (int64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("ExtentCx: %w", err)
 	}
-	v, _ := extent.Cx()
+	v, err := extent.Cx()
+	if err != nil {
+		return 0, fmt.Errorf("ExtentCx: %w", err)
+	}
 	return v, nil
 }
 
@@ -172,7 +175,10 @@ func (i *CT_Inline) ExtentCy() (int64, error) {
 	if err != nil {
 		return 0, fmt.Errorf("ExtentCy: %w", err)
 	}
-	v, _ := extent.Cy()
+	v, err := extent.Cy()
+	if err != nil {
+		return 0, fmt.Errorf("ExtentCy: %w", err)
+	}
 	return v, nil
 }
 
@@ -205,10 +211,10 @@ func (i *CT_Inline) SetExtentCy(v int64) error {
 // ===========================================================================
 
 // Cx returns the shape width in EMU via xfrm/ext/@cx, or nil if not present.
-func (sp *CT_ShapeProperties) Cx() *int64 {
+func (sp *CT_ShapeProperties) Cx() (*int64, error) {
 	xfrm := sp.Xfrm()
 	if xfrm == nil {
-		return nil
+		return nil, nil
 	}
 	return xfrm.CxVal()
 }
@@ -223,10 +229,10 @@ func (sp *CT_ShapeProperties) SetCx(v int64) error {
 }
 
 // Cy returns the shape height in EMU via xfrm/ext/@cy, or nil if not present.
-func (sp *CT_ShapeProperties) Cy() *int64 {
+func (sp *CT_ShapeProperties) Cy() (*int64, error) {
 	xfrm := sp.Xfrm()
 	if xfrm == nil {
-		return nil
+		return nil, nil
 	}
 	return xfrm.CyVal()
 }
@@ -245,16 +251,16 @@ func (sp *CT_ShapeProperties) SetCy(v int64) error {
 // ===========================================================================
 
 // CxVal returns the width in EMU from ext/@cx, or nil if ext is not present.
-func (t *CT_Transform2D) CxVal() *int64 {
+func (t *CT_Transform2D) CxVal() (*int64, error) {
 	ext := t.Ext()
 	if ext == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := ext.Cx()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetCxVal sets the width in EMU on ext/@cx, creating ext if needed.
@@ -267,16 +273,16 @@ func (t *CT_Transform2D) SetCxVal(v int64) error {
 }
 
 // CyVal returns the height in EMU from ext/@cy, or nil if ext is not present.
-func (t *CT_Transform2D) CyVal() *int64 {
+func (t *CT_Transform2D) CyVal() (*int64, error) {
 	ext := t.Ext()
 	if ext == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := ext.Cy()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetCyVal sets the height in EMU on ext/@cy, creating ext if needed.

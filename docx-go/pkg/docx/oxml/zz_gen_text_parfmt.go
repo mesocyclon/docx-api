@@ -529,12 +529,17 @@ type CT_Ind struct {
 }
 
 // Left returns the value of the "w:left" attribute, or 0 if absent.
-func (e *CT_Ind) Left() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_Ind) Left() (int, error) {
 	val, ok := e.GetAttr("w:left")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:left", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetLeft sets the "w:left" attribute.
@@ -553,12 +558,17 @@ func (e *CT_Ind) SetLeft(v int) error {
 }
 
 // Right returns the value of the "w:right" attribute, or 0 if absent.
-func (e *CT_Ind) Right() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_Ind) Right() (int, error) {
 	val, ok := e.GetAttr("w:right")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:right", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetRight sets the "w:right" attribute.
@@ -577,12 +587,17 @@ func (e *CT_Ind) SetRight(v int) error {
 }
 
 // FirstLine returns the value of the "w:firstLine" attribute, or 0 if absent.
-func (e *CT_Ind) FirstLine() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_Ind) FirstLine() (int, error) {
 	val, ok := e.GetAttr("w:firstLine")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:firstLine", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetFirstLine sets the "w:firstLine" attribute.
@@ -601,12 +616,17 @@ func (e *CT_Ind) SetFirstLine(v int) error {
 }
 
 // Hanging returns the value of the "w:hanging" attribute, or 0 if absent.
-func (e *CT_Ind) Hanging() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_Ind) Hanging() (int, error) {
 	val, ok := e.GetAttr("w:hanging")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:hanging", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetHanging sets the "w:hanging" attribute.
@@ -637,7 +657,11 @@ func (e *CT_Jc) Val() (enum.WdParagraphAlignment, error) {
 	if !ok {
 		return enum.WdParagraphAlignment(0), fmt.Errorf("required attribute %q not present on <%s>", "w:val", e.Tag())
 	}
-	return mustParseEnum(val, enum.WdParagraphAlignmentFromXml), nil
+	parsed, err := parseEnum(val, enum.WdParagraphAlignmentFromXml)
+	if err != nil {
+		return enum.WdParagraphAlignment(0), &ParseAttrError{Element: e.Tag(), Attr: "w:val", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetVal sets the required "w:val" attribute.
@@ -658,12 +682,17 @@ type CT_Spacing struct {
 }
 
 // After returns the value of the "w:after" attribute, or 0 if absent.
-func (e *CT_Spacing) After() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_Spacing) After() (int, error) {
 	val, ok := e.GetAttr("w:after")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:after", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetAfter sets the "w:after" attribute.
@@ -682,12 +711,17 @@ func (e *CT_Spacing) SetAfter(v int) error {
 }
 
 // Before returns the value of the "w:before" attribute, or 0 if absent.
-func (e *CT_Spacing) Before() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_Spacing) Before() (int, error) {
 	val, ok := e.GetAttr("w:before")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:before", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetBefore sets the "w:before" attribute.
@@ -706,12 +740,17 @@ func (e *CT_Spacing) SetBefore(v int) error {
 }
 
 // Line returns the value of the "w:line" attribute, or 0 if absent.
-func (e *CT_Spacing) Line() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_Spacing) Line() (int, error) {
 	val, ok := e.GetAttr("w:line")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:line", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetLine sets the "w:line" attribute.
@@ -761,12 +800,17 @@ type CT_TabStop struct {
 }
 
 // Leader returns the value of the "w:leader" attribute, or enum.WdTabLeader(0) if absent.
-func (e *CT_TabStop) Leader() enum.WdTabLeader {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_TabStop) Leader() (enum.WdTabLeader, error) {
 	val, ok := e.GetAttr("w:leader")
 	if !ok {
-		return enum.WdTabLeader(0)
+		return enum.WdTabLeader(0), nil
 	}
-	return mustParseEnum(val, enum.WdTabLeaderFromXml)
+	parsed, err := parseEnum(val, enum.WdTabLeaderFromXml)
+	if err != nil {
+		return enum.WdTabLeader(0), &ParseAttrError{Element: e.Tag(), Attr: "w:leader", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetLeader sets the "w:leader" attribute.
@@ -790,7 +834,11 @@ func (e *CT_TabStop) Val() (enum.WdTabAlignment, error) {
 	if !ok {
 		return enum.WdTabAlignment(0), fmt.Errorf("required attribute %q not present on <%s>", "w:val", e.Tag())
 	}
-	return mustParseEnum(val, enum.WdTabAlignmentFromXml), nil
+	parsed, err := parseEnum(val, enum.WdTabAlignmentFromXml)
+	if err != nil {
+		return enum.WdTabAlignment(0), &ParseAttrError{Element: e.Tag(), Attr: "w:val", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetVal sets the required "w:val" attribute.
@@ -809,7 +857,11 @@ func (e *CT_TabStop) Pos() (int, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "w:pos", e.Tag())
 	}
-	return parseIntAttr(val), nil
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:pos", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetPos sets the required "w:pos" attribute.

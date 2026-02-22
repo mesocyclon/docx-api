@@ -79,11 +79,7 @@ func (t *CT_Tbl) TblStyleVal() (string, error) {
 	if ts == nil {
 		return "", nil
 	}
-	v, err := ts.Val()
-	if err != nil {
-		return "", nil
-	}
-	return v, nil
+	return ts.Val()
 }
 
 // SetTblStyleVal sets tblPr/tblStyle/@w:val. Passing "" removes tblStyle.
@@ -118,7 +114,7 @@ func (t *CT_Tbl) AlignmentVal() (*enum.WdTableAlignment, error) {
 	}
 	v, err := enum.WdTableAlignmentFromXml(val)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	return &v, nil
 }
@@ -231,7 +227,11 @@ func (t *CT_Tbl) ColWidths() ([]int, error) {
 	cols := grid.GridColList()
 	result := make([]int, len(cols))
 	for i, col := range cols {
-		result[i] = col.W()
+		w, err := col.W()
+		if err != nil {
+			return nil, fmt.Errorf("ColWidths: grid col %d: %w", i, err)
+		}
+		result[i] = w
 	}
 	return result, nil
 }
@@ -241,20 +241,20 @@ func (t *CT_Tbl) ColWidths() ([]int, error) {
 // ===========================================================================
 
 // AlignmentVal returns the table alignment, or nil.
-func (pr *CT_TblPr) AlignmentVal() *enum.WdTableAlignment {
+func (pr *CT_TblPr) AlignmentVal() (*enum.WdTableAlignment, error) {
 	jc := pr.Jc()
 	if jc == nil {
-		return nil
+		return nil, nil
 	}
 	val, ok := jc.GetAttr("w:val")
 	if !ok {
-		return nil
+		return nil, nil
 	}
 	v, err := enum.WdTableAlignmentFromXml(val)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetAlignmentVal sets the table alignment. Passing nil removes jc.
@@ -297,16 +297,12 @@ func (pr *CT_TblPr) SetAutofitVal(v bool) error {
 }
 
 // StyleVal returns the value of tblStyle/@w:val or "" if absent.
-func (pr *CT_TblPr) StyleVal() string {
+func (pr *CT_TblPr) StyleVal() (string, error) {
 	ts := pr.TblStyle()
 	if ts == nil {
-		return ""
+		return "", nil
 	}
-	v, err := ts.Val()
-	if err != nil {
-		return ""
-	}
-	return v
+	return ts.Val()
 }
 
 // SetStyleVal sets the table style. Passing "" removes tblStyle.
@@ -345,19 +341,19 @@ func (r *CT_Row) TrIdx() int {
 }
 
 // GridBeforeVal returns the number of unpopulated grid cells at the start of this row.
-func (r *CT_Row) GridBeforeVal() int {
+func (r *CT_Row) GridBeforeVal() (int, error) {
 	trPr := r.TrPr()
 	if trPr == nil {
-		return 0
+		return 0, nil
 	}
 	return trPr.GridBeforeVal()
 }
 
 // GridAfterVal returns the number of unpopulated grid cells at the end of this row.
-func (r *CT_Row) GridAfterVal() int {
+func (r *CT_Row) GridAfterVal() (int, error) {
 	trPr := r.TrPr()
 	if trPr == nil {
-		return 0
+		return 0, nil
 	}
 	return trPr.GridAfterVal()
 }
@@ -365,7 +361,11 @@ func (r *CT_Row) GridAfterVal() int {
 // TcAtGridOffset returns the w:tc at the given grid column offset.
 // Returns error if no tc at that exact offset.
 func (r *CT_Row) TcAtGridOffset(gridOffset int) (*CT_Tc, error) {
-	remaining := gridOffset - r.GridBeforeVal()
+	gb, err := r.GridBeforeVal()
+	if err != nil {
+		return nil, err
+	}
+	remaining := gridOffset - gb
 	for _, tc := range r.TcList() {
 		if remaining < 0 {
 			break
@@ -373,16 +373,20 @@ func (r *CT_Row) TcAtGridOffset(gridOffset int) (*CT_Tc, error) {
 		if remaining == 0 {
 			return tc, nil
 		}
-		remaining -= tc.GridSpanVal()
+		span, err := tc.GridSpanVal()
+		if err != nil {
+			return nil, err
+		}
+		remaining -= span
 	}
 	return nil, fmt.Errorf("no tc element at grid_offset=%d", gridOffset)
 }
 
 // TrHeightVal returns the value of trPr/trHeight/@w:val (twips), or nil.
-func (r *CT_Row) TrHeightVal() *int {
+func (r *CT_Row) TrHeightVal() (*int, error) {
 	trPr := r.TrPr()
 	if trPr == nil {
-		return nil
+		return nil, nil
 	}
 	return trPr.TrHeightValTwips()
 }
@@ -405,10 +409,10 @@ func (r *CT_Row) SetTrHeightVal(twips *int) error {
 }
 
 // TrHeightHRule returns the row height rule, or nil.
-func (r *CT_Row) TrHeightHRule() *enum.WdRowHeightRule {
+func (r *CT_Row) TrHeightHRule() (*enum.WdRowHeightRule, error) {
 	trPr := r.TrPr()
 	if trPr == nil {
-		return nil
+		return nil, nil
 	}
 	return trPr.TrHeightHRuleVal()
 }
@@ -435,42 +439,37 @@ func (r *CT_Row) SetTrHeightHRule(rule *enum.WdRowHeightRule) error {
 // ===========================================================================
 
 // GridBeforeVal returns the value of gridBefore/@w:val or 0 if not present.
-func (pr *CT_TrPr) GridBeforeVal() int {
+func (pr *CT_TrPr) GridBeforeVal() (int, error) {
 	gb := pr.GridBefore()
 	if gb == nil {
-		return 0
+		return 0, nil
 	}
-	v, err := gb.Val()
-	if err != nil {
-		return 0
-	}
-	return v
+	return gb.Val()
 }
 
 // GridAfterVal returns the value of gridAfter/@w:val or 0 if not present.
-func (pr *CT_TrPr) GridAfterVal() int {
+func (pr *CT_TrPr) GridAfterVal() (int, error) {
 	ga := pr.GridAfter()
 	if ga == nil {
-		return 0
+		return 0, nil
 	}
-	v, err := ga.Val()
-	if err != nil {
-		return 0
-	}
-	return v
+	return ga.Val()
 }
 
 // TrHeightValTwips returns the value of trHeight/@w:val in twips, or nil.
-func (pr *CT_TrPr) TrHeightValTwips() *int {
+func (pr *CT_TrPr) TrHeightValTwips() (*int, error) {
 	h := pr.TrHeight()
 	if h == nil {
-		return nil
+		return nil, nil
 	}
-	v := h.Val()
+	v, err := h.Val()
+	if err != nil {
+		return nil, err
+	}
 	if v == 0 {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetTrHeightValTwips sets the trHeight value. Passing nil removes trHeight.
@@ -487,16 +486,19 @@ func (pr *CT_TrPr) SetTrHeightValTwips(twips *int) error {
 }
 
 // TrHeightHRuleVal returns the height rule, or nil.
-func (pr *CT_TrPr) TrHeightHRuleVal() *enum.WdRowHeightRule {
+func (pr *CT_TrPr) TrHeightHRuleVal() (*enum.WdRowHeightRule, error) {
 	h := pr.TrHeight()
 	if h == nil {
-		return nil
+		return nil, nil
 	}
-	v := h.HRule()
+	v, err := h.HRule()
+	if err != nil {
+		return nil, err
+	}
 	if v == enum.WdRowHeightRule(0) {
-		return nil
+		return nil, nil
 	}
-	return &v
+	return &v, nil
 }
 
 // SetTrHeightHRuleVal sets the height rule. Passing nil removes it.
@@ -525,10 +527,10 @@ func NewTc() *CT_Tc {
 }
 
 // GridSpanVal returns the number of grid columns this cell spans (default 1).
-func (tc *CT_Tc) GridSpanVal() int {
+func (tc *CT_Tc) GridSpanVal() (int, error) {
 	tcPr := tc.TcPr()
 	if tcPr == nil {
-		return 1
+		return 1, nil
 	}
 	return tcPr.GridSpanVal()
 }
@@ -563,10 +565,10 @@ func (tc *CT_Tc) SetVMergeVal(v *string) error {
 
 // WidthTwips returns the cell width in twips from tcPr/tcW, or nil if not present
 // or not dxa type.
-func (tc *CT_Tc) WidthTwips() *int {
+func (tc *CT_Tc) WidthTwips() (*int, error) {
 	tcPr := tc.TcPr()
 	if tcPr == nil {
-		return nil
+		return nil, nil
 	}
 	return tcPr.WidthTwips()
 }
@@ -581,10 +583,10 @@ func (tc *CT_Tc) SetWidthTwips(twips int) error {
 }
 
 // VAlignVal returns the vertical alignment of this cell, or nil.
-func (tc *CT_Tc) VAlignVal() *enum.WdCellVerticalAlignment {
+func (tc *CT_Tc) VAlignVal() (*enum.WdCellVerticalAlignment, error) {
 	tcPr := tc.TcPr()
 	if tcPr == nil {
-		return nil
+		return nil, nil
 	}
 	return tcPr.VAlignValEnum()
 }
@@ -638,49 +640,64 @@ func (tc *CT_Tc) ClearContent() {
 }
 
 // GridOffset returns the starting offset of this cell in the grid columns.
-func (tc *CT_Tc) GridOffset() int {
+func (tc *CT_Tc) GridOffset() (int, error) {
 	tr := tc.parentTr()
 	if tr == nil {
-		return 0
+		return 0, nil
 	}
-	offset := tr.GridBeforeVal()
+	offset, err := tr.GridBeforeVal()
+	if err != nil {
+		return 0, err
+	}
 	for _, child := range tr.E.ChildElements() {
 		if child.Space == "w" && child.Tag == "tc" {
 			if child == tc.E {
-				return offset
+				return offset, nil
 			}
 			sibling := &CT_Tc{Element{E: child}}
-			offset += sibling.GridSpanVal()
+			span, err := sibling.GridSpanVal()
+			if err != nil {
+				return 0, err
+			}
+			offset += span
 		}
 	}
-	return offset
+	return offset, nil
 }
 
 // Left is an alias for GridOffset.
-func (tc *CT_Tc) Left() int {
+func (tc *CT_Tc) Left() (int, error) {
 	return tc.GridOffset()
 }
 
 // Right returns the grid column just past the right edge of this cell.
-func (tc *CT_Tc) Right() int {
-	return tc.GridOffset() + tc.GridSpanVal()
+func (tc *CT_Tc) Right() (int, error) {
+	off, err := tc.GridOffset()
+	if err != nil {
+		return 0, err
+	}
+	span, err := tc.GridSpanVal()
+	if err != nil {
+		return 0, err
+	}
+	return off + span, nil
 }
 
 // Top returns the top-most row index in the vertical span of this cell.
-func (tc *CT_Tc) Top() int {
+func (tc *CT_Tc) Top() (int, error) {
 	vm := tc.VMergeVal()
 	if vm == nil || *vm == "restart" {
-		return tc.trIdx()
+		return tc.trIdx(), nil
 	}
 	above := tc.tcAbove()
 	if above != nil {
 		return above.Top()
 	}
-	return tc.trIdx()
+	return tc.trIdx(), nil
 }
 
 // Bottom returns the row index just past the bottom of the vertical span.
-func (tc *CT_Tc) Bottom() int {
+func (tc *CT_Tc) Bottom() (int, error) {
 	vm := tc.VMergeVal()
 	if vm != nil {
 		below := tc.tcBelow()
@@ -691,7 +708,7 @@ func (tc *CT_Tc) Bottom() int {
 			}
 		}
 	}
-	return tc.trIdx() + 1
+	return tc.trIdx() + 1, nil
 }
 
 // IsEmpty returns true if this cell contains only a single empty w:p.
@@ -728,8 +745,14 @@ func (tc *CT_Tc) NextTc() *CT_Tc {
 
 // AddWidthOf adds the width of other to this cell. Does nothing if either has no width.
 func (tc *CT_Tc) AddWidthOf(other *CT_Tc) error {
-	w1 := tc.WidthTwips()
-	w2 := other.WidthTwips()
+	w1, err := tc.WidthTwips()
+	if err != nil {
+		return err
+	}
+	w2, err := other.WidthTwips()
+	if err != nil {
+		return err
+	}
 	if w1 != nil && w2 != nil {
 		sum := *w1 + *w2
 		if err := tc.SetWidthTwips(sum); err != nil {
@@ -834,7 +857,11 @@ func (tc *CT_Tc) tcAbove() *CT_Tc {
 	if idx <= 0 {
 		return nil
 	}
-	above, err := trs[idx-1].TcAtGridOffset(tc.GridOffset())
+	off, err := tc.GridOffset()
+	if err != nil {
+		return nil
+	}
+	above, err := trs[idx-1].TcAtGridOffset(off)
 	if err != nil {
 		return nil
 	}
@@ -851,7 +878,11 @@ func (tc *CT_Tc) tcBelow() *CT_Tc {
 	if idx >= len(trs)-1 {
 		return nil
 	}
-	below, err := trs[idx+1].TcAtGridOffset(tc.GridOffset())
+	off, err := tc.GridOffset()
+	if err != nil {
+		return nil
+	}
+	below, err := trs[idx+1].TcAtGridOffset(off)
 	if err != nil {
 		return nil
 	}
@@ -875,10 +906,38 @@ func (tc *CT_Tc) removeTrailingEmptyP() {
 }
 
 func (tc *CT_Tc) spanDimensions(other *CT_Tc) (top, left, height, width int, err error) {
-	aTop, aLeft := tc.Top(), tc.Left()
-	aBottom, aRight := tc.Bottom(), tc.Right()
-	bTop, bLeft := other.Top(), other.Left()
-	bBottom, bRight := other.Bottom(), other.Right()
+	aTop, err := tc.Top()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	aLeft, err := tc.Left()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	aBottom, err := tc.Bottom()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	aRight, err := tc.Right()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	bTop, err := other.Top()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	bLeft, err := other.Left()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	bBottom, err := other.Bottom()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	bRight, err := other.Right()
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
 
 	// Check inverted-L
 	if aTop == bTop && aBottom != bBottom {
@@ -887,19 +946,23 @@ func (tc *CT_Tc) spanDimensions(other *CT_Tc) (top, left, height, width int, err
 	if aLeft == bLeft && aRight != bRight {
 		return 0, 0, 0, 0, fmt.Errorf("requested span not rectangular (inverted-L)")
 	}
-	// Check tee-shaped
-	topMost, otherTc := tc, other
-	if otherTc.Top() < topMost.Top() {
-		topMost, otherTc = otherTc, topMost
+	// Check tee-shaped (using already-extracted values to avoid re-calling failable methods)
+	topMostTop, otherTcTop := aTop, bTop
+	topMostBottom, otherTcBottom := aBottom, bBottom
+	if otherTcTop < topMostTop {
+		topMostTop, otherTcTop = otherTcTop, topMostTop
+		topMostBottom, otherTcBottom = otherTcBottom, topMostBottom
 	}
-	if topMost.Top() < otherTc.Top() && topMost.Bottom() > otherTc.Bottom() {
+	if topMostTop < otherTcTop && topMostBottom > otherTcBottom {
 		return 0, 0, 0, 0, fmt.Errorf("requested span not rectangular (tee)")
 	}
-	leftMost, otherTc2 := tc, other
-	if otherTc2.Left() < leftMost.Left() {
-		leftMost, otherTc2 = otherTc2, leftMost
+	leftMostLeft, otherTc2Left := aLeft, bLeft
+	leftMostRight, otherTc2Right := aRight, bRight
+	if otherTc2Left < leftMostLeft {
+		leftMostLeft, otherTc2Left = otherTc2Left, leftMostLeft
+		leftMostRight, otherTc2Right = otherTc2Right, leftMostRight
 	}
-	if leftMost.Left() < otherTc2.Left() && leftMost.Right() > otherTc2.Right() {
+	if leftMostLeft < otherTc2Left && leftMostRight > otherTc2Right {
 		return 0, 0, 0, 0, fmt.Errorf("requested span not rectangular (tee)")
 	}
 
@@ -934,19 +997,34 @@ func (tc *CT_Tc) growTo(width, height int, topTc *CT_Tc) error {
 
 	tc.MoveContentTo(topTc)
 	// Span to width
-	for tc.GridSpanVal() < width {
+	for {
+		gsv, err := tc.GridSpanVal()
+		if err != nil {
+			return err
+		}
+		if gsv >= width {
+			break
+		}
 		next := tc.NextTc()
 		if next == nil {
 			return fmt.Errorf("not enough grid columns")
 		}
-		if tc.GridSpanVal()+next.GridSpanVal() > width {
+		nextSpan, err := next.GridSpanVal()
+		if err != nil {
+			return err
+		}
+		if gsv+nextSpan > width {
 			return fmt.Errorf("span is not rectangular")
 		}
 		next.MoveContentTo(topTc)
 		if err := tc.AddWidthOf(next); err != nil {
 			return err
 		}
-		if err := tc.SetGridSpanVal(tc.GridSpanVal() + next.GridSpanVal()); err != nil {
+		newSpan, err := tc.GridSpanVal()
+		if err != nil {
+			return err
+		}
+		if err := tc.SetGridSpanVal(newSpan + nextSpan); err != nil {
 			return err
 		}
 		next.RemoveElement()
@@ -978,16 +1056,16 @@ func (tc *CT_Tc) growTo(width, height int, topTc *CT_Tc) error {
 // ===========================================================================
 
 // GridSpanVal returns the grid span value (default 1).
-func (pr *CT_TcPr) GridSpanVal() int {
+func (pr *CT_TcPr) GridSpanVal() (int, error) {
 	gs := pr.GridSpan()
 	if gs == nil {
-		return 1
+		return 1, nil
 	}
 	v, err := gs.Val()
 	if err != nil {
-		return 1
+		return 0, err
 	}
-	return v
+	return v, nil
 }
 
 // SetGridSpanVal sets the grid span. Values ≤ 1 remove the gridSpan element.
@@ -1026,16 +1104,16 @@ func (pr *CT_TcPr) SetVMergeValStr(v *string) error {
 }
 
 // VAlignValEnum returns the vertical alignment enum, or nil.
-func (pr *CT_TcPr) VAlignValEnum() *enum.WdCellVerticalAlignment {
+func (pr *CT_TcPr) VAlignValEnum() (*enum.WdCellVerticalAlignment, error) {
 	va := pr.VAlign()
 	if va == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := va.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetVAlignValEnum sets the vertical alignment. nil removes vAlign.
@@ -1048,20 +1126,12 @@ func (pr *CT_TcPr) SetVAlignValEnum(v *enum.WdCellVerticalAlignment) error {
 }
 
 // WidthTwips returns the cell width in twips from tcW, or nil if not dxa or absent.
-func (pr *CT_TcPr) WidthTwips() *int {
+func (pr *CT_TcPr) WidthTwips() (*int, error) {
 	tcW := pr.TcW()
 	if tcW == nil {
-		return nil
+		return nil, nil
 	}
-	t, err := tcW.Type()
-	if err != nil || t != "dxa" {
-		return nil
-	}
-	w, err := tcW.W()
-	if err != nil {
-		return nil
-	}
-	return &w
+	return tcW.WidthTwips()
 }
 
 // SetWidthTwips sets the cell width to dxa type with the given twips value.
@@ -1081,16 +1151,19 @@ func (pr *CT_TcPr) SetWidthTwips(twips int) error {
 // ===========================================================================
 
 // WidthTwips returns the width in twips if type is "dxa", otherwise nil.
-func (tw *CT_TblWidth) WidthTwips() *int {
+func (tw *CT_TblWidth) WidthTwips() (*int, error) {
 	t, err := tw.Type()
-	if err != nil || t != "dxa" {
-		return nil
+	if err != nil {
+		return nil, err
+	}
+	if t != "dxa" {
+		return nil, nil
 	}
 	w, err := tw.W()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &w
+	return &w, nil
 }
 
 // SetWidthDxa sets the width in dxa (twips) and type to "dxa".

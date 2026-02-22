@@ -50,7 +50,9 @@ func TestCT_P_Alignment_RoundTrip(t *testing.T) {
 	p := &CT_P{Element{E: pEl}}
 
 	// Initially nil
-	if p.Alignment() != nil {
+	if a, err := p.Alignment(); err != nil {
+		t.Fatalf("Alignment: %v", err)
+	} else if a != nil {
 		t.Error("expected nil alignment for new paragraph")
 	}
 
@@ -59,7 +61,10 @@ func TestCT_P_Alignment_RoundTrip(t *testing.T) {
 	if err := p.SetAlignment(&center); err != nil {
 		t.Fatalf("SetAlignment: %v", err)
 	}
-	got := p.Alignment()
+	got, err := p.Alignment()
+	if err != nil {
+		t.Fatalf("Alignment: %v", err)
+	}
 	if got == nil || *got != enum.WdParagraphAlignmentCenter {
 		t.Errorf("expected center alignment, got %v", got)
 	}
@@ -68,7 +73,9 @@ func TestCT_P_Alignment_RoundTrip(t *testing.T) {
 	if err := p.SetAlignment(nil); err != nil {
 		t.Fatalf("SetAlignment(nil): %v", err)
 	}
-	if p.Alignment() != nil {
+	if a, err := p.Alignment(); err != nil {
+		t.Fatalf("Alignment: %v", err)
+	} else if a != nil {
 		t.Error("expected nil alignment after setting nil")
 	}
 }
@@ -77,7 +84,9 @@ func TestCT_P_Style_RoundTrip(t *testing.T) {
 	pEl := OxmlElement("w:p")
 	p := &CT_P{Element{E: pEl}}
 
-	if p.Style() != nil {
+	if s, err := p.Style(); err != nil {
+		t.Fatalf("Style: %v", err)
+	} else if s != nil {
 		t.Error("expected nil style for new paragraph")
 	}
 
@@ -85,7 +94,10 @@ func TestCT_P_Style_RoundTrip(t *testing.T) {
 	if err := p.SetStyle(&s); err != nil {
 		t.Fatalf("SetStyle: %v", err)
 	}
-	got := p.Style()
+	got, err := p.Style()
+	if err != nil {
+		t.Fatalf("Style: %v", err)
+	}
 	if got == nil || *got != "Heading1" {
 		t.Errorf("expected Heading1 style, got %v", got)
 	}
@@ -93,7 +105,9 @@ func TestCT_P_Style_RoundTrip(t *testing.T) {
 	if err := p.SetStyle(nil); err != nil {
 		t.Fatalf("SetStyle: %v", err)
 	}
-	if p.Style() != nil {
+	if s, err := p.Style(); err != nil {
+		t.Fatalf("Style: %v", err)
+	} else if s != nil {
 		t.Error("expected nil style after removing")
 	}
 }
@@ -244,7 +258,9 @@ func TestCT_R_Style_RoundTrip(t *testing.T) {
 	rEl := OxmlElement("w:r")
 	r := &CT_R{Element{E: rEl}}
 
-	if r.Style() != nil {
+	if s, err := r.Style(); err != nil {
+		t.Fatalf("Style: %v", err)
+	} else if s != nil {
 		t.Error("expected nil style for new run")
 	}
 
@@ -252,7 +268,10 @@ func TestCT_R_Style_RoundTrip(t *testing.T) {
 	if err := r.SetStyle(&s); err != nil {
 		t.Fatalf("SetStyle: %v", err)
 	}
-	got := r.Style()
+	got, err := r.Style()
+	if err != nil {
+		t.Fatalf("Style: %v", err)
+	}
 	if got == nil || *got != "Emphasis" {
 		t.Errorf("expected Emphasis style, got %v", got)
 	}
@@ -260,7 +279,9 @@ func TestCT_R_Style_RoundTrip(t *testing.T) {
 	if err := r.SetStyle(nil); err != nil {
 		t.Fatalf("SetStyle: %v", err)
 	}
-	if r.Style() != nil {
+	if s, err := r.Style(); err != nil {
+		t.Fatalf("Style: %v", err)
+	} else if s != nil {
 		t.Error("expected nil style after removing")
 	}
 }
@@ -360,7 +381,9 @@ func TestCT_RPr_ColorVal(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
 	rPr := &CT_RPr{Element{E: rPrEl}}
 
-	if rPr.ColorVal() != nil {
+	if cv, err := rPr.ColorVal(); err != nil {
+		t.Fatalf("ColorVal: %v", err)
+	} else if cv != nil {
 		t.Error("expected nil color for new rPr")
 	}
 
@@ -368,7 +391,10 @@ func TestCT_RPr_ColorVal(t *testing.T) {
 	if err := rPr.SetColorVal(&c); err != nil {
 		t.Fatalf("SetColorVal: %v", err)
 	}
-	got := rPr.ColorVal()
+	got, err := rPr.ColorVal()
+	if err != nil {
+		t.Fatalf("ColorVal: %v", err)
+	}
 	if got == nil || *got != "FF0000" {
 		t.Errorf("expected FF0000, got %v", got)
 	}
@@ -376,7 +402,9 @@ func TestCT_RPr_ColorVal(t *testing.T) {
 	if err := rPr.SetColorVal(nil); err != nil {
 		t.Fatalf("SetColorVal: %v", err)
 	}
-	if rPr.ColorVal() != nil {
+	if cv, err := rPr.ColorVal(); err != nil {
+		t.Fatalf("ColorVal: %v", err)
+	} else if cv != nil {
 		t.Error("expected nil after removing color")
 	}
 }
@@ -385,7 +413,9 @@ func TestCT_RPr_SzVal(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
 	rPr := &CT_RPr{Element{E: rPrEl}}
 
-	if rPr.SzVal() != nil {
+	if sv, err := rPr.SzVal(); err != nil {
+		t.Fatalf("SzVal: %v", err)
+	} else if sv != nil {
 		t.Error("expected nil sz for new rPr")
 	}
 
@@ -393,7 +423,10 @@ func TestCT_RPr_SzVal(t *testing.T) {
 	if err := rPr.SetSzVal(&sz); err != nil {
 		t.Fatalf("SetSzVal: %v", err)
 	}
-	got := rPr.SzVal()
+	got, err := rPr.SzVal()
+	if err != nil {
+		t.Fatalf("SzVal: %v", err)
+	}
 	if got == nil || *got != 24 {
 		t.Errorf("expected 24, got %v", got)
 	}
@@ -401,7 +434,9 @@ func TestCT_RPr_SzVal(t *testing.T) {
 	if err := rPr.SetSzVal(nil); err != nil {
 		t.Fatalf("SetSzVal: %v", err)
 	}
-	if rPr.SzVal() != nil {
+	if sv, err := rPr.SzVal(); err != nil {
+		t.Fatalf("SzVal: %v", err)
+	} else if sv != nil {
 		t.Error("expected nil after removing sz")
 	}
 }
@@ -439,7 +474,10 @@ func TestCT_RPr_StyleVal(t *testing.T) {
 	if err := rPr.SetStyleVal(&s); err != nil {
 		t.Fatalf("SetStyleVal: %v", err)
 	}
-	got := rPr.StyleVal()
+	got, err := rPr.StyleVal()
+	if err != nil {
+		t.Fatalf("StyleVal: %v", err)
+	}
 	if got == nil || *got != "CommentReference" {
 		t.Errorf("expected CommentReference, got %v", got)
 	}
@@ -447,7 +485,9 @@ func TestCT_RPr_StyleVal(t *testing.T) {
 	if err := rPr.SetStyleVal(nil); err != nil {
 		t.Fatalf("SetStyleVal: %v", err)
 	}
-	if rPr.StyleVal() != nil {
+	if sv, err := rPr.StyleVal(); err != nil {
+		t.Fatalf("StyleVal: %v", err)
+	} else if sv != nil {
 		t.Error("expected nil after removing style")
 	}
 }
@@ -481,7 +521,9 @@ func TestCT_RPr_Subscript(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
 	rPr := &CT_RPr{Element{E: rPrEl}}
 
-	if rPr.Subscript() != nil {
+	if sub, err := rPr.Subscript(); err != nil {
+		t.Fatalf("Subscript: %v", err)
+	} else if sub != nil {
 		t.Error("expected nil subscript for new rPr")
 	}
 
@@ -489,7 +531,10 @@ func TestCT_RPr_Subscript(t *testing.T) {
 	if err := rPr.SetSubscript(&bTrue); err != nil {
 		t.Fatalf("SetSubscript: %v", err)
 	}
-	got := rPr.Subscript()
+	got, err := rPr.Subscript()
+	if err != nil {
+		t.Fatalf("Subscript: %v", err)
+	}
 	if got == nil || !*got {
 		t.Error("expected *true for subscript")
 	}
@@ -499,7 +544,9 @@ func TestCT_RPr_Subscript(t *testing.T) {
 		t.Fatalf("SetSubscript: %v", err)
 	}
 	// Should remove since current is subscript and setting to false
-	if rPr.Subscript() != nil {
+	if sub, err := rPr.Subscript(); err != nil {
+		t.Fatalf("Subscript: %v", err)
+	} else if sub != nil {
 		t.Error("expected nil after setting subscript to false (was subscript)")
 	}
 }
@@ -510,7 +557,9 @@ func TestCT_PPr_SpacingBefore_RoundTrip(t *testing.T) {
 	pPrEl := OxmlElement("w:pPr")
 	pPr := &CT_PPr{Element{E: pPrEl}}
 
-	if pPr.SpacingBefore() != nil {
+	if sb, err := pPr.SpacingBefore(); err != nil {
+		t.Fatalf("SpacingBefore: %v", err)
+	} else if sb != nil {
 		t.Error("expected nil spacing before for new pPr")
 	}
 
@@ -518,7 +567,10 @@ func TestCT_PPr_SpacingBefore_RoundTrip(t *testing.T) {
 	if err := pPr.SetSpacingBefore(&v); err != nil {
 		t.Fatalf("SetSpacingBefore: %v", err)
 	}
-	got := pPr.SpacingBefore()
+	got, err := pPr.SpacingBefore()
+	if err != nil {
+		t.Fatalf("SpacingBefore: %v", err)
+	}
 	if got == nil || *got != 240 {
 		t.Errorf("expected 240, got %v", got)
 	}
@@ -532,7 +584,10 @@ func TestCT_PPr_SpacingAfter_RoundTrip(t *testing.T) {
 	if err := pPr.SetSpacingAfter(&v); err != nil {
 		t.Fatalf("SetSpacingAfter: %v", err)
 	}
-	got := pPr.SpacingAfter()
+	got, err := pPr.SpacingAfter()
+	if err != nil {
+		t.Fatalf("SpacingAfter: %v", err)
+	}
 	if got == nil || *got != 120 {
 		t.Errorf("expected 120, got %v", got)
 	}
@@ -547,7 +602,10 @@ func TestCT_PPr_SpacingLineRule(t *testing.T) {
 	if err := pPr.SetSpacingLine(&line); err != nil {
 		t.Fatalf("SetSpacingLine: %v", err)
 	}
-	got := pPr.SpacingLineRule()
+	got, err := pPr.SpacingLineRule()
+	if err != nil {
+		t.Fatalf("SpacingLineRule: %v", err)
+	}
 	if got == nil || *got != enum.WdLineSpacingMultiple {
 		t.Errorf("expected MULTIPLE default, got %v", got)
 	}
@@ -557,7 +615,9 @@ func TestCT_PPr_IndLeft_RoundTrip(t *testing.T) {
 	pPrEl := OxmlElement("w:pPr")
 	pPr := &CT_PPr{Element{E: pPrEl}}
 
-	if pPr.IndLeft() != nil {
+	if il, err := pPr.IndLeft(); err != nil {
+		t.Fatalf("IndLeft: %v", err)
+	} else if il != nil {
 		t.Error("expected nil indent for new pPr")
 	}
 
@@ -565,7 +625,10 @@ func TestCT_PPr_IndLeft_RoundTrip(t *testing.T) {
 	if err := pPr.SetIndLeft(&v); err != nil {
 		t.Fatalf("SetIndLeft: %v", err)
 	}
-	got := pPr.IndLeft()
+	got, err := pPr.IndLeft()
+	if err != nil {
+		t.Fatalf("IndLeft: %v", err)
+	}
 	if got == nil || *got != 720 {
 		t.Errorf("expected 720, got %v", got)
 	}
@@ -580,7 +643,10 @@ func TestCT_PPr_FirstLineIndent(t *testing.T) {
 	if err := pPr.SetFirstLineIndent(&v); err != nil {
 		t.Fatalf("SetFirstLineIndent: %v", err)
 	}
-	got := pPr.FirstLineIndent()
+	got, err := pPr.FirstLineIndent()
+	if err != nil {
+		t.Fatalf("FirstLineIndent: %v", err)
+	}
 	if got == nil || *got != 360 {
 		t.Errorf("expected 360, got %v", got)
 	}
@@ -590,7 +656,10 @@ func TestCT_PPr_FirstLineIndent(t *testing.T) {
 	if err := pPr.SetFirstLineIndent(&neg); err != nil {
 		t.Fatalf("SetFirstLineIndent: %v", err)
 	}
-	got = pPr.FirstLineIndent()
+	got, err = pPr.FirstLineIndent()
+	if err != nil {
+		t.Fatalf("FirstLineIndent: %v", err)
+	}
 	if got == nil || *got != -720 {
 		t.Errorf("expected -720 (hanging), got %v", got)
 	}
@@ -599,7 +668,10 @@ func TestCT_PPr_FirstLineIndent(t *testing.T) {
 	if err := pPr.SetFirstLineIndent(nil); err != nil {
 		t.Fatalf("SetFirstLineIndent: %v", err)
 	}
-	got = pPr.FirstLineIndent()
+	got, err = pPr.FirstLineIndent()
+	if err != nil {
+		t.Fatalf("FirstLineIndent: %v", err)
+	}
 	if got != nil {
 		t.Errorf("expected nil after clearing, got %v", got)
 	}

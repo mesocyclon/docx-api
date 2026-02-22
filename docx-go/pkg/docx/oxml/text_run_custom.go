@@ -40,10 +40,10 @@ func (r *CT_R) ClearContent() {
 }
 
 // Style returns the styleId of the run, or nil if not set.
-func (r *CT_R) Style() *string {
+func (r *CT_R) Style() (*string, error) {
 	rPr := r.RPr()
 	if rPr == nil {
-		return nil
+		return nil, nil
 	}
 	return rPr.StyleVal()
 }

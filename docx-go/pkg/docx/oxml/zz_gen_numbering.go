@@ -107,7 +107,11 @@ func (e *CT_Num) NumId() (int, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "w:numId", e.Tag())
 	}
-	return parseIntAttr(val), nil
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:numId", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetNumId sets the required "w:numId" attribute.
@@ -175,7 +179,11 @@ func (e *CT_NumLvl) Ilvl() (int, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "w:ilvl", e.Tag())
 	}
-	return parseIntAttr(val), nil
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:ilvl", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetIlvl sets the required "w:ilvl" attribute.

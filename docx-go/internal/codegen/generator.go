@@ -90,6 +90,8 @@ type attrData struct {
 	ZeroExpr    string // zero value expression (required attrs)
 	ParseExpr   string // expression to parse string "val" → typed value
 	FormatExpr  string // expression to format typed "v" → (string, error)
+	Failable    bool   // true when ParseExpr returns (T, error) instead of T
+	IsPointer   bool   // true when GoType is a pointer (e.g. *enum.Wd…); result needs &
 }
 
 type choiceGroupData struct {
@@ -145,22 +147,24 @@ func (g *Generator) buildTemplateData() templateData {
 		}
 
 		for _, attr := range el.Attributes {
-			goType, zeroExpr, defaultExpr, parseExpr, formatExpr := resolveAttrType(attr)
+			rt := resolveAttrType(attr)
 
 			ad := attrData{
 				GoName:     ExportName(attr.Name),
 				AttrName:   attr.AttrName,
-				GoType:     goType,
+				GoType:     rt.GoType,
 				ParentType: el.Name,
-				ParseExpr:  parseExpr,
-				FormatExpr: formatExpr,
+				ParseExpr:  rt.ParseExpr,
+				FormatExpr: rt.FormatExpr,
+				Failable:   rt.Failable,
+				IsPointer:  rt.IsPointer,
 			}
 
 			if attr.Required {
-				ad.ZeroExpr = zeroExpr
+				ad.ZeroExpr = rt.ZeroExpr
 				ed.RequiredAttributes = append(ed.RequiredAttributes, ad)
 			} else {
-				ad.DefaultExpr = defaultExpr
+				ad.DefaultExpr = rt.DefaultExpr
 				if attr.Default != nil {
 					ad.DefaultExpr = *attr.Default
 				}
@@ -196,25 +200,49 @@ func (g *Generator) buildTemplateData() templateData {
 	return data
 }
 
-// resolveAttrType returns (goType, zeroExpr, defaultExpr, parseExpr, formatExpr)
-// for a given attribute type. parseExpr uses "val" as the string variable;
+// resolvedType bundles type-resolution results for an attribute.
+type resolvedType struct {
+	GoType      string
+	ZeroExpr    string
+	DefaultExpr string
+	ParseExpr   string
+	FormatExpr  string
+	Failable    bool // ParseExpr returns (T, error) rather than T
+	IsPointer   bool // GoType is a pointer; template must & the parsed value
+}
+
+// resolveAttrType determines Go type information for a schema attribute.
+// parseExpr uses "val" as the string variable;
 // formatExpr uses "v" as the typed variable and always returns (string, error).
-func resolveAttrType(attr Attribute) (goType, zeroExpr, defaultExpr, parseExpr, formatExpr string) {
+func resolveAttrType(attr Attribute) resolvedType {
 	switch attr.Type {
 	case "string":
-		return "string", `""`, `""`, "val", "formatStringAttr(v)"
+		return resolvedType{
+			GoType: "string", ZeroExpr: `""`, DefaultExpr: `""`,
+			ParseExpr: "val", FormatExpr: "formatStringAttr(v)",
+			Failable: false,
+		}
 
 	case "int":
-		return "int", "0", "0",
-			"parseIntAttr(val)", "formatIntAttr(v)"
+		return resolvedType{
+			GoType: "int", ZeroExpr: "0", DefaultExpr: "0",
+			ParseExpr: "parseIntAttr(val)", FormatExpr: "formatIntAttr(v)",
+			Failable: true,
+		}
 
 	case "int64":
-		return "int64", "0", "0",
-			"parseInt64Attr(val)", "formatInt64Attr(v)"
+		return resolvedType{
+			GoType: "int64", ZeroExpr: "0", DefaultExpr: "0",
+			ParseExpr: "parseInt64Attr(val)", FormatExpr: "formatInt64Attr(v)",
+			Failable: true,
+		}
 
 	case "bool":
-		return "bool", "false", "false",
-			"parseBoolAttr(val)", "formatBoolAttr(v)"
+		return resolvedType{
+			GoType: "bool", ZeroExpr: "false", DefaultExpr: "false",
+			ParseExpr: "parseBoolAttr(val)", FormatExpr: "formatBoolAttr(v)",
+			Failable: false,
+		}
 
 	default:
 		// Enum or custom type, e.g. "enum.WdAlignParagraph"
@@ -222,15 +250,21 @@ func resolveAttrType(attr Attribute) (goType, zeroExpr, defaultExpr, parseExpr, 
 			// Optional pointer-to-enum
 			inner := attr.Type[1:]
 			fromFn := inner + "FromXml"
-			return attr.Type, "nil", "nil",
-				fmt.Sprintf("parseOptionalEnum(val, %s)", fromFn),
-				"(*v).ToXml()"
+			return resolvedType{
+				GoType: attr.Type, ZeroExpr: "nil", DefaultExpr: "nil",
+				ParseExpr:  fmt.Sprintf("parseEnum(val, %s)", fromFn),
+				FormatExpr: "(*v).ToXml()",
+				Failable:   true, IsPointer: true,
+			}
 		}
 		// Required or value enum
 		fromFn := attr.Type + "FromXml"
-		return attr.Type, attr.Type + "(0)", attr.Type + "(0)",
-			fmt.Sprintf("mustParseEnum(val, %s)", fromFn),
-			"v.ToXml()"
+		return resolvedType{
+			GoType: attr.Type, ZeroExpr: attr.Type + "(0)", DefaultExpr: attr.Type + "(0)",
+			ParseExpr:  fmt.Sprintf("parseEnum(val, %s)", fromFn),
+			FormatExpr: "v.ToXml()",
+			Failable:   true,
+		}
 	}
 }
 

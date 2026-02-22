@@ -22,7 +22,11 @@ func (e *CT_DecimalNumber) Val() (int, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "w:val", e.Tag())
 	}
-	return parseIntAttr(val), nil
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:val", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetVal sets the required "w:val" attribute.

@@ -341,7 +341,11 @@ func (e *CT_HdrFtrRef) Type() (enum.WdHeaderFooterIndex, error) {
 	if !ok {
 		return enum.WdHeaderFooterIndex(0), fmt.Errorf("required attribute %q not present on <%s>", "w:type", e.Tag())
 	}
-	return mustParseEnum(val, enum.WdHeaderFooterIndexFromXml), nil
+	parsed, err := parseEnum(val, enum.WdHeaderFooterIndexFromXml)
+	if err != nil {
+		return enum.WdHeaderFooterIndex(0), &ParseAttrError{Element: e.Tag(), Attr: "w:type", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetType sets the required "w:type" attribute.
@@ -381,12 +385,17 @@ type CT_PageMar struct {
 }
 
 // Top returns the value of the "w:top" attribute, or 0 if absent.
-func (e *CT_PageMar) Top() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_PageMar) Top() (int, error) {
 	val, ok := e.GetAttr("w:top")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:top", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetTop sets the "w:top" attribute.
@@ -405,12 +414,17 @@ func (e *CT_PageMar) SetTop(v int) error {
 }
 
 // Right returns the value of the "w:right" attribute, or 0 if absent.
-func (e *CT_PageMar) Right() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_PageMar) Right() (int, error) {
 	val, ok := e.GetAttr("w:right")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:right", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetRight sets the "w:right" attribute.
@@ -429,12 +443,17 @@ func (e *CT_PageMar) SetRight(v int) error {
 }
 
 // Bottom returns the value of the "w:bottom" attribute, or 0 if absent.
-func (e *CT_PageMar) Bottom() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_PageMar) Bottom() (int, error) {
 	val, ok := e.GetAttr("w:bottom")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:bottom", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetBottom sets the "w:bottom" attribute.
@@ -453,12 +472,17 @@ func (e *CT_PageMar) SetBottom(v int) error {
 }
 
 // Left returns the value of the "w:left" attribute, or 0 if absent.
-func (e *CT_PageMar) Left() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_PageMar) Left() (int, error) {
 	val, ok := e.GetAttr("w:left")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:left", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetLeft sets the "w:left" attribute.
@@ -477,12 +501,17 @@ func (e *CT_PageMar) SetLeft(v int) error {
 }
 
 // Header returns the value of the "w:header" attribute, or 0 if absent.
-func (e *CT_PageMar) Header() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_PageMar) Header() (int, error) {
 	val, ok := e.GetAttr("w:header")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:header", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetHeader sets the "w:header" attribute.
@@ -501,12 +530,17 @@ func (e *CT_PageMar) SetHeader(v int) error {
 }
 
 // Footer returns the value of the "w:footer" attribute, or 0 if absent.
-func (e *CT_PageMar) Footer() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_PageMar) Footer() (int, error) {
 	val, ok := e.GetAttr("w:footer")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:footer", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetFooter sets the "w:footer" attribute.
@@ -525,12 +559,17 @@ func (e *CT_PageMar) SetFooter(v int) error {
 }
 
 // Gutter returns the value of the "w:gutter" attribute, or 0 if absent.
-func (e *CT_PageMar) Gutter() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_PageMar) Gutter() (int, error) {
 	val, ok := e.GetAttr("w:gutter")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:gutter", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetGutter sets the "w:gutter" attribute.
@@ -556,12 +595,17 @@ type CT_PageSz struct {
 }
 
 // W returns the value of the "w:w" attribute, or 0 if absent.
-func (e *CT_PageSz) W() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_PageSz) W() (int, error) {
 	val, ok := e.GetAttr("w:w")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:w", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetW sets the "w:w" attribute.
@@ -580,12 +624,17 @@ func (e *CT_PageSz) SetW(v int) error {
 }
 
 // H returns the value of the "w:h" attribute, or 0 if absent.
-func (e *CT_PageSz) H() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_PageSz) H() (int, error) {
 	val, ok := e.GetAttr("w:h")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:h", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetH sets the "w:h" attribute.
@@ -604,12 +653,17 @@ func (e *CT_PageSz) SetH(v int) error {
 }
 
 // Orient returns the value of the "w:orient" attribute, or enum.WdOrientation(0) if absent.
-func (e *CT_PageSz) Orient() enum.WdOrientation {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_PageSz) Orient() (enum.WdOrientation, error) {
 	val, ok := e.GetAttr("w:orient")
 	if !ok {
-		return enum.WdOrientation(0)
+		return enum.WdOrientation(0), nil
 	}
-	return mustParseEnum(val, enum.WdOrientationFromXml)
+	parsed, err := parseEnum(val, enum.WdOrientationFromXml)
+	if err != nil {
+		return enum.WdOrientation(0), &ParseAttrError{Element: e.Tag(), Attr: "w:orient", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetOrient sets the "w:orient" attribute.
@@ -635,12 +689,17 @@ type CT_SectType struct {
 }
 
 // Val returns the value of the "w:val" attribute, or enum.WdSectionStart(0) if absent.
-func (e *CT_SectType) Val() enum.WdSectionStart {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_SectType) Val() (enum.WdSectionStart, error) {
 	val, ok := e.GetAttr("w:val")
 	if !ok {
-		return enum.WdSectionStart(0)
+		return enum.WdSectionStart(0), nil
 	}
-	return mustParseEnum(val, enum.WdSectionStartFromXml)
+	parsed, err := parseEnum(val, enum.WdSectionStartFromXml)
+	if err != nil {
+		return enum.WdSectionStart(0), &ParseAttrError{Element: e.Tag(), Attr: "w:val", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetVal sets the "w:val" attribute.

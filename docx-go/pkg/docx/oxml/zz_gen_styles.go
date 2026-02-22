@@ -657,12 +657,17 @@ func (e *CT_LatentStyles) insertLsdException(child *CT_LsdException) *CT_LsdExce
 }
 
 // Count returns the value of the "w:count" attribute, or 0 if absent.
-func (e *CT_LatentStyles) Count() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_LatentStyles) Count() (int, error) {
 	val, ok := e.GetAttr("w:count")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:count", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetCount sets the "w:count" attribute.
@@ -753,12 +758,17 @@ func (e *CT_LatentStyles) SetDefSemiHidden(v bool) error {
 }
 
 // DefUIPriority returns the value of the "w:defUIPriority" attribute, or 0 if absent.
-func (e *CT_LatentStyles) DefUIPriority() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_LatentStyles) DefUIPriority() (int, error) {
 	val, ok := e.GetAttr("w:defUIPriority")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:defUIPriority", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetDefUIPriority sets the "w:defUIPriority" attribute.
@@ -880,12 +890,17 @@ func (e *CT_LsdException) SetSemiHidden(v bool) error {
 }
 
 // UiPriority returns the value of the "w:uiPriority" attribute, or 0 if absent.
-func (e *CT_LsdException) UiPriority() int {
+// Returns an error if the attribute is present but cannot be parsed.
+func (e *CT_LsdException) UiPriority() (int, error) {
 	val, ok := e.GetAttr("w:uiPriority")
 	if !ok {
-		return 0
+		return 0, nil
 	}
-	return parseIntAttr(val)
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:uiPriority", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetUiPriority sets the "w:uiPriority" attribute.

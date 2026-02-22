@@ -179,7 +179,11 @@ func (e *CT_Comment) Id() (int, error) {
 	if !ok {
 		return 0, fmt.Errorf("required attribute %q not present on <%s>", "w:id", e.Tag())
 	}
-	return parseIntAttr(val), nil
+	parsed, err := parseIntAttr(val)
+	if err != nil {
+		return 0, &ParseAttrError{Element: e.Tag(), Attr: "w:id", RawValue: val, Err: err}
+	}
+	return parsed, nil
 }
 
 // SetId sets the required "w:id" attribute.

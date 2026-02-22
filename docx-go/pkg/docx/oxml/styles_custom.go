@@ -51,7 +51,8 @@ func (ss *CT_Styles) GetByID(styleID string) *CT_Style {
 // GetByName returns the w:style element whose w:name/@w:val matches name, or nil.
 func (ss *CT_Styles) GetByName(name string) *CT_Style {
 	for _, s := range ss.StyleList() {
-		if s.NameVal() == name {
+		n, err := s.NameVal()
+		if err == nil && n == name {
 			return s
 		}
 	}
@@ -104,16 +105,12 @@ func (ss *CT_Styles) AddStyleOfType(name string, styleType enum.WdStyleType, bui
 // ===========================================================================
 
 // NameVal returns the value of w:name/@w:val, or "" if not present.
-func (s *CT_Style) NameVal() string {
+func (s *CT_Style) NameVal() (string, error) {
 	n := s.Name()
 	if n == nil {
-		return ""
+		return "", nil
 	}
-	v, err := n.Val()
-	if err != nil {
-		return ""
-	}
-	return v
+	return n.Val()
 }
 
 // SetNameVal sets the w:name/@w:val. Passing "" removes the name element.
@@ -129,16 +126,12 @@ func (s *CT_Style) SetNameVal(name string) error {
 }
 
 // BasedOnVal returns the value of w:basedOn/@w:val, or "" if not present.
-func (s *CT_Style) BasedOnVal() string {
+func (s *CT_Style) BasedOnVal() (string, error) {
 	b := s.BasedOn()
 	if b == nil {
-		return ""
+		return "", nil
 	}
-	v, err := b.Val()
-	if err != nil {
-		return ""
-	}
-	return v
+	return b.Val()
 }
 
 // SetBasedOnVal sets the basedOn value. Passing "" removes the element.
@@ -154,16 +147,12 @@ func (s *CT_Style) SetBasedOnVal(v string) error {
 }
 
 // NextVal returns the value of w:next/@w:val, or "" if not present.
-func (s *CT_Style) NextVal() string {
+func (s *CT_Style) NextVal() (string, error) {
 	n := s.Next()
 	if n == nil {
-		return ""
+		return "", nil
 	}
-	v, err := n.Val()
-	if err != nil {
-		return ""
-	}
-	return v
+	return n.Val()
 }
 
 // SetNextVal sets the next style ID. Passing "" removes the element.
@@ -256,16 +245,16 @@ func (s *CT_Style) SetQFormatVal(v bool) {
 }
 
 // UiPriorityVal returns the value of w:uiPriority/@w:val, or nil.
-func (s *CT_Style) UiPriorityVal() *int {
+func (s *CT_Style) UiPriorityVal() (*int, error) {
 	u := s.UiPriority()
 	if u == nil {
-		return nil
+		return nil, nil
 	}
 	v, err := u.Val()
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return &v
+	return &v, nil
 }
 
 // SetUiPriorityVal sets the uiPriority. Passing nil removes the element.
@@ -282,8 +271,8 @@ func (s *CT_Style) SetUiPriorityVal(v *int) error {
 
 // BaseStyle returns the sibling CT_Style that this style is based on, or nil.
 func (s *CT_Style) BaseStyle() *CT_Style {
-	basedOn := s.BasedOnVal()
-	if basedOn == "" {
+	basedOn, err := s.BasedOnVal()
+	if err != nil || basedOn == "" {
 		return nil
 	}
 	parent := s.E.Parent()
@@ -296,8 +285,8 @@ func (s *CT_Style) BaseStyle() *CT_Style {
 
 // NextStyle returns the sibling CT_Style identified by w:next, or nil.
 func (s *CT_Style) NextStyle() *CT_Style {
-	nextVal := s.NextVal()
-	if nextVal == "" {
+	nextVal, err := s.NextVal()
+	if err != nil || nextVal == "" {
 		return nil
 	}
 	parent := s.E.Parent()
