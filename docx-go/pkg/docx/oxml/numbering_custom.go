@@ -1,6 +1,7 @@
 package oxml
 
 import (
+	"fmt"
 	"sort"
 )
 
@@ -155,7 +156,10 @@ func (np *CT_NumPr) SetIlvlVal(val int) error {
 // NewDecimalNumber creates a new element with the given namespace-prefixed tagname
 // and val attribute set. Mirrors CT_DecimalNumber.new() from Python.
 func NewDecimalNumber(nspTagname string, val int) (*CT_DecimalNumber, error) {
-	el := OxmlElement(nspTagname)
+	el, err := TryOxmlElement(nspTagname)
+	if err != nil {
+		return nil, fmt.Errorf("NewDecimalNumber: %w", err)
+	}
 	dn := &CT_DecimalNumber{Element{E: el}}
 	if err := dn.SetVal(val); err != nil {
 		return nil, err
@@ -170,11 +174,13 @@ func NewDecimalNumber(nspTagname string, val int) (*CT_DecimalNumber, error) {
 // NewCtString creates a new element with the given namespace-prefixed tagname
 // and val attribute set. Mirrors CT_String.new() from Python.
 func NewCtString(nspTagname, val string) (*CT_String, error) {
-	el := OxmlElement(nspTagname)
+	el, err := TryOxmlElement(nspTagname)
+	if err != nil {
+		return nil, fmt.Errorf("NewCtString: %w", err)
+	}
 	s := &CT_String{Element{E: el}}
 	if err := s.SetVal(val); err != nil {
 		return nil, err
 	}
 	return s, nil
 }
-

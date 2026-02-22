@@ -55,16 +55,15 @@ func SerializeForReading(el *etree.Element) string {
 	return buf.String()
 }
 
-// OxmlElement creates a new element with the given namespace-prefixed tag.
+// TryOxmlElement creates a new element with the given namespace-prefixed tag.
+// Returns an error if the tag format is invalid or the prefix is unknown.
 // Namespace declarations are added based on the tag prefix, or custom nsDecls
 // can be provided as additional prefix strings.
-//
-// Example:
-//
-//	OxmlElement("w:p") creates <w:p xmlns:w="..."/>
-//	OxmlElement("w:p", "r") creates <w:p xmlns:w="..." xmlns:r="..."/>
-func OxmlElement(nspTag string, nsDecls ...string) *etree.Element {
-	nspt := NewNSPTag(nspTag)
+func TryOxmlElement(nspTag string, nsDecls ...string) (*etree.Element, error) {
+	nspt, err := ParseNSPTag(nspTag)
+	if err != nil {
+		return nil, err
+	}
 
 	el := etree.NewElement(nspt.LocalPart())
 	el.Space = nspt.Prefix()
@@ -85,6 +84,25 @@ func OxmlElement(nspTag string, nsDecls ...string) *etree.Element {
 		}
 	}
 
+	return el, nil
+}
+
+// OxmlElement creates a new element with the given namespace-prefixed tag.
+// Panics on invalid input — use only with compile-time known tags.
+// For user-supplied input, use [TryOxmlElement].
+//
+// Namespace declarations are added based on the tag prefix, or custom nsDecls
+// can be provided as additional prefix strings.
+//
+// Example:
+//
+//	OxmlElement("w:p") creates <w:p xmlns:w="..."/>
+//	OxmlElement("w:p", "r") creates <w:p xmlns:w="..." xmlns:r="..."/>
+func OxmlElement(nspTag string, nsDecls ...string) *etree.Element {
+	el, err := TryOxmlElement(nspTag, nsDecls...)
+	if err != nil {
+		panic(err)
+	}
 	return el
 }
 

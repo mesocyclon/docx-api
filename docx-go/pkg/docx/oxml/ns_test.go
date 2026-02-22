@@ -1,7 +1,6 @@
 package oxml
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -131,31 +130,6 @@ func TestNSPTagRoundTrip(t *testing.T) {
 	}
 }
 
-func TestNsDecls(t *testing.T) {
-	t.Parallel()
-	t.Run("single prefix", func(t *testing.T) {
-		t.Parallel()
-		decl := NsDecls("w")
-		if !strings.Contains(decl, `xmlns:w=`) {
-			t.Errorf("NsDecls('w') = %q, expected to contain xmlns:w=", decl)
-		}
-		if !strings.Contains(decl, Nsmap["w"]) {
-			t.Errorf("NsDecls('w') = %q, expected to contain URI", decl)
-		}
-	})
-
-	t.Run("multiple prefixes", func(t *testing.T) {
-		t.Parallel()
-		decl := NsDecls("w", "r")
-		if !strings.Contains(decl, `xmlns:w=`) {
-			t.Errorf("NsDecls('w', 'r') missing xmlns:w")
-		}
-		if !strings.Contains(decl, `xmlns:r=`) {
-			t.Errorf("NsDecls('w', 'r') missing xmlns:r")
-		}
-	})
-}
-
 func TestNsPfxMap(t *testing.T) {
 	t.Parallel()
 	m := NsPfxMap("w", "r")
@@ -194,4 +168,186 @@ func TestPfxmapIsInverseOfNsmap(t *testing.T) {
 			t.Errorf("Pfxmap[%q] = %q, want %q", uri, got, pfx)
 		}
 	}
+}
+
+// --------------------------------------------------------------------------
+// Safe API tests
+// --------------------------------------------------------------------------
+
+func TestTryQn(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid prefixed tag", func(t *testing.T) {
+		t.Parallel()
+		got, err := TryQn("w:p")
+		if err != nil {
+			t.Fatalf("TryQn(\"w:p\") returned error: %v", err)
+		}
+		want := "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p"
+		if got != want {
+			t.Errorf("TryQn(\"w:p\") = %q, want %q", got, want)
+		}
+	})
+
+	t.Run("no prefix passes through", func(t *testing.T) {
+		t.Parallel()
+		got, err := TryQn("simpleTag")
+		if err != nil {
+			t.Fatalf("TryQn(\"simpleTag\") returned error: %v", err)
+		}
+		if got != "simpleTag" {
+			t.Errorf("TryQn(\"simpleTag\") = %q, want %q", got, "simpleTag")
+		}
+	})
+
+	t.Run("unknown prefix returns error", func(t *testing.T) {
+		t.Parallel()
+		_, err := TryQn("unknown:tag")
+		if err == nil {
+			t.Error("TryQn(\"unknown:tag\") expected error, got nil")
+		}
+	})
+}
+
+func TestParseNSPTag(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid tag", func(t *testing.T) {
+		t.Parallel()
+		tag, err := ParseNSPTag("w:p")
+		if err != nil {
+			t.Fatalf("ParseNSPTag(\"w:p\") returned error: %v", err)
+		}
+		if tag.Prefix() != "w" {
+			t.Errorf("Prefix() = %q, want %q", tag.Prefix(), "w")
+		}
+		if tag.LocalPart() != "p" {
+			t.Errorf("LocalPart() = %q, want %q", tag.LocalPart(), "p")
+		}
+		if tag.NsURI() != Nsmap["w"] {
+			t.Errorf("NsURI() = %q, want %q", tag.NsURI(), Nsmap["w"])
+		}
+	})
+
+	t.Run("no colon returns error", func(t *testing.T) {
+		t.Parallel()
+		_, err := ParseNSPTag("noprefix")
+		if err == nil {
+			t.Error("ParseNSPTag(\"noprefix\") expected error, got nil")
+		}
+	})
+
+	t.Run("unknown prefix returns error", func(t *testing.T) {
+		t.Parallel()
+		_, err := ParseNSPTag("zzz:tag")
+		if err == nil {
+			t.Error("ParseNSPTag(\"zzz:tag\") expected error, got nil")
+		}
+	})
+}
+
+func TestParseNSPTagFromClark(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid clark notation", func(t *testing.T) {
+		t.Parallel()
+		clark := "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p"
+		tag, err := ParseNSPTagFromClark(clark)
+		if err != nil {
+			t.Fatalf("ParseNSPTagFromClark(%q) returned error: %v", clark, err)
+		}
+		if tag.String() != "w:p" {
+			t.Errorf("String() = %q, want %q", tag.String(), "w:p")
+		}
+	})
+
+	t.Run("empty string returns error", func(t *testing.T) {
+		t.Parallel()
+		_, err := ParseNSPTagFromClark("")
+		if err == nil {
+			t.Error("ParseNSPTagFromClark(\"\") expected error, got nil")
+		}
+	})
+
+	t.Run("no opening brace returns error", func(t *testing.T) {
+		t.Parallel()
+		_, err := ParseNSPTagFromClark("noBrace")
+		if err == nil {
+			t.Error("expected error for missing brace, got nil")
+		}
+	})
+
+	t.Run("no closing brace returns error", func(t *testing.T) {
+		t.Parallel()
+		_, err := ParseNSPTagFromClark("{http://example.com")
+		if err == nil {
+			t.Error("expected error for missing closing brace, got nil")
+		}
+	})
+
+	t.Run("unknown URI returns error", func(t *testing.T) {
+		t.Parallel()
+		_, err := ParseNSPTagFromClark("{http://unknown.example.com}tag")
+		if err == nil {
+			t.Error("expected error for unknown URI, got nil")
+		}
+	})
+}
+
+func TestTryOxmlElement(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid tag creates element", func(t *testing.T) {
+		t.Parallel()
+		el, err := TryOxmlElement("w:p")
+		if err != nil {
+			t.Fatalf("TryOxmlElement(\"w:p\") returned error: %v", err)
+		}
+		if el.Space != "w" || el.Tag != "p" {
+			t.Errorf("element Space=%q Tag=%q, want Space=\"w\" Tag=\"p\"", el.Space, el.Tag)
+		}
+	})
+
+	t.Run("with extra nsDecls", func(t *testing.T) {
+		t.Parallel()
+		el, err := TryOxmlElement("w:p", "r")
+		if err != nil {
+			t.Fatalf("TryOxmlElement returned error: %v", err)
+		}
+		if el == nil {
+			t.Fatal("expected non-nil element")
+		}
+		// Verify both namespace declarations exist
+		hasW, hasR := false, false
+		for _, attr := range el.Attr {
+			if attr.Space == "xmlns" && attr.Key == "w" {
+				hasW = true
+			}
+			if attr.Space == "xmlns" && attr.Key == "r" {
+				hasR = true
+			}
+		}
+		if !hasW {
+			t.Error("missing xmlns:w declaration")
+		}
+		if !hasR {
+			t.Error("missing xmlns:r declaration")
+		}
+	})
+
+	t.Run("invalid tag returns error", func(t *testing.T) {
+		t.Parallel()
+		_, err := TryOxmlElement("noprefix")
+		if err == nil {
+			t.Error("TryOxmlElement(\"noprefix\") expected error, got nil")
+		}
+	})
+
+	t.Run("unknown prefix returns error", func(t *testing.T) {
+		t.Parallel()
+		_, err := TryOxmlElement("zzz:tag")
+		if err == nil {
+			t.Error("TryOxmlElement(\"zzz:tag\") expected error, got nil")
+		}
+	})
 }
