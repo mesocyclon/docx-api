@@ -3,6 +3,7 @@ package opc
 import (
 	"encoding/xml"
 	"fmt"
+	"strings"
 )
 
 // --------------------------------------------------------------------------
@@ -202,6 +203,10 @@ func (m *ContentTypeMap) AddOverride(partname, contentType string) {
 
 // ContentType returns the content type for the given PackURI.
 // Override takes precedence over default (by extension).
+// As a last resort, if the extension matches a well-known OPC default
+// (from DefaultContentTypes), that content type is returned.  This handles
+// malformed packages where [Content_Types].xml is incomplete — common in
+// files from LibreOffice and Google Docs.
 func (m *ContentTypeMap) ContentType(uri PackURI) (string, error) {
 	if ct := m.overrides.Get(string(uri)); ct != "" {
 		return ct, nil
@@ -210,5 +215,22 @@ func (m *ContentTypeMap) ContentType(uri PackURI) (string, error) {
 	if ct := m.defaults.Get(ext); ct != "" {
 		return ct, nil
 	}
+	// Fallback: infer from well-known extension → content-type table.
+	if ct := inferContentType(ext); ct != "" {
+		return ct, nil
+	}
 	return "", fmt.Errorf("opc: no content type for partname %q in [Content_Types].xml", uri)
+}
+
+// inferContentType returns the content type for a well-known file extension,
+// or "" if the extension is not recognized.  Only the first match in
+// DefaultContentTypes is returned (sufficient for images and common types).
+func inferContentType(ext string) string {
+	lower := strings.ToLower(ext)
+	for _, pair := range DefaultContentTypes {
+		if pair.Ext == lower {
+			return pair.ContentType
+		}
+	}
+	return ""
 }

@@ -93,7 +93,8 @@ func TestWalkParts_SkipsMissingMember(t *testing.T) {
 }
 
 // TestWalkParts_SkipsMissingContentType verifies that a part physically present
-// in the ZIP but missing from [Content_Types].xml is skipped at the reader level.
+// in the ZIP but with a truly unknown extension (not in [Content_Types].xml and
+// not in the well-known fallback table) is skipped at the reader level.
 func TestWalkParts_SkipsMissingContentType(t *testing.T) {
 	t.Parallel()
 
@@ -104,14 +105,14 @@ func TestWalkParts_SkipsMissingContentType(t *testing.T) {
     Target="word/document.xml"/>
   <Relationship Id="rId2"
     Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"
-    Target="word/media/image1.png"/>
+    Target="word/media/data.xyz99"/>
 </Relationships>`
 
 	data := buildTestZip(t, map[string]string{
-		"[Content_Types].xml":   minimalContentTypes, // no Default for "png"
+		"[Content_Types].xml":   minimalContentTypes, // no Default for "xyz99"
 		"_rels/.rels":           pkgRels,
 		"word/document.xml":     minimalDocumentXml,
-		"word/media/image1.png": "fake-png-bytes",
+		"word/media/data.xyz99": "unknown-format-bytes",
 	})
 
 	physReader, err := NewPhysPkgReaderFromBytes(data)

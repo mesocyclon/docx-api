@@ -185,3 +185,146 @@ func TestContentTypeMap_CaseInsensitive(t *testing.T) {
 		t.Errorf("got %q, want %q", got, CTXml)
 	}
 }
+
+// TestContentType_InfersPngFromExtension verifies that a ContentTypeMap
+// without an explicit Default for "png" still resolves it via the well-known
+// extension fallback.  This fixes the "no content type for partname" errors
+// on bnc780044_spacing.docx, bnc891663.docx, etc.
+func TestContentType_InfersPngFromExtension(t *testing.T) {
+	t.Parallel()
+
+	// Only xml and rels defaults — no png.
+	ct := NewContentTypeMap()
+	ct.AddDefault("xml", CTXml)
+	ct.AddDefault("rels", CTOpcRelationships)
+
+	got, err := ct.ContentType("/word/media/image1.png")
+	if err != nil {
+		t.Fatalf("expected png to be inferred, got error: %v", err)
+	}
+	if got != CTPng {
+		t.Errorf("got %q, want %q", got, CTPng)
+	}
+}
+
+// TestContentType_InfersJpegFromExtension verifies jpg/jpeg inference.
+func TestContentType_InfersJpegFromExtension(t *testing.T) {
+	t.Parallel()
+
+	ct := NewContentTypeMap()
+
+	for _, ext := range []string{"jpg", "jpeg", "jpe"} {
+		uri := PackURI("/word/media/photo." + ext)
+		got, err := ct.ContentType(uri)
+		if err != nil {
+			t.Errorf("extension %q: expected inference, got error: %v", ext, err)
+			continue
+		}
+		if got != CTJpeg {
+			t.Errorf("extension %q: got %q, want %q", ext, got, CTJpeg)
+		}
+	}
+}
+
+// TestContentType_InfersCommonFormats verifies inference for all image and
+// embedded formats that appeared in real-world failing documents.
+func TestContentType_InfersCommonFormats(t *testing.T) {
+	t.Parallel()
+
+	ct := NewContentTypeMap() // completely empty — no defaults at all
+
+	cases := []struct {
+		ext  string
+		want string
+	}{
+		{"png", CTPng},
+		{"jpg", CTJpeg},
+		{"jpeg", CTJpeg},
+		{"gif", CTGif},
+		{"bmp", CTBmp},
+		{"tiff", CTTiff},
+		{"tif", CTTiff},
+		{"emf", CTXEmf},
+		{"wmf", CTXWmf},
+		{"xlsx", CTSmlSheet},
+	}
+
+	for _, tc := range cases {
+		uri := PackURI("/word/media/file." + tc.ext)
+		got, err := ct.ContentType(uri)
+		if err != nil {
+			t.Errorf("extension %q: expected %q, got error: %v", tc.ext, tc.want, err)
+			continue
+		}
+		if got != tc.want {
+			t.Errorf("extension %q: got %q, want %q", tc.ext, got, tc.want)
+		}
+	}
+}
+
+// TestContentType_ExplicitDefaultTakesPrecedence verifies that an explicit
+// Default in [Content_Types].xml wins over the well-known fallback.
+func TestContentType_ExplicitDefaultTakesPrecedence(t *testing.T) {
+	t.Parallel()
+
+	ct := NewContentTypeMap()
+	ct.AddDefault("png", "image/custom-png") // non-standard override
+
+	got, err := ct.ContentType("/word/media/image1.png")
+	if err != nil {
+		t.Fatalf("ContentType: %v", err)
+	}
+	if got != "image/custom-png" {
+		t.Errorf("explicit default should win, got %q", got)
+	}
+}
+
+// TestContentType_OverrideTakesPrecedenceOverInference verifies that an
+// explicit Override wins over inference.
+func TestContentType_OverrideTakesPrecedenceOverInference(t *testing.T) {
+	t.Parallel()
+
+	ct := NewContentTypeMap()
+	ct.AddOverride("/word/media/image1.png", "image/custom-override")
+
+	got, err := ct.ContentType("/word/media/image1.png")
+	if err != nil {
+		t.Fatalf("ContentType: %v", err)
+	}
+	if got != "image/custom-override" {
+		t.Errorf("override should win, got %q", got)
+	}
+}
+
+// TestContentType_UnknownExtensionStillFails verifies that truly unknown
+// extensions still return an error.
+func TestContentType_UnknownExtensionStillFails(t *testing.T) {
+	t.Parallel()
+
+	ct := NewContentTypeMap()
+
+	_, err := ct.ContentType("/word/data/something.xyz123")
+	if err == nil {
+		t.Error("expected error for completely unknown extension")
+	}
+}
+
+// TestContentType_InferenceCaseInsensitive verifies that inference works
+// regardless of extension case (PNG, Png, pNg, etc).
+func TestContentType_InferenceCaseInsensitive(t *testing.T) {
+	t.Parallel()
+
+	ct := NewContentTypeMap()
+
+	for _, ext := range []string{"PNG", "Png", "pNg"} {
+		uri := PackURI("/word/media/image." + ext)
+		got, err := ct.ContentType(uri)
+		if err != nil {
+			t.Errorf("extension %q: expected inference, got error: %v", ext, err)
+			continue
+		}
+		if got != CTPng {
+			t.Errorf("extension %q: got %q, want %q", ext, got, CTPng)
+		}
+	}
+}
