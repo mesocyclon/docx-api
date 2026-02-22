@@ -144,12 +144,16 @@ func (p *OpcPackage) Save(w io.Writer) error {
 }
 
 // SaveToFile writes the package to a file.
-func (p *OpcPackage) SaveToFile(path string) error {
+func (p *OpcPackage) SaveToFile(path string) (err error) {
 	f, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("opc: creating file %q: %w", path, err)
 	}
-	defer f.Close()
+	defer func() {
+		if closeErr := f.Close(); err == nil {
+			err = closeErr
+		}
+	}()
 	return p.Save(f)
 }
 

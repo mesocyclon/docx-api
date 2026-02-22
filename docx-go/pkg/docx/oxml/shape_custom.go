@@ -27,7 +27,7 @@ func newInline(cx, cy int64, shapeId int, pic *CT_Picture) (*CT_Inline, error) {
 			`xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" ` +
 			`xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">` +
 			`<wp:extent cx="914400" cy="914400"/>` +
-			`<wp:docPr id="666" name="unnamed"/>` +
+			`<wp:docPr id="777" name="unnamed"/>` +
 			`<wp:cNvGraphicFramePr>` +
 			`<a:graphicFrameLocks noChangeAspect="1"/>` +
 			`</wp:cNvGraphicFramePr>` +
@@ -92,7 +92,7 @@ func newPicture(picId int, filename, rId string, cx, cy int64) (*CT_Picture, err
 			`xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" ` +
 			`xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">` +
 			`<pic:nvPicPr>` +
-			`<pic:cNvPr id="666" name="unnamed"/>` +
+			`<pic:cNvPr id="777" name="unnamed"/>` +
 			`<pic:cNvPicPr/>` +
 			`</pic:nvPicPr>` +
 			`<pic:blipFill>` +
@@ -135,7 +135,11 @@ func newPicture(picId int, filename, rId string, cx, cy int64) (*CT_Picture, err
 	if err != nil {
 		return nil, fmt.Errorf("oxml: pic missing blipFill: %w", err)
 	}
-	if err := blipFill.Blip().SetEmbed(rId); err != nil {
+	blip := blipFill.Blip()
+	if blip == nil {
+		return nil, fmt.Errorf("oxml: blipFill missing blip element")
+	}
+	if err := blip.SetEmbed(rId); err != nil {
 		return nil, err
 	}
 	spPr, err := pic.SpPr()

@@ -1,6 +1,8 @@
 package oxml
 
 import (
+	"fmt"
+
 	"github.com/user/go-docx/pkg/docx/enum"
 )
 
@@ -285,12 +287,10 @@ func (rPr *CT_RPr) SetColorTheme(v *enum.MsoThemeColorIndex) error {
 	}
 	color := rPr.GetOrAddColor()
 	xml, err := v.ToXml()
-	if err == nil {
-		if err := color.SetThemeColor(xml); err != nil {
-			return err
-		}
+	if err != nil {
+		return fmt.Errorf("CT_RPr.SetColorTheme: %w", err)
 	}
-	return nil
+	return color.SetThemeColor(xml)
 }
 
 // --- Size ---

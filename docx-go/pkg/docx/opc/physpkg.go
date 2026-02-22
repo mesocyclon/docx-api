@@ -17,15 +17,26 @@ import (
 // _ZipPkgReader.rels_xml_for.
 var ErrMemberNotFound = errors.New("opc: member not found in package")
 
+// ErrPartTooLarge is returned by BlobFor when a decompressed part
+// exceeds MaxPartSize. This protects against zip bombs and other
+// decompression attacks that could cause out-of-memory conditions.
+var ErrPartTooLarge = errors.New("opc: decompressed part exceeds size limit")
+
+// DefaultMaxPartSize is the default maximum decompressed size for a single
+// part within an OPC package (256 MB). Override per-reader via
+// PhysPkgReader.MaxPartSize.
+const DefaultMaxPartSize int64 = 256 << 20 // 256 MB
+
 // --------------------------------------------------------------------------
 // PhysPkgReader — reads a ZIP-based OPC package
 // --------------------------------------------------------------------------
 
 // PhysPkgReader provides low-level access to a ZIP-based OPC package.
 type PhysPkgReader struct {
-	reader *zip.Reader
-	closer io.Closer // non-nil when opened from a file
-	files  map[string]*zip.File
+	reader      *zip.Reader
+	closer      io.Closer // non-nil when opened from a file
+	files       map[string]*zip.File
+	MaxPartSize int64 // maximum decompressed size per part; 0 means DefaultMaxPartSize
 }
 
 // NewPhysPkgReader creates a PhysPkgReader from an io.ReaderAt.
@@ -75,6 +86,8 @@ func newPhysPkgReaderFromZip(zr *zip.Reader, closer io.Closer) *PhysPkgReader {
 }
 
 // BlobFor returns the contents of the part at the given PackURI.
+// The decompressed size is capped at MaxPartSize (or DefaultMaxPartSize
+// when MaxPartSize is 0) to guard against zip bombs.
 func (p *PhysPkgReader) BlobFor(uri PackURI) ([]byte, error) {
 	membername := uri.Membername()
 	f, ok := p.files[membername]
@@ -86,7 +99,22 @@ func (p *PhysPkgReader) BlobFor(uri PackURI) ([]byte, error) {
 		return nil, fmt.Errorf("opc: opening member %q: %w", membername, err)
 	}
 	defer rc.Close()
-	return io.ReadAll(rc)
+
+	limit := p.MaxPartSize
+	if limit <= 0 {
+		limit = DefaultMaxPartSize
+	}
+	// Read up to limit+1 bytes: if we get more than limit, the part is too large.
+	lr := io.LimitReader(rc, limit+1)
+	data, err := io.ReadAll(lr)
+	if err != nil {
+		return nil, fmt.Errorf("opc: reading member %q: %w", membername, err)
+	}
+	if int64(len(data)) > limit {
+		return nil, fmt.Errorf("%w: %s (%d bytes exceeds %d byte limit)",
+			ErrPartTooLarge, membername, f.UncompressedSize64, limit)
+	}
+	return data, nil
 }
 
 // ContentTypesXml returns the [Content_Types].xml blob.
