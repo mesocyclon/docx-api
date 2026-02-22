@@ -1,6 +1,7 @@
 package opc
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -103,12 +104,24 @@ func walkParts(
 
 		blob, err := physReader.BlobFor(partname)
 		if err != nil {
+			// Dangling relationship: .rels references a part that does not
+			// exist in the ZIP archive.  Common in files produced by
+			// LibreOffice, Google Docs, and older versions of Word.
+			// Python-docx crashes here with an unhandled KeyError — we
+			// intentionally improve on this by skipping gracefully.
+			if errors.Is(err, ErrMemberNotFound) {
+				continue
+			}
 			return fmt.Errorf("opc: reading part %q: %w", partname, err)
 		}
 
 		ct, err := contentTypes.ContentType(partname)
 		if err != nil {
-			return err
+			// Part exists in ZIP but has no matching entry in
+			// [Content_Types].xml.  Rather than failing, skip the
+			// part — the document is technically malformed but Word
+			// opens it fine.
+			continue
 		}
 
 		partSRels, err := readSRels(physReader, partname)

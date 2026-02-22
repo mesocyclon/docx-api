@@ -90,10 +90,13 @@ func openFromPhysReader(physReader *PhysPkgReader, factory *PartFactory) (*OpcPa
 		if !srel.IsExternal() {
 			pn := srel.TargetPartname()
 			p, ok := parts[pn]
-			if !ok {
-				return nil, fmt.Errorf("opc: package relationship %q references missing part %q", srel.RID, pn)
+			if ok {
+				targetPart = p
 			}
-			targetPart = p
+			// If !ok, targetPart stays nil — the dangling relationship
+			// is preserved with its original TargetRef so the .rels XML
+			// round-trips faithfully.  The serializer already handles
+			// nil TargetPart by falling back to TargetRef.
 		}
 		pkg.rels.Load(srel.RID, srel.RelType, srel.TargetRef, targetPart, srel.IsExternal())
 	}
@@ -108,10 +111,10 @@ func openFromPhysReader(physReader *PhysPkgReader, factory *PartFactory) (*OpcPa
 			if !srel.IsExternal() {
 				pn := srel.TargetPartname()
 				p, ok := parts[pn]
-				if !ok {
-					return nil, fmt.Errorf("opc: part %q relationship %q references missing part %q", sp.Partname, srel.RID, pn)
+				if ok {
+					targetPart = p
 				}
-				targetPart = p
+				// Dangling rel preserved — see comment in pkg-level loop above.
 			}
 			rels.Load(srel.RID, srel.RelType, srel.TargetRef, targetPart, srel.IsExternal())
 		}
