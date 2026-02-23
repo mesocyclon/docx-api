@@ -4,7 +4,6 @@ package oxml
 
 import (
 	"fmt"
-
 	"github.com/vortex/go-docx/pkg/docx/enum"
 )
 
