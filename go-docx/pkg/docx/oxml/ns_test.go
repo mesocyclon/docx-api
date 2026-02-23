@@ -86,8 +86,8 @@ func TestNewNSPTag(t *testing.T) {
 	if tag.LocalPart() != "p" {
 		t.Errorf("LocalPart() = %q, want %q", tag.LocalPart(), "p")
 	}
-	if tag.NsURI() != Nsmap["w"] {
-		t.Errorf("NsURI() = %q, want %q", tag.NsURI(), Nsmap["w"])
+	if tag.NsURI() != nsmap["w"] {
+		t.Errorf("NsURI() = %q, want %q", tag.NsURI(), nsmap["w"])
 	}
 	if tag.String() != "w:p" {
 		t.Errorf("String() = %q, want %q", tag.String(), "w:p")
@@ -136,30 +136,30 @@ func TestNsPfxMap(t *testing.T) {
 	if len(m) != 2 {
 		t.Fatalf("NsPfxMap returned %d entries, want 2", len(m))
 	}
-	if m["w"] != Nsmap["w"] {
-		t.Errorf("m[w] = %q, want %q", m["w"], Nsmap["w"])
+	if m["w"] != nsmap["w"] {
+		t.Errorf("m[w] = %q, want %q", m["w"], nsmap["w"])
 	}
-	if m["r"] != Nsmap["r"] {
-		t.Errorf("m[r] = %q, want %q", m["r"], Nsmap["r"])
+	if m["r"] != nsmap["r"] {
+		t.Errorf("m[r] = %q, want %q", m["r"], nsmap["r"])
 	}
 }
 
-func TestNSPTagNsMap(t *testing.T) {
+func TestNSPTagnsmap(t *testing.T) {
 	t.Parallel()
 	tag := NewNSPTag("w:p")
 	m := tag.NsMap()
 	if len(m) != 1 {
-		t.Fatalf("NsMap returned %d entries, want 1", len(m))
+		t.Fatalf("nsmap returned %d entries, want 1", len(m))
 	}
-	if m["w"] != Nsmap["w"] {
-		t.Errorf("m[w] = %q, want %q", m["w"], Nsmap["w"])
+	if m["w"] != nsmap["w"] {
+		t.Errorf("m[w] = %q, want %q", m["w"], nsmap["w"])
 	}
 }
 
-func TestPfxmapIsInverseOfNsmap(t *testing.T) {
+func TestPfxmapIsInverseOfnsmap(t *testing.T) {
 	t.Parallel()
-	for pfx, uri := range Nsmap {
-		got, ok := Pfxmap[uri]
+	for pfx, uri := range nsmap {
+		got, ok := pfxmap[uri]
 		if !ok {
 			t.Errorf("Pfxmap missing URI %q (prefix %q)", uri, pfx)
 			continue
@@ -224,8 +224,8 @@ func TestParseNSPTag(t *testing.T) {
 		if tag.LocalPart() != "p" {
 			t.Errorf("LocalPart() = %q, want %q", tag.LocalPart(), "p")
 		}
-		if tag.NsURI() != Nsmap["w"] {
-			t.Errorf("NsURI() = %q, want %q", tag.NsURI(), Nsmap["w"])
+		if tag.NsURI() != nsmap["w"] {
+			t.Errorf("NsURI() = %q, want %q", tag.NsURI(), nsmap["w"])
 		}
 	})
 

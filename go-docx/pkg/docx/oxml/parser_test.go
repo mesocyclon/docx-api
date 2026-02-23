@@ -150,8 +150,8 @@ func TestOxmlElement(t *testing.T) {
 		if !ok {
 			t.Error("missing xmlns:w declaration")
 		}
-		if uri != Nsmap["w"] {
-			t.Errorf("xmlns:w = %q, want %q", uri, Nsmap["w"])
+		if uri != nsmap["w"] {
+			t.Errorf("xmlns:w = %q, want %q", uri, nsmap["w"])
 		}
 	})
 

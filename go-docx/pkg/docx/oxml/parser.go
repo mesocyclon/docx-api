@@ -79,7 +79,7 @@ func TryOxmlElement(nspTag string, nsDecls ...string) (*etree.Element, error) {
 	// etree.CreateAttr("xmlns:w", uri) splits into Attr{Space:"xmlns", Key:"w"},
 	// which serializes correctly as xmlns:w="...".
 	for pfx := range prefixes {
-		if uri, ok := Nsmap[pfx]; ok {
+		if uri, ok := nsmap[pfx]; ok {
 			el.CreateAttr("xmlns:"+pfx, uri)
 		}
 	}

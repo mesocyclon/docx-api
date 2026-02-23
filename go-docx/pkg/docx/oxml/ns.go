@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-// Nsmap maps namespace prefixes to their URIs.
-var Nsmap = map[string]string{
+// nsmap maps namespace prefixes to their URIs.
+var nsmap = map[string]string{
 	"a":        "http://schemas.openxmlformats.org/drawingml/2006/main",
 	"c":        "http://schemas.openxmlformats.org/drawingml/2006/chart",
 	"cp":       "http://schemas.openxmlformats.org/package/2006/metadata/core-properties",
@@ -26,25 +26,39 @@ var Nsmap = map[string]string{
 	"xsi":      "http://www.w3.org/2001/XMLSchema-instance",
 }
 
-// Pfxmap is the reverse mapping of URI → prefix.
-var Pfxmap map[string]string
+// pfxmap is the reverse mapping of URI → prefix.
+var pfxmap map[string]string
 
 func init() {
-	Pfxmap = make(map[string]string, len(Nsmap))
-	for pfx, uri := range Nsmap {
-		Pfxmap[uri] = pfx
+	pfxmap = make(map[string]string, len(nsmap))
+	for pfx, uri := range nsmap {
+		pfxmap[uri] = pfx
 	}
 }
 
+// LookupNsURI returns the namespace URI for the given prefix and true,
+// or ("", false) if the prefix is not registered.
+func LookupNsURI(prefix string) (string, bool) {
+	uri, ok := nsmap[prefix]
+	return uri, ok
+}
+
+// LookupPrefix returns the namespace prefix for the given URI and true,
+// or ("", false) if the URI is not registered.
+func LookupPrefix(uri string) (string, bool) {
+	pfx, ok := pfxmap[uri]
+	return pfx, ok
+}
+
 // TryQn converts a namespace-prefixed tag to Clark notation.
-// Returns an error if the prefix is not in Nsmap.
+// Returns an error if the prefix is not in nsmap.
 // For example, TryQn("w:p") returns "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p".
 func TryQn(tag string) (string, error) {
 	prefix, local, ok := strings.Cut(tag, ":")
 	if !ok {
 		return tag, nil
 	}
-	uri, exists := Nsmap[prefix]
+	uri, exists := nsmap[prefix]
 	if !exists {
 		return "", fmt.Errorf("oxml: unknown namespace prefix %q in tag %q", prefix, tag)
 	}
@@ -62,11 +76,11 @@ func Qn(tag string) string {
 	return s
 }
 
-// NsPfxMap returns a subset of Nsmap for the specified prefixes.
+// NsPfxMap returns a subset of nsmap for the specified prefixes.
 func NsPfxMap(prefixes ...string) map[string]string {
 	result := make(map[string]string, len(prefixes))
 	for _, pfx := range prefixes {
-		if uri, ok := Nsmap[pfx]; ok {
+		if uri, ok := nsmap[pfx]; ok {
 			result[pfx] = uri
 		}
 	}
@@ -88,7 +102,7 @@ func ParseNSPTag(nstag string) (NamespacePrefixedTag, error) {
 	if !ok {
 		return NamespacePrefixedTag{}, fmt.Errorf("oxml: invalid namespace-prefixed tag %q", nstag)
 	}
-	uri, exists := Nsmap[prefix]
+	uri, exists := nsmap[prefix]
 	if !exists {
 		return NamespacePrefixedTag{}, fmt.Errorf("oxml: unknown namespace prefix %q in tag %q", prefix, nstag)
 	}
@@ -123,7 +137,7 @@ func ParseNSPTagFromClark(clark string) (NamespacePrefixedTag, error) {
 	nsURI := clark[1:closeBrace]
 	local := clark[closeBrace+1:]
 
-	pfx, ok := Pfxmap[nsURI]
+	pfx, ok := pfxmap[nsURI]
 	if !ok {
 		return NamespacePrefixedTag{}, fmt.Errorf("oxml: unknown namespace URI %q", nsURI)
 	}

@@ -202,7 +202,7 @@ func resolveAttrName(name string) (space, local string) {
 		if closeBrace > 0 {
 			uri := name[1:closeBrace]
 			local = name[closeBrace+1:]
-			if pfx, ok := Pfxmap[uri]; ok {
+			if pfx, ok := pfxmap[uri]; ok {
 				return pfx, local
 			}
 			return "", local
@@ -220,7 +220,7 @@ func clarkFromEtree(e *etree.Element) string {
 		return e.Tag
 	}
 	// etree stores the prefix in Space, resolve to URI
-	if uri, ok := Nsmap[e.Space]; ok {
+	if uri, ok := nsmap[e.Space]; ok {
 		return "{" + uri + "}" + e.Tag
 	}
 	// If Space is already a URI (shouldn't normally happen with our usage)
