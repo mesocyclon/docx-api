@@ -68,6 +68,8 @@ func TestDocumentPart_StylesPart_NotNil(t *testing.T) {
 }
 
 func TestDocumentPart_StylesPart_Cached(t *testing.T) {
+	// In Python, _styles_part is @property (not lazyproperty), but the
+	// relationship graph acts as the cache — same object returned each time.
 	pkg := openDefaultDocx(t)
 	dp := getDocumentPart(t, pkg)
 	sp1, err := dp.StylesPart()
@@ -107,10 +109,10 @@ func TestDocumentPart_StylesPart_CreatesDefault(t *testing.T) {
 	if sp == nil {
 		t.Fatal("StylesPart should create default when absent")
 	}
-	// Verify it's been cached
+	// Verify it's discoverable via relationship graph (acts as cache)
 	sp2, _ := dp.StylesPart()
 	if sp != sp2 {
-		t.Error("default StylesPart should be cached")
+		t.Error("default StylesPart should be found via relationship graph")
 	}
 }
 

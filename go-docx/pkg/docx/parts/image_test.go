@@ -38,7 +38,6 @@ func TestImagePartSHA1_SameBlob(t *testing.T) {
 
 func TestImagePartFilename(t *testing.T) {
 	ip := NewImagePart("/word/media/image1.png", opc.CTPng, nil, nil)
-	// No explicit filename set — should fall back to partname ext
 	got := ip.Filename()
 	if got != "image.png" {
 		t.Errorf("Filename = %q, want %q", got, "image.png")
@@ -51,7 +50,8 @@ func TestImagePartFilename(t *testing.T) {
 	}
 }
 
-func TestImagePartDefaultCx(t *testing.T) {
+func TestImagePartDefaultCx_Truncates(t *testing.T) {
+	// Python: Inches(px_width / horz_dpi) → int(float * 914400) → TRUNCATES
 	ip := NewImagePartWithMeta(
 		"/word/media/image1.png", opc.CTPng, nil,
 		100, 200, 96, 96, "",
@@ -60,14 +60,16 @@ func TestImagePartDefaultCx(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	expected := int64(math.Round(float64(100) / float64(96) * 914400))
+	// int(100.0 / 96.0 * 914400) = int(952500.0) = 952500
+	px, dpi := float64(100), float64(96)
+	expected := int64(px / dpi * 914400)
 	if cx != expected {
-		t.Errorf("DefaultCx = %d, want %d", cx, expected)
+		t.Errorf("DefaultCx = %d, want %d (truncation)", cx, expected)
 	}
 }
 
-func TestImagePartDefaultCy_UsesHorzDpi(t *testing.T) {
-	// Python uses horz_dpi for cy, not vert_dpi!
+func TestImagePartDefaultCy_Rounds_UsesHorzDpi(t *testing.T) {
+	// Python: Emu(int(round(914400 * px_height / horz_dpi))) — ROUNDS, uses horz_dpi
 	ip := NewImagePartWithMeta(
 		"/word/media/image1.png", opc.CTPng, nil,
 		100, 200, 96, 300, "",
@@ -91,6 +93,56 @@ func TestImagePartDefaultCx_NoDPI(t *testing.T) {
 	}
 }
 
+func TestNativeWidth_MatchesPythonImageWidth(t *testing.T) {
+	// Python Image.width = Inches(px_width / horz_dpi) → int() truncation
+	ip := NewImagePartWithMeta(
+		"/word/media/image1.png", opc.CTPng, nil,
+		100, 200, 96, 96, "",
+	)
+	w, err := ip.NativeWidth()
+	if err != nil {
+		t.Fatal(err)
+	}
+	px, dpi := float64(100), float64(96)
+	expected := int64(px / dpi * 914400) // truncation
+	if w != expected {
+		t.Errorf("NativeWidth = %d, want %d", w, expected)
+	}
+}
+
+func TestNativeHeight_UsesVertDpi(t *testing.T) {
+	// Python Image.height = Inches(px_height / vert_dpi) → int() truncation
+	// Unlike DefaultCy which uses horz_dpi, NativeHeight uses VERT_dpi.
+	ip := NewImagePartWithMeta(
+		"/word/media/image1.png", opc.CTPng, nil,
+		100, 200, 96, 300, "",
+	)
+	h, err := ip.NativeHeight()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// int(200.0 / 300.0 * 914400) = int(609600.0) = 609600
+	px, dpi := float64(200), float64(300)
+	expected := int64(px / dpi * 914400) // truncation, vert_dpi
+	if h != expected {
+		t.Errorf("NativeHeight = %d, want %d (should use vert_dpi)", h, expected)
+	}
+
+	// Contrast with DefaultCy which uses horz_dpi:
+	cy, _ := ip.DefaultCy()
+	cyExpected := int64(math.Round(914400 * float64(200) / float64(96))) // horz_dpi
+	if cy != cyExpected {
+		t.Errorf("DefaultCy = %d, want %d", cy, cyExpected)
+	}
+	if h == cy {
+		t.Error("NativeHeight should differ from DefaultCy when horz_dpi != vert_dpi")
+	}
+}
+
+// --------------------------------------------------------------------------
+// ScaledDimensions — uses NativeWidth/NativeHeight (Python Image.scaled_dimensions)
+// --------------------------------------------------------------------------
+
 func TestScaledDimensions_BothNil(t *testing.T) {
 	ip := NewImagePartWithMeta(
 		"/word/media/image1.png", opc.CTPng, nil,
@@ -100,10 +152,33 @@ func TestScaledDimensions_BothNil(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	nativeW, _ := ip.DefaultCx()
-	nativeH, _ := ip.DefaultCy()
+	nativeW, _ := ip.NativeWidth()
+	nativeH, _ := ip.NativeHeight()
 	if cx != nativeW || cy != nativeH {
 		t.Errorf("ScaledDimensions(nil,nil) = (%d,%d), want (%d,%d)", cx, cy, nativeW, nativeH)
+	}
+}
+
+func TestScaledDimensions_BothNil_DifferentDpi(t *testing.T) {
+	// When horz_dpi != vert_dpi, ScaledDimensions uses NativeWidth (horz) and
+	// NativeHeight (vert), NOT DefaultCx/DefaultCy (both horz).
+	ip := NewImagePartWithMeta(
+		"/word/media/image1.png", opc.CTPng, nil,
+		100, 200, 96, 300, "",
+	)
+	cx, cy, err := ip.ScaledDimensions(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	nativeW, _ := ip.NativeWidth()
+	nativeH, _ := ip.NativeHeight()
+	if cx != nativeW || cy != nativeH {
+		t.Errorf("ScaledDimensions(nil,nil) = (%d,%d), want (%d,%d)", cx, cy, nativeW, nativeH)
+	}
+	// Verify it's NOT using DefaultCy (which uses horz_dpi)
+	defaultCy, _ := ip.DefaultCy()
+	if cy == defaultCy {
+		t.Error("ScaledDimensions should use NativeHeight (vert_dpi), not DefaultCy (horz_dpi)")
 	}
 }
 
@@ -120,8 +195,8 @@ func TestScaledDimensions_WidthOnly(t *testing.T) {
 	if cx != w {
 		t.Errorf("cx = %d, want %d", cx, w)
 	}
-	nativeW, _ := ip.DefaultCx()
-	nativeH, _ := ip.DefaultCy()
+	nativeW, _ := ip.NativeWidth()
+	nativeH, _ := ip.NativeHeight()
 	expectedH := int64(math.Round(float64(nativeH) * float64(w) / float64(nativeW)))
 	if cy != expectedH {
 		t.Errorf("cy = %d, want %d", cy, expectedH)
@@ -141,8 +216,8 @@ func TestScaledDimensions_HeightOnly(t *testing.T) {
 	if cy != h {
 		t.Errorf("cy = %d, want %d", cy, h)
 	}
-	nativeW, _ := ip.DefaultCx()
-	nativeH, _ := ip.DefaultCy()
+	nativeW, _ := ip.NativeWidth()
+	nativeH, _ := ip.NativeHeight()
 	expectedW := int64(math.Round(float64(nativeW) * float64(h) / float64(nativeH)))
 	if cx != expectedW {
 		t.Errorf("cx = %d, want %d", cx, expectedW)

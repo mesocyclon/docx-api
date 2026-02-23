@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/beevik/etree"
+	"github.com/vortex/go-docx/pkg/docx/enum"
 	"github.com/vortex/go-docx/pkg/docx/opc"
 	"github.com/vortex/go-docx/pkg/docx/oxml"
 )
@@ -27,39 +28,64 @@ func NewStoryPart(xp *opc.XmlPart) *StoryPart {
 	return &StoryPart{XmlPart: xp}
 }
 
-// GetOrAddImage returns (rId, image) for the image read from r.
-// The image-part is reused if an identical image (by SHA1) already exists
-// in the package.
+// GetOrAddImage returns (rId, imagePart) for the image identified by imgPart.
+// The caller is expected to resolve the image through WmlPackage first (which
+// handles SHA1 deduplication), then this method wires the relationship.
 //
-// Mirrors Python StoryPart.get_or_add_image.
-func (sp *StoryPart) GetOrAddImage(wmlPkg *WmlPackage) (string, *ImagePart, error) {
-	// NOTE: the actual io.ReadSeeker-based version will be added in MR-10
-	// when the image.Image type is available. This is a placeholder that
-	// the DocumentPart and callers will route through WmlPackage.
-	return "", nil, fmt.Errorf("parts: GetOrAddImage requires image layer (MR-10)")
-}
-
-// GetOrAddImagePart adds (or reuses) an image part from a WmlPackage and
-// returns the relationship ID from this story part to the image part.
+// Mirrors Python StoryPart.get_or_add_image:
 //
-// Mirrors Python StoryPart.get_or_add_image (relationship wiring portion).
-func (sp *StoryPart) GetOrAddImagePart(imgPart *ImagePart) string {
-	rel := sp.Rels().GetOrAdd(opc.RTImage, imgPart)
-	return rel.RID
+//	image_part = package.get_or_add_image_part(image_descriptor)
+//	rId = self.relate_to(image_part, RT.IMAGE)
+//	return rId, image_part.image
+func (sp *StoryPart) GetOrAddImage(imgPart *ImagePart) (string, *ImagePart) {
+	rId := sp.Rels().GetOrAdd(opc.RTImage, imgPart).RID
+	return rId, imgPart
 }
 
 // NewPicInline creates a new CT_Inline element containing the image specified
-// by the given image part, scaled to the given width/height.
+// by imgPart, scaled to the given width/height.
 //
-// Mirrors Python StoryPart.new_pic_inline.
-func (sp *StoryPart) NewPicInline(imgPart *ImagePart, rId string, width, height *int64) (*oxml.CT_Inline, error) {
-	cx, cy, err := imgPart.ScaledDimensions(width, height)
+// Mirrors Python StoryPart.new_pic_inline EXACTLY:
+//
+//	rId, image = self.get_or_add_image(image_descriptor)
+//	cx, cy = image.scaled_dimensions(width, height)
+//	shape_id, filename = self.next_id, image.filename
+//	return CT_Inline.new_pic_inline(shape_id, rId, filename, cx, cy)
+func (sp *StoryPart) NewPicInline(imgPart *ImagePart, width, height *int64) (*oxml.CT_Inline, error) {
+	rId, ip := sp.GetOrAddImage(imgPart)
+	cx, cy, err := ip.ScaledDimensions(width, height)
 	if err != nil {
 		return nil, fmt.Errorf("parts: computing scaled dimensions: %w", err)
 	}
 	shapeID := sp.NextID()
-	filename := imgPart.Filename()
+	filename := ip.Filename()
 	return oxml.NewPicInline(shapeID, rId, filename, cx, cy)
+}
+
+// GetStyle returns the style in this document matching styleID.
+// Returns the default style for styleType if styleID is nil or does not
+// match a defined style of styleType.
+//
+// Mirrors Python StoryPart.get_style — delegates to _document_part.get_style.
+func (sp *StoryPart) GetStyle(styleID *string, styleType enum.WdStyleType) (*oxml.CT_Style, error) {
+	dp, err := sp.documentPart()
+	if err != nil {
+		return nil, err
+	}
+	return dp.GetStyle(styleID, styleType)
+}
+
+// GetStyleID returns the style_id string for styleOrName of styleType.
+// Returns nil if the style resolves to the default style for styleType or if
+// styleOrName is itself nil.
+//
+// Mirrors Python StoryPart.get_style_id — delegates to _document_part.get_style_id.
+func (sp *StoryPart) GetStyleID(styleOrName interface{}, styleType enum.WdStyleType) (*string, error) {
+	dp, err := sp.documentPart()
+	if err != nil {
+		return nil, err
+	}
+	return dp.GetStyleID(styleOrName, styleType)
 }
 
 // NextID returns the next available positive integer id value in this story
@@ -76,6 +102,63 @@ func (sp *StoryPart) NextID() int {
 	collectMaxID(el, &maxID)
 	return maxID + 1
 }
+
+// documentPart returns the main DocumentPart for the package this story part
+// belongs to. The result is cached after the first call.
+//
+// Mirrors Python StoryPart._document_part (lazyproperty).
+func (sp *StoryPart) documentPart() (*DocumentPart, error) {
+	if sp.docPart != nil {
+		return sp.docPart, nil
+	}
+	pkg := sp.Package()
+	if pkg == nil {
+		return nil, fmt.Errorf("parts: story part has no package")
+	}
+	mainPart, err := pkg.MainDocumentPart()
+	if err != nil {
+		return nil, fmt.Errorf("parts: resolving document part: %w", err)
+	}
+	dp, ok := mainPart.(*DocumentPart)
+	if !ok {
+		return nil, fmt.Errorf("parts: main document part is %T, want *DocumentPart", mainPart)
+	}
+	sp.docPart = dp
+	return dp, nil
+}
+
+// SetDocumentPart sets the cached document part reference. Used by
+// DocumentPart to set itself as its own document part.
+func (sp *StoryPart) SetDocumentPart(dp *DocumentPart) {
+	sp.docPart = dp
+}
+
+// DropRel removes the relationship identified by rId if its reference count
+// in this part's XML is less than 2. This prevents removing relationships
+// that are still referenced elsewhere in the XML.
+//
+// Mirrors Python Part.drop_rel + XmlPart._rel_ref_count.
+func (sp *StoryPart) DropRel(rId string) {
+	if sp.relRefCount(rId) < 2 {
+		sp.Rels().Delete(rId)
+	}
+}
+
+// relRefCount returns the count of references to rId in this part's XML.
+// Mirrors Python XmlPart._rel_ref_count which counts //@r:id occurrences.
+func (sp *StoryPart) relRefCount(rId string) int {
+	el := sp.Element()
+	if el == nil {
+		return 0
+	}
+	count := 0
+	countRIdRefs(el, rId, &count)
+	return count
+}
+
+// --------------------------------------------------------------------------
+// internal helpers
+// --------------------------------------------------------------------------
 
 // collectMaxID walks the element tree collecting all @id attributes that are
 // purely numeric digits, tracking the maximum value found.
@@ -105,53 +188,6 @@ func isDigits(s string) bool {
 		}
 	}
 	return true
-}
-
-// DocumentPart returns the main DocumentPart for the package this story part
-// belongs to. The result is cached after the first call.
-//
-// Mirrors Python StoryPart._document_part (lazyproperty).
-func (sp *StoryPart) DocumentPart() (*DocumentPart, error) {
-	if sp.docPart != nil {
-		return sp.docPart, nil
-	}
-	pkg := sp.Package()
-	if pkg == nil {
-		return nil, fmt.Errorf("parts: story part has no package")
-	}
-	mainPart, err := pkg.MainDocumentPart()
-	if err != nil {
-		return nil, fmt.Errorf("parts: resolving document part: %w", err)
-	}
-	dp, ok := mainPart.(*DocumentPart)
-	if !ok {
-		return nil, fmt.Errorf("parts: main document part is %T, want *DocumentPart", mainPart)
-	}
-	sp.docPart = dp
-	return dp, nil
-}
-
-// DropRel removes the relationship identified by rId if its reference count
-// in this part's XML is less than 2. This prevents removing relationships
-// that are still referenced elsewhere in the XML.
-//
-// Mirrors Python Part.drop_rel + XmlPart._rel_ref_count.
-func (sp *StoryPart) DropRel(rId string) {
-	if sp.relRefCount(rId) < 2 {
-		sp.Rels().Delete(rId)
-	}
-}
-
-// relRefCount returns the count of references to rId in this part's XML.
-// Mirrors Python XmlPart._rel_ref_count which counts //@r:id occurrences.
-func (sp *StoryPart) relRefCount(rId string) int {
-	el := sp.Element()
-	if el == nil {
-		return 0
-	}
-	count := 0
-	countRIdRefs(el, rId, &count)
-	return count
 }
 
 // countRIdRefs recursively counts attributes named r:id (or {relationship-ns}id)

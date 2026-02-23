@@ -62,9 +62,14 @@ func (ip *ImagePart) SHA1() string {
 }
 
 // Filename returns the original filename for this image. If no filename
-// is available, a generic name based on the partname extension is returned.
+// is available (nil/absent), a generic name based on the partname extension
+// is returned.
 //
-// Mirrors Python ImagePart.filename property.
+// Mirrors Python ImagePart.filename property:
+//
+//	if self._image is not None:
+//	    return self._image.filename
+//	return "image.%s" % self.partname.ext
 func (ip *ImagePart) Filename() string {
 	if ip.filename != "" {
 		return ip.filename
@@ -98,62 +103,106 @@ func (ip *ImagePart) HorzDpi() int { return ip.horzDpi }
 // VertDpi returns the vertical dots per inch of this image.
 func (ip *ImagePart) VertDpi() int { return ip.vertDpi }
 
-// DefaultCx returns the native width of this image in EMU.
-// Calculated from pixel width and horizontal DPI.
+// --------------------------------------------------------------------------
+// ImagePart.default_cx / default_cy — for embedded display size
+// --------------------------------------------------------------------------
+
+// DefaultCx returns the native width of this image in EMU for display.
+// Calculated from pixel width and horizontal DPI using truncation.
 //
-// Mirrors Python ImagePart.default_cx.
+// Mirrors Python ImagePart.default_cx:
+//
+//	Inches(px_width / horz_dpi) → int(px_width / horz_dpi * 914400)
 func (ip *ImagePart) DefaultCx() (int64, error) {
 	if ip.horzDpi == 0 {
 		return 0, fmt.Errorf("parts: image has no DPI metadata")
 	}
-	return int64(math.Round(float64(ip.pxWidth) / float64(ip.horzDpi) * 914400)), nil
+	// Python: Inches(px_width / horz_dpi) → int(float * 914400) — TRUNCATES
+	return int64(float64(ip.pxWidth) / float64(ip.horzDpi) * 914400), nil
 }
 
-// DefaultCy returns the native height of this image in EMU.
-// NOTE: Python uses horz_dpi for cy too (not vert_dpi).
+// DefaultCy returns the native height of this image in EMU for display.
+// NOTE: Python uses horz_dpi for cy (not vert_dpi) and round() (not int()).
 //
-// Mirrors Python ImagePart.default_cy.
+// Mirrors Python ImagePart.default_cy:
+//
+//	Emu(int(round(914400 * px_height / horz_dpi)))
 func (ip *ImagePart) DefaultCy() (int64, error) {
 	if ip.horzDpi == 0 {
 		return 0, fmt.Errorf("parts: image has no DPI metadata")
 	}
+	// Python: int(round(914400 * px_height / horz_dpi)) — ROUNDS, uses horz_dpi
 	return int64(math.Round(914400 * float64(ip.pxHeight) / float64(ip.horzDpi))), nil
 }
 
-// Width returns the native width in EMU using horzDpi.
-func (ip *ImagePart) Width() (int64, error) {
-	return ip.DefaultCx()
-}
+// --------------------------------------------------------------------------
+// Image.width / Image.height — for scaling computations
+// --------------------------------------------------------------------------
 
-// Height returns the native height in EMU using vertDpi.
-func (ip *ImagePart) Height() (int64, error) {
-	if ip.vertDpi == 0 {
+// NativeWidth returns the native width of the image in EMU, matching
+// Python Image.width.
+//
+// Mirrors Python Image.width:
+//
+//	Inches(self.px_width / self.horz_dpi) → int(px_width / horz_dpi * 914400)
+func (ip *ImagePart) NativeWidth() (int64, error) {
+	if ip.horzDpi == 0 {
 		return 0, fmt.Errorf("parts: image has no DPI metadata")
 	}
-	return int64(math.Round(float64(ip.pxHeight) / float64(ip.vertDpi) * 914400)), nil
+	// Python: Inches() → int() truncation
+	return int64(float64(ip.pxWidth) / float64(ip.horzDpi) * 914400), nil
 }
 
-// ScaledDimensions returns the scaled (cx, cy) in EMU for the given
-// constraints. If both width and height are nil, the native dimensions
-// are returned. If only one is given, the other is scaled proportionally.
+// NativeHeight returns the native height of the image in EMU, matching
+// Python Image.height. NOTE: uses vert_dpi (unlike DefaultCy which uses
+// horz_dpi).
 //
-// Mirrors Python Image.scaled_dimensions EXACTLY.
+// Mirrors Python Image.height:
+//
+//	Inches(self.px_height / self.vert_dpi) → int(px_height / vert_dpi * 914400)
+func (ip *ImagePart) NativeHeight() (int64, error) {
+	if ip.vertDpi == 0 {
+		return 0, fmt.Errorf("parts: image has no vertical DPI metadata")
+	}
+	// Python: Inches() → int() truncation, uses VERT_dpi
+	return int64(float64(ip.pxHeight) / float64(ip.vertDpi) * 914400), nil
+}
+
+// --------------------------------------------------------------------------
+// ScaledDimensions — matches Python Image.scaled_dimensions EXACTLY
+// --------------------------------------------------------------------------
+
+// ScaledDimensions returns the scaled (cx, cy) in EMU for the given
+// constraints. Uses NativeWidth/NativeHeight (which use vert_dpi for
+// height), matching Python Image.scaled_dimensions.
+//
+// Mirrors Python Image.scaled_dimensions:
+//
+//	if width is None and height is None:
+//	    return self.width, self.height
+//	if width is None:
+//	    scaling_factor = float(height) / float(self.height)
+//	    width = round(self.width * scaling_factor)
+//	if height is None:
+//	    scaling_factor = float(width) / float(self.width)
+//	    height = round(self.height * scaling_factor)
+//	return Emu(width), Emu(height)
 func (ip *ImagePart) ScaledDimensions(width, height *int64) (cx, cy int64, err error) {
-	nativeW, err := ip.DefaultCx()
+	nativeW, err := ip.NativeWidth()
 	if err != nil {
 		return 0, 0, err
 	}
-	nativeH, err := ip.DefaultCy()
+	nativeH, err := ip.NativeHeight()
 	if err != nil {
 		return 0, 0, err
 	}
 
 	switch {
 	case width == nil && height == nil:
-		// CASE 1: both nil → native size
+		// Both nil → native size
 		return nativeW, nativeH, nil
 	case width == nil:
-		// CASE 2: width nil → scale width from height
+		// Width nil, height given → scale width from height
 		if nativeH == 0 {
 			return 0, *height, nil
 		}
@@ -161,7 +210,7 @@ func (ip *ImagePart) ScaledDimensions(width, height *int64) (cx, cy int64, err e
 		w := int64(math.Round(float64(nativeW) * scalingFactor))
 		return w, *height, nil
 	case height == nil:
-		// CASE 3: height nil → scale height from width
+		// Height nil, width given → scale height from width
 		if nativeW == 0 {
 			return *width, 0, nil
 		}
@@ -169,15 +218,21 @@ func (ip *ImagePart) ScaledDimensions(width, height *int64) (cx, cy int64, err e
 		h := int64(math.Round(float64(nativeH) * scalingFactor))
 		return *width, h, nil
 	default:
-		// CASE 4: both specified → use as-is
+		// Both specified → use as-is
 		return *width, *height, nil
 	}
 }
 
+// --------------------------------------------------------------------------
+// Factory / load
+// --------------------------------------------------------------------------
+
 // LoadImagePart is a PartConstructor that creates an ImagePart from package
 // data during unmarshaling.
 //
-// Mirrors Python ImagePart.load classmethod.
+// Mirrors Python ImagePart.load classmethod:
+//
+//	return cls(partname, content_type, blob)  ← package ignored in Python
 func LoadImagePart(partName opc.PackURI, contentType, _ string, blob []byte, pkg *opc.OpcPackage) (opc.Part, error) {
 	return NewImagePart(partName, contentType, blob, pkg), nil
 }
