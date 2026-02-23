@@ -117,20 +117,20 @@ func TestXmlPart_Blob_RoundTrip(t *testing.T) {
 	}
 }
 
-func TestXmlPart_Blob_NilElement(t *testing.T) {
+func TestXmlPart_Blob_NilDoc(t *testing.T) {
 	t.Parallel()
 
 	part := &XmlPart{
 		BasePart: *NewBasePart("/word/document.xml", CTWmlDocumentMain, nil, nil),
-		element:  nil,
+		doc:      nil,
 	}
 
 	blob, err := part.Blob()
 	if err != nil {
-		t.Fatalf("Blob with nil element: %v", err)
+		t.Fatalf("Blob with nil doc: %v", err)
 	}
 	if blob != nil {
-		t.Errorf("expected nil blob for nil element, got %d bytes", len(blob))
+		t.Errorf("expected nil blob for nil doc, got %d bytes", len(blob))
 	}
 }
 

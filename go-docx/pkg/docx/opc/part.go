@@ -68,57 +68,102 @@ func (p *BasePart) SetBlob(blob []byte) {
 // XmlPart — Part with parsed XML content
 // --------------------------------------------------------------------------
 
-// XmlPart extends BasePart with a parsed etree.Element.
+// xmlProcInst is the standard XML declaration for OPC parts.
+const xmlProcInst = `version="1.0" encoding="UTF-8" standalone="yes"`
+
+// XmlPart extends BasePart with a parsed XML document.
+//
+// Internally it stores the owning *etree.Document rather than a bare
+// *etree.Element. This lets Blob() serialize the tree directly without
+// the deep-copy that would be required if we had to re-parent the element
+// into a temporary Document via SetRoot on every call.
 type XmlPart struct {
 	BasePart
-	element *etree.Element
+	doc *etree.Document
+}
+
+// newXmlDoc creates a Document pre-configured with the standard OPC XML
+// processing instruction and compact write settings.
+func newXmlDoc() *etree.Document {
+	doc := etree.NewDocument()
+	doc.CreateProcInst("xml", xmlProcInst)
+	doc.WriteSettings.CanonicalEndTags = true
+	return doc
+}
+
+// ensureProcInst normalizes the XML processing instruction to the standard
+// OPC form (version="1.0" encoding="UTF-8" standalone="yes").
+// This guarantees output identical to the previous implementation that
+// always created a fresh Document in Blob().
+func ensureProcInst(doc *etree.Document) {
+	for _, tok := range doc.Child {
+		if pi, ok := tok.(*etree.ProcInst); ok && pi.Target == "xml" {
+			pi.Inst = xmlProcInst
+			return
+		}
+	}
+	// No <?xml ...?> found — prepend one.
+	pi := &etree.ProcInst{Target: "xml", Inst: xmlProcInst}
+	doc.Child = append([]etree.Token{pi}, doc.Child...)
 }
 
 // NewXmlPart creates an XmlPart by parsing the blob as XML.
 func NewXmlPart(partName PackURI, contentType string, blob []byte, pkg *OpcPackage) (*XmlPart, error) {
 	doc := etree.NewDocument()
 	doc.ReadSettings.Permissive = true
+	doc.WriteSettings.CanonicalEndTags = true
 	if err := doc.ReadFromBytes(blob); err != nil {
 		return nil, err
 	}
-	root := doc.Root()
+	// Normalize the declaration so Blob() output matches the previous
+	// implementation that always wrote a fresh standalone="yes" header.
+	ensureProcInst(doc)
 	return &XmlPart{
 		BasePart: *NewBasePart(partName, contentType, nil, pkg),
-		element:  root,
+		doc:      doc,
 	}, nil
 }
 
 // NewXmlPartFromElement creates an XmlPart from an existing element.
+// The element is adopted into a new Document — it will be detached
+// from any previous parent.
 func NewXmlPartFromElement(partName PackURI, contentType string, element *etree.Element, pkg *OpcPackage) *XmlPart {
+	doc := newXmlDoc()
+	doc.SetRoot(element)
 	return &XmlPart{
 		BasePart: *NewBasePart(partName, contentType, nil, pkg),
-		element:  element,
+		doc:      doc,
 	}
 }
 
-// Element returns the root XML element.
+// Element returns the root XML element, or nil if the document is empty.
 func (p *XmlPart) Element() *etree.Element {
-	return p.element
+	if p.doc == nil {
+		return nil
+	}
+	return p.doc.Root()
 }
 
 // SetElement replaces the root XML element.
+// The element is adopted by the internal Document.
 func (p *XmlPart) SetElement(el *etree.Element) {
-	p.element = el
+	if p.doc == nil {
+		p.doc = newXmlDoc()
+	}
+	p.doc.SetRoot(el)
 }
 
-// Blob serializes the XML element to bytes.
-// Output is compact (no insignificant whitespace), matching Python's
-// serialize_part_xml behavior.
+// Blob serializes the XML document to bytes.
+// Output is compact (no insignificant whitespace), with a standard
+// XML declaration — matching Python's serialize_part_xml behavior.
+//
+// Unlike the previous implementation, no deep-copy of the element tree
+// is performed: the Document already owns the root element.
 func (p *XmlPart) Blob() ([]byte, error) {
-	if p.element == nil {
+	if p.doc == nil || p.doc.Root() == nil {
 		return nil, nil
 	}
-	doc := etree.NewDocument()
-	doc.CreateProcInst("xml", `version="1.0" encoding="UTF-8" standalone="yes"`)
-	doc.SetRoot(p.element.Copy())
-	// No doc.Indent() — compact output, matching Python.
-	doc.WriteSettings.CanonicalEndTags = true
-	b, err := doc.WriteToBytes()
+	b, err := p.doc.WriteToBytes()
 	if err != nil {
 		return nil, fmt.Errorf("opc: serializing XML part %q: %w", p.partName, err)
 	}
