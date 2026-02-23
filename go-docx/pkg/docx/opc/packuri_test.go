@@ -139,3 +139,26 @@ func TestPackURI_RelativeRef(t *testing.T) {
 		}
 	}
 }
+
+func TestPackURI_Idx(t *testing.T) {
+	tests := []struct {
+		uri     PackURI
+		wantIdx int
+		wantOK  bool
+	}{
+		{"/word/media/image1.png", 1, true},
+		{"/word/media/image21.jpg", 21, true},
+		{"/word/header3.xml", 3, true},
+		{"/word/document.xml", 0, false},     // no trailing digits
+		{"/word/styles.xml", 0, false},       // no trailing digits
+		{"/", 0, false},                      // empty filename
+		{"/word/media/image0.png", 0, false}, // 0 is not matched by Python regex [1-9][0-9]*
+	}
+	for _, tt := range tests {
+		gotIdx, gotOK := tt.uri.Idx()
+		if gotIdx != tt.wantIdx || gotOK != tt.wantOK {
+			t.Errorf("PackURI(%q).Idx() = (%d, %v), want (%d, %v)",
+				tt.uri, gotIdx, gotOK, tt.wantIdx, tt.wantOK)
+		}
+	}
+}

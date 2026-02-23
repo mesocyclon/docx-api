@@ -257,3 +257,28 @@ func (p *OpcPackage) walkParts(rels *Relationships, visited map[Part]bool, resul
 		p.walkParts(part.Rels(), visited, result)
 	}
 }
+
+// IterRels yields every relationship in the package exactly once via a
+// depth-first traversal of the relationship graph. Mirrors Python
+// OpcPackage.iter_rels.
+func (p *OpcPackage) IterRels() []*Relationship {
+	var result []*Relationship
+	visited := make(map[Part]bool)
+	p.walkRels(p.rels, visited, &result)
+	return result
+}
+
+func (p *OpcPackage) walkRels(rels *Relationships, visited map[Part]bool, result *[]*Relationship) {
+	for _, rel := range rels.All() {
+		*result = append(*result, rel)
+		if rel.IsExternal || rel.TargetPart == nil {
+			continue
+		}
+		part := rel.TargetPart
+		if visited[part] {
+			continue
+		}
+		visited[part] = true
+		p.walkRels(part.Rels(), visited, result)
+	}
+}

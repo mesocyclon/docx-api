@@ -131,6 +131,43 @@ func splitPath(p string) []string {
 	return strings.Split(p, "/")
 }
 
+// Idx extracts the numeric index from a tuple partname.
+// For example, "/word/media/image21.png" returns 21, true.
+// Singleton partnames like "/word/document.xml" return 0, false.
+// The number must start with a non-zero digit, matching Python's
+// [1-9][0-9]* regex pattern.
+func (u PackURI) Idx() (int, bool) {
+	filename := u.Filename()
+	if filename == "" {
+		return 0, false
+	}
+	// Remove extension
+	dot := strings.LastIndex(filename, ".")
+	namePart := filename
+	if dot >= 0 {
+		namePart = filename[:dot]
+	}
+	// Extract trailing digits
+	i := len(namePart)
+	for i > 0 && namePart[i-1] >= '0' && namePart[i-1] <= '9' {
+		i--
+	}
+	if i == len(namePart) || i == 0 {
+		return 0, false
+	}
+	digits := namePart[i:]
+	// Must start with [1-9] to match Python's regex pattern
+	if digits[0] == '0' {
+		return 0, false
+	}
+	// Parse the numeric suffix
+	n := 0
+	for _, c := range digits {
+		n = n*10 + int(c-'0')
+	}
+	return n, true
+}
+
 // Validate checks if the PackURI is valid (starts with "/").
 func (u PackURI) Validate() error {
 	s := string(u)
