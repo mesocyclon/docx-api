@@ -684,7 +684,10 @@ func (tc *CT_Tc) Top() (int, error) {
 	if vm == nil || *vm == "restart" {
 		return tc.trIdx(), nil
 	}
-	above := tc.tcAbove()
+	above, err := tc.tcAbove()
+	if err != nil {
+		return 0, fmt.Errorf("Top: %w", err)
+	}
 	if above != nil {
 		return above.Top()
 	}
@@ -695,7 +698,10 @@ func (tc *CT_Tc) Top() (int, error) {
 func (tc *CT_Tc) Bottom() (int, error) {
 	vm := tc.VMergeVal()
 	if vm != nil {
-		below := tc.tcBelow()
+		below, err := tc.tcBelow()
+		if err != nil {
+			return 0, fmt.Errorf("Bottom: %w", err)
+		}
 		if below != nil {
 			bvm := below.VMergeVal()
 			if bvm != nil && *bvm == "continue" {
@@ -842,46 +848,46 @@ func (tc *CT_Tc) trIdx() int {
 	return tr.TrIdx()
 }
 
-func (tc *CT_Tc) tcAbove() *CT_Tc {
+func (tc *CT_Tc) tcAbove() (*CT_Tc, error) {
 	tbl := tc.parentTbl()
 	if tbl == nil {
-		return nil
+		return nil, nil
 	}
 	trs := tbl.TrList()
 	idx := tc.trIdx()
 	if idx <= 0 {
-		return nil
+		return nil, nil
 	}
 	off, err := tc.GridOffset()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("tcAbove: %w", err)
 	}
 	above, err := trs[idx-1].TcAtGridOffset(off)
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("tcAbove: %w", err)
 	}
-	return above
+	return above, nil
 }
 
-func (tc *CT_Tc) tcBelow() *CT_Tc {
+func (tc *CT_Tc) tcBelow() (*CT_Tc, error) {
 	tbl := tc.parentTbl()
 	if tbl == nil {
-		return nil
+		return nil, nil
 	}
 	trs := tbl.TrList()
 	idx := tc.trIdx()
 	if idx >= len(trs)-1 {
-		return nil
+		return nil, nil
 	}
 	off, err := tc.GridOffset()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("tcBelow: %w", err)
 	}
 	below, err := trs[idx+1].TcAtGridOffset(off)
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("tcBelow: %w", err)
 	}
-	return below
+	return below, nil
 }
 
 func (tc *CT_Tc) removeTrailingEmptyP() {
@@ -1037,7 +1043,10 @@ func (tc *CT_Tc) growTo(width, height int, topTc *CT_Tc) error {
 	}
 
 	if height > 1 {
-		below := tc.tcBelow()
+		below, err := tc.tcBelow()
+		if err != nil {
+			return fmt.Errorf("growTo: %w", err)
+		}
 		if below == nil {
 			return fmt.Errorf("not enough rows for vertical span")
 		}

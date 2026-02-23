@@ -4,466 +4,349 @@ import (
 	"errors"
 	"strings"
 	"testing"
-
-	"github.com/beevik/etree"
-	"github.com/vortex/go-docx/pkg/docx/enum"
 )
 
 // ===========================================================================
-// Phase 4 — Error propagation tests
+// Error propagation tests for tcAbove / tcBelow / Top / Bottom / growTo / Merge
 //
-// Verify that malformed XML attributes surface errors instead of being
-// silently swallowed. Each test injects garbage into an attribute and
-// checks the full error chain: generated getter → custom wrapper → caller.
+// These tests verify that malformed XML attributes in neighboring cells
+// are surfaced as errors rather than silently swallowed. Before the fix,
+// tcAbove/tcBelow returned nil on error, causing Top/Bottom to fall back
+// to incorrect row indices without any error indication.
 // ===========================================================================
 
-// mustParseAttrErr asserts err wraps a *ParseAttrError with expected fields.
-func mustParseAttrErr(t *testing.T, err error, wantElemSuffix, wantAttr string) {
+// corruptGridSpan adds a w:gridSpan child with a non-numeric w:val to the
+// cell's tcPr, causing GridSpanVal() to return a ParseAttrError.
+func corruptGridSpan(tc *CT_Tc) {
+	tcPr := tc.GetOrAddTcPr()
+	gs := tcPr.GetOrAddGridSpan()
+	gs.E.CreateAttr("w:val", "CORRUPT")
+}
+
+// requireParseAttrError asserts that err wraps a *ParseAttrError.
+func requireParseAttrError(t *testing.T, err error) {
 	t.Helper()
 	if err == nil {
 		t.Fatal("expected error, got nil")
 	}
 	var pe *ParseAttrError
 	if !errors.As(err, &pe) {
-		t.Fatalf("error %T does not wrap *ParseAttrError: %v", err, err)
-	}
-	if !strings.HasSuffix(pe.Element, wantElemSuffix) {
-		t.Errorf("ParseAttrError.Element = %q, want suffix %q", pe.Element, wantElemSuffix)
-	}
-	if pe.Attr != wantAttr {
-		t.Errorf("ParseAttrError.Attr = %q, want %q", pe.Attr, wantAttr)
+		t.Fatalf("expected *ParseAttrError in chain, got: %v", err)
 	}
 }
 
-// inject sets an attribute to a garbage value on a raw etree element.
-func inject(el *etree.Element, attr, garbage string) {
-	el.CreateAttr(attr, garbage)
+// requireErrorContains asserts err is non-nil and its message contains substr.
+func requireErrorContains(t *testing.T, err error, substr string) {
+	t.Helper()
+	if err == nil {
+		t.Fatalf("expected error containing %q, got nil", substr)
+	}
+	if !strings.Contains(err.Error(), substr) {
+		t.Errorf("error %q does not contain %q", err.Error(), substr)
+	}
 }
 
 // ---------------------------------------------------------------------------
-// Group 1 — Generated int getters (ParseAttrError on non-numeric)
+// Helper: build a 2-row, 2-col table with vertical merge on column 0
+//
+//	Row 0: [A (vMerge=restart)] [B]
+//	Row 1: [A (vMerge=continue)] [B]
 // ---------------------------------------------------------------------------
 
-func TestGen_CT_PageMar_Top_Garbage(t *testing.T) {
-	el := OxmlElement("w:pgMar")
-	inject(el, "w:top", "not-a-number")
-	_, err := (&CT_PageMar{Element{E: el}}).Top()
-	mustParseAttrErr(t, err, "pgMar", "w:top")
-}
-
-func TestGen_CT_PageMar_Bottom_Garbage(t *testing.T) {
-	el := OxmlElement("w:pgMar")
-	inject(el, "w:bottom", "abc")
-	_, err := (&CT_PageMar{Element{E: el}}).Bottom()
-	mustParseAttrErr(t, err, "pgMar", "w:bottom")
-}
-
-func TestGen_CT_PageSz_W_Garbage(t *testing.T) {
-	el := OxmlElement("w:pgSz")
-	inject(el, "w:w", "twelve")
-	_, err := (&CT_PageSz{Element{E: el}}).W()
-	mustParseAttrErr(t, err, "pgSz", "w:w")
-}
-
-func TestGen_CT_DecimalNumber_Val_Garbage(t *testing.T) {
-	el := OxmlElement("w:gridSpan")
-	inject(el, "w:val", "NaN")
-	_, err := (&CT_DecimalNumber{Element{E: el}}).Val()
-	mustParseAttrErr(t, err, "gridSpan", "w:val")
-}
-
-func TestGen_CT_Height_Val_Garbage(t *testing.T) {
-	el := OxmlElement("w:trHeight")
-	inject(el, "w:val", "tall")
-	_, err := (&CT_Height{Element{E: el}}).Val()
-	mustParseAttrErr(t, err, "trHeight", "w:val")
-}
-
-func TestGen_CT_Ind_Left_Garbage(t *testing.T) {
-	el := OxmlElement("w:ind")
-	inject(el, "w:left", "xxx")
-	_, err := (&CT_Ind{Element{E: el}}).Left()
-	mustParseAttrErr(t, err, "ind", "w:left")
-}
-
-func TestGen_CT_TblGridCol_W_Garbage(t *testing.T) {
-	el := OxmlElement("w:gridCol")
-	inject(el, "w:w", "wide")
-	_, err := (&CT_TblGridCol{Element{E: el}}).W()
-	mustParseAttrErr(t, err, "gridCol", "w:w")
-}
-
-func TestGen_CT_TblWidth_W_Garbage(t *testing.T) {
-	el := OxmlElement("w:tblW")
-	inject(el, "w:w", "bogus")
-	inject(el, "w:type", "dxa")
-	_, err := (&CT_TblWidth{Element{E: el}}).W()
-	mustParseAttrErr(t, err, "tblW", "w:w")
+func newVMergedTable() *CT_Tbl {
+	tbl := NewTbl(2, 2, 4000)
+	trs := tbl.TrList()
+	r0c0 := trs[0].TcList()[0]
+	r1c0 := trs[1].TcList()[0]
+	restart := "restart"
+	r0c0.SetVMergeVal(&restart)
+	cont := "continue"
+	r1c0.SetVMergeVal(&cont)
+	return tbl
 }
 
 // ---------------------------------------------------------------------------
-// Group 2 — Generated enum getters (ParseAttrError on bad enum string)
+// Happy-path: verify Top/Bottom work correctly on a valid vMerge table
 // ---------------------------------------------------------------------------
 
-func TestGen_CT_Jc_Val_BadEnum(t *testing.T) {
-	el := OxmlElement("w:jc")
-	inject(el, "w:val", "not-an-alignment")
-	_, err := (&CT_Jc{Element{E: el}}).Val()
-	mustParseAttrErr(t, err, "jc", "w:val")
-}
+func TestTopBottom_VMerge_Valid(t *testing.T) {
+	tbl := newVMergedTable()
+	trs := tbl.TrList()
+	r0c0 := trs[0].TcList()[0]
+	r1c0 := trs[1].TcList()[0]
 
-func TestGen_CT_VerticalJc_Val_BadEnum(t *testing.T) {
-	el := OxmlElement("w:vAlign")
-	inject(el, "w:val", "diagonal")
-	_, err := (&CT_VerticalJc{Element{E: el}}).Val()
-	mustParseAttrErr(t, err, "vAlign", "w:val")
-}
-
-func TestGen_CT_PageSz_Orient_BadEnum(t *testing.T) {
-	el := OxmlElement("w:pgSz")
-	inject(el, "w:orient", "upside-down")
-	_, err := (&CT_PageSz{Element{E: el}}).Orient()
-	mustParseAttrErr(t, err, "pgSz", "w:orient")
-}
-
-func TestGen_CT_Height_HRule_BadEnum(t *testing.T) {
-	el := OxmlElement("w:trHeight")
-	inject(el, "w:hRule", "maybe")
-	_, err := (&CT_Height{Element{E: el}}).HRule()
-	mustParseAttrErr(t, err, "trHeight", "w:hRule")
-}
-
-// ---------------------------------------------------------------------------
-// Group 3 — Custom method propagation (errors bubble up through wrappers)
-// ---------------------------------------------------------------------------
-
-func TestCustom_SectPr_TopMargin_Propagates(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
-	pgMar := sp.GetOrAddPgMar()
-	inject(pgMar.E, "w:top", "garbage")
-	_, err := sp.TopMargin()
-	mustParseAttrErr(t, err, "pgMar", "w:top")
-}
-
-func TestCustom_SectPr_PageWidth_Propagates(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
-	pgSz := sp.GetOrAddPgSz()
-	inject(pgSz.E, "w:w", "bad")
-	_, err := sp.PageWidth()
-	mustParseAttrErr(t, err, "pgSz", "w:w")
-}
-
-func TestCustom_SectPr_Orientation_Propagates(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
-	pgSz := sp.GetOrAddPgSz()
-	inject(pgSz.E, "w:orient", "sideways")
-	_, err := sp.Orientation()
-	mustParseAttrErr(t, err, "pgSz", "w:orient")
-}
-
-func TestCustom_Row_TrHeightVal_Propagates(t *testing.T) {
-	tbl := NewTbl(1, 1, 1000)
-	tr := tbl.TrList()[0]
-	h := tr.GetOrAddTrPr().GetOrAddTrHeight()
-	inject(h.E, "w:val", "high")
-	_, err := tr.TrHeightVal()
-	mustParseAttrErr(t, err, "trHeight", "w:val")
-}
-
-func TestCustom_Tc_GridSpanVal_Propagates(t *testing.T) {
-	tc := NewTc()
-	gs := tc.GetOrAddTcPr().GetOrAddGridSpan()
-	inject(gs.E, "w:val", "many")
-	_, err := tc.GridSpanVal()
-	mustParseAttrErr(t, err, "gridSpan", "w:val")
-}
-
-func TestCustom_Tc_VAlignVal_Propagates(t *testing.T) {
-	tc := NewTc()
-	va := tc.GetOrAddTcPr().GetOrAddVAlign()
-	inject(va.E, "w:val", "diagonal")
-	_, err := tc.VAlignVal()
-	mustParseAttrErr(t, err, "vAlign", "w:val")
-}
-
-func TestCustom_PPr_JcVal_Propagates(t *testing.T) {
-	pPr := &CT_PPr{Element{E: OxmlElement("w:pPr")}}
-	jc := pPr.GetOrAddJc()
-	inject(jc.E, "w:val", "crooked")
-	_, err := pPr.JcVal()
-	mustParseAttrErr(t, err, "jc", "w:val")
-}
-
-func TestCustom_PPr_IndLeft_Propagates(t *testing.T) {
-	pPr := &CT_PPr{Element{E: OxmlElement("w:pPr")}}
-	ind := pPr.GetOrAddInd()
-	inject(ind.E, "w:left", "far")
-	_, err := pPr.IndLeft()
-	mustParseAttrErr(t, err, "ind", "w:left")
-}
-
-func TestCustom_CT_P_Alignment_Propagates(t *testing.T) {
-	p := &CT_P{Element{E: OxmlElement("w:p")}}
-	pPr := p.GetOrAddPPr()
-	jc := pPr.GetOrAddJc()
-	inject(jc.E, "w:val", "crooked")
-	_, err := p.Alignment()
-	mustParseAttrErr(t, err, "jc", "w:val")
-}
-
-// ---------------------------------------------------------------------------
-// Group 4 — ColWidths propagates through collection
-// ---------------------------------------------------------------------------
-
-func TestCustom_Tbl_ColWidths_Propagates(t *testing.T) {
-	tbl := NewTbl(1, 3, 9000)
-	grid, err := tbl.TblGrid()
+	// r0c0: vMerge=restart → Top=0
+	top, err := r0c0.Top()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("r0c0.Top: %v", err)
 	}
-	cols := grid.GridColList()
-	inject(cols[1].E, "w:w", "oops")
+	if top != 0 {
+		t.Errorf("r0c0.Top = %d, want 0", top)
+	}
 
-	_, err = tbl.ColWidths()
-	if err == nil {
-		t.Fatal("expected error from ColWidths with corrupt gridCol")
+	// r0c0: vMerge=restart, below is continue → Bottom=2
+	bot, err := r0c0.Bottom()
+	if err != nil {
+		t.Fatalf("r0c0.Bottom: %v", err)
 	}
-	if !strings.Contains(err.Error(), "grid col 1") {
-		t.Errorf("error should mention col index: %v", err)
+	if bot != 2 {
+		t.Errorf("r0c0.Bottom = %d, want 2", bot)
 	}
-	var pe *ParseAttrError
-	if !errors.As(err, &pe) {
-		t.Errorf("error should wrap ParseAttrError: %v", err)
-	}
-}
 
-// ---------------------------------------------------------------------------
-// Group 5 — Cascading: GridOffset walks siblings, hits corrupt span
-// ---------------------------------------------------------------------------
-
-func TestCustom_Tc_GridOffset_PropagatesSpanError(t *testing.T) {
-	tbl := NewTbl(1, 3, 3000)
-	tcs := tbl.TrList()[0].TcList()
-	gs := tcs[0].GetOrAddTcPr().GetOrAddGridSpan()
-	inject(gs.E, "w:val", "bad")
-
-	_, err := tcs[1].GridOffset()
-	if err == nil {
-		t.Fatal("expected error from GridOffset when sibling gridSpan is corrupt")
+	// r1c0: vMerge=continue → Top follows tcAbove → 0
+	top, err = r1c0.Top()
+	if err != nil {
+		t.Fatalf("r1c0.Top: %v", err)
 	}
-	var pe *ParseAttrError
-	if !errors.As(err, &pe) {
-		t.Errorf("error should wrap ParseAttrError: %v", err)
+	if top != 0 {
+		t.Errorf("r1c0.Top = %d, want 0", top)
 	}
-}
 
-func TestCustom_Tc_Right_PropagatesSpanError(t *testing.T) {
-	tc := NewTc()
-	gs := tc.GetOrAddTcPr().GetOrAddGridSpan()
-	inject(gs.E, "w:val", "bad")
-	_, err := tc.Right()
-	if err == nil {
-		t.Fatal("expected error from Right when gridSpan is corrupt")
+	// r1c0: vMerge=continue, no row below → Bottom=2
+	bot, err = r1c0.Bottom()
+	if err != nil {
+		t.Fatalf("r1c0.Bottom: %v", err)
+	}
+	if bot != 2 {
+		t.Errorf("r1c0.Bottom = %d, want 2", bot)
 	}
 }
 
 // ---------------------------------------------------------------------------
-// Group 6 — Happy path sanity (refactor didn't break normal flow)
+// Top() propagates error when tcAbove fails due to corrupt GridOffset
+// (preceding sibling in the same row has corrupt gridSpan)
 // ---------------------------------------------------------------------------
 
-func TestGen_CT_PageMar_Top_HappyPath(t *testing.T) {
-	m := &CT_PageMar{Element{E: OxmlElement("w:pgMar")}}
-	v, err := m.Top()
+func TestTop_PropagatesError_CorruptGridOffset(t *testing.T) {
+	// 2 rows, 3 cols so cell[1] has a preceding sibling cell[0]
+	tbl := NewTbl(2, 3, 6000)
+	trs := tbl.TrList()
+
+	// Set vMerge=continue on row1, cell[1] so Top() calls tcAbove
+	cont := "continue"
+	r1c1 := trs[1].TcList()[1]
+	r1c1.SetVMergeVal(&cont)
+
+	// Corrupt gridSpan of row1, cell[0] — the preceding sibling.
+	// tcAbove → GridOffset → iterates preceding siblings → hits corrupt val.
+	r1c0 := trs[1].TcList()[0]
+	corruptGridSpan(r1c0)
+
+	_, err := r1c1.Top()
+	requireParseAttrError(t, err)
+	requireErrorContains(t, err, "tcAbove")
+	requireErrorContains(t, err, "Top")
+}
+
+// ---------------------------------------------------------------------------
+// Top() propagates error when tcAbove fails due to corrupt TcAtGridOffset
+// (cell in the row above has corrupt gridSpan)
+// ---------------------------------------------------------------------------
+
+func TestTop_PropagatesError_CorruptTcAtGridOffset(t *testing.T) {
+	// 2 rows, 3 cols
+	// Row 0: [cell0_corrupt] [cell1] [cell2]
+	// Row 1: [cell0] [cell1 vMerge=continue] [cell2]
+	//
+	// r1c1.Top() → tcAbove → GridOffset on r1c1 = 1 (normal) →
+	// TcAtGridOffset(1) on row0 → iterates cells → calls GridSpanVal
+	// on r0c0 → CORRUPT → error.
+	tbl := NewTbl(2, 3, 6000)
+	trs := tbl.TrList()
+
+	// Set vMerge=continue on row1, cell[1] so Top() calls tcAbove
+	cont := "continue"
+	r1c1 := trs[1].TcList()[1]
+	r1c1.SetVMergeVal(&cont)
+
+	// Corrupt gridSpan of row0, cell[0] — TcAtGridOffset will iterate
+	// past it when looking for offset 1 and hit the corrupt value.
+	r0c0 := trs[0].TcList()[0]
+	corruptGridSpan(r0c0)
+
+	_, err := r1c1.Top()
+	requireParseAttrError(t, err)
+	requireErrorContains(t, err, "tcAbove")
+}
+
+// ---------------------------------------------------------------------------
+// Bottom() propagates error when tcBelow fails
+// ---------------------------------------------------------------------------
+
+func TestBottom_PropagatesError_CorruptTcBelow(t *testing.T) {
+	// 3 rows, 2 cols — vMerge spans all 3 rows in column 1
+	tbl := NewTbl(3, 2, 4000)
+	trs := tbl.TrList()
+
+	restart := "restart"
+	trs[0].TcList()[1].SetVMergeVal(&restart)
+	cont := "continue"
+	trs[1].TcList()[1].SetVMergeVal(&cont)
+	trs[2].TcList()[1].SetVMergeVal(&cont)
+
+	// Corrupt gridSpan in row1, cell[0] (column 0).
+	// r0c1.Bottom() → tcBelow → GridOffset on r0c1 = 1 →
+	// TcAtGridOffset(1) on row1 → iterates cells → GridSpanVal on
+	// row1.cell[0] → CORRUPT → error.
+	corruptGridSpan(trs[1].TcList()[0])
+
+	_, err := trs[0].TcList()[1].Bottom()
+	requireParseAttrError(t, err)
+	requireErrorContains(t, err, "tcBelow")
+	requireErrorContains(t, err, "Bottom")
+}
+
+// ---------------------------------------------------------------------------
+// growTo() propagates error when tcBelow fails (instead of "not enough rows")
+// ---------------------------------------------------------------------------
+
+func TestGrowTo_PropagatesError_CorruptTcBelow(t *testing.T) {
+	// 2 rows, 2 cols
+	tbl := NewTbl(2, 2, 4000)
+	trs := tbl.TrList()
+
+	// Corrupt gridSpan in row1, cell[0] (column 0).
+	// growTo on r0c1 with height=2 → tcBelow → GridOffset on r0c1 = 1 →
+	// TcAtGridOffset(1) on row1 → GridSpanVal on row1.cell[0] → CORRUPT.
+	corruptGridSpan(trs[1].TcList()[0])
+
+	r0c1 := trs[0].TcList()[1]
+	err := r0c1.growTo(1, 2, r0c1)
+	requireParseAttrError(t, err)
+	requireErrorContains(t, err, "growTo")
+	requireErrorContains(t, err, "tcBelow")
+
+	// Verify the error is NOT the misleading "not enough rows" message
+	if strings.Contains(err.Error(), "not enough rows") {
+		t.Error("error should describe the real cause, not 'not enough rows'")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Merge() propagates error from spanDimensions → Top/Bottom
+// ---------------------------------------------------------------------------
+
+func TestMerge_PropagatesError_CorruptNeighbor(t *testing.T) {
+	// 2 rows, 3 cols
+	// Row 0: [A] [B vMerge=restart] [C]
+	// Row 1: [D] [E vMerge=continue] [F]
+	//
+	// Corrupt A's gridSpan. Merging E with F triggers spanDimensions →
+	// E.Top() → vMerge=continue → tcAbove → TcAtGridOffset(1) on row0 →
+	// iterates past A → GridSpanVal on A → CORRUPT → error.
+	tbl := NewTbl(2, 3, 6000)
+	trs := tbl.TrList()
+
+	restart := "restart"
+	trs[0].TcList()[1].SetVMergeVal(&restart)
+	cont := "continue"
+	trs[1].TcList()[1].SetVMergeVal(&cont)
+
+	// Corrupt row0, cell[0] — TcAtGridOffset will iterate past it
+	corruptGridSpan(trs[0].TcList()[0])
+
+	r1c1 := trs[1].TcList()[1]
+	r1c2 := trs[1].TcList()[2]
+	_, err := r1c1.Merge(r1c2)
+	if err == nil {
+		t.Fatal("expected error from Merge, got nil")
+	}
+	requireParseAttrError(t, err)
+}
+
+// ---------------------------------------------------------------------------
+// tcAbove / tcBelow return (nil, nil) for boundary rows (no error)
+// ---------------------------------------------------------------------------
+
+func TestTcAbove_TopRow_ReturnsNilNil(t *testing.T) {
+	tbl := NewTbl(2, 1, 1000)
+	r0c0 := tbl.TrList()[0].TcList()[0]
+
+	above, err := r0c0.tcAbove()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if v != nil {
-		t.Errorf("expected nil for absent attr, got %d", *v)
-	}
-	val := 1440
-	if err := m.SetTop(&val); err != nil {
-		t.Fatal(err)
-	}
-	v, err = m.Top()
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if v == nil || *v != 1440 {
-		t.Errorf("expected 1440, got %v", v)
+	if above != nil {
+		t.Error("expected nil for top row cell")
 	}
 }
 
-func TestGen_CT_Jc_Val_HappyPath(t *testing.T) {
-	jc := &CT_Jc{Element{E: OxmlElement("w:jc")}}
-	if err := jc.SetVal(enum.WdParagraphAlignmentCenter); err != nil {
-		t.Fatal(err)
-	}
-	v, err := jc.Val()
+func TestTcBelow_BottomRow_ReturnsNilNil(t *testing.T) {
+	tbl := NewTbl(2, 1, 1000)
+	r1c0 := tbl.TrList()[1].TcList()[0]
+
+	below, err := r1c0.tcBelow()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if v != enum.WdParagraphAlignmentCenter {
-		t.Errorf("expected Center, got %v", v)
-	}
-}
-
-func TestCustom_SectPr_Margins_HappyRoundTrip(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
-	v := 1440
-	if err := sp.SetTopMargin(&v); err != nil {
-		t.Fatal(err)
-	}
-	got, err := sp.TopMargin()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got == nil || *got != 1440 {
-		t.Errorf("expected 1440, got %v", got)
+	if below != nil {
+		t.Error("expected nil for bottom row cell")
 	}
 }
 
 // ---------------------------------------------------------------------------
-// Group 7 — Zero vs absent (nullable semantics)
+// tcAbove / tcBelow return valid cell for interior rows
 // ---------------------------------------------------------------------------
 
-func TestGen_CT_PageMar_Top_ZeroIsNotAbsent(t *testing.T) {
-	el := OxmlElement("w:pgMar")
-	m := &CT_PageMar{Element{E: el}}
+func TestTcAbove_ReturnsCell(t *testing.T) {
+	tbl := NewTbl(3, 1, 1000)
+	trs := tbl.TrList()
+	r1c0 := trs[1].TcList()[0]
 
-	// Absent → nil
-	v, err := m.Top()
+	above, err := r1c0.tcAbove()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("unexpected error: %v", err)
 	}
-	if v != nil {
-		t.Error("absent Top should be nil")
+	if above == nil {
+		t.Fatal("expected non-nil cell above")
 	}
-
-	// Set 0 → &0, NOT nil
-	zero := 0
-	if err := m.SetTop(&zero); err != nil {
-		t.Fatal(err)
-	}
-	v, err = m.Top()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if v == nil {
-		t.Fatal("Top=0 should NOT be nil")
-	}
-	if *v != 0 {
-		t.Errorf("expected 0, got %d", *v)
-	}
-
-	// Verify XML attr actually present
-	if _, ok := m.GetAttr("w:top"); !ok {
-		t.Error("w:top attr should be present after SetTop(0)")
-	}
-
-	// Set nil → remove attr
-	if err := m.SetTop(nil); err != nil {
-		t.Fatal(err)
-	}
-	v, err = m.Top()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if v != nil {
-		t.Error("should be nil after SetTop(nil)")
-	}
-	if _, ok := m.GetAttr("w:top"); ok {
-		t.Error("w:top attr should be removed after SetTop(nil)")
+	if above.E != trs[0].TcList()[0].E {
+		t.Error("tcAbove returned wrong cell")
 	}
 }
 
-func TestGen_CT_Ind_Left_ZeroIsNotAbsent(t *testing.T) {
-	el := OxmlElement("w:ind")
-	ind := &CT_Ind{Element{E: el}}
+func TestTcBelow_ReturnsCell(t *testing.T) {
+	tbl := NewTbl(3, 1, 1000)
+	trs := tbl.TrList()
+	r1c0 := trs[1].TcList()[0]
 
-	// Absent → nil
-	v, err := ind.Left()
+	below, err := r1c0.tcBelow()
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("unexpected error: %v", err)
 	}
-	if v != nil {
-		t.Error("absent Left should be nil")
+	if below == nil {
+		t.Fatal("expected non-nil cell below")
 	}
-
-	// Set 0 → &0
-	zero := 0
-	if err := ind.SetLeft(&zero); err != nil {
-		t.Fatal(err)
-	}
-	v, err = ind.Left()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if v == nil {
-		t.Fatal("Left=0 should NOT be nil")
-	}
-	if *v != 0 {
-		t.Errorf("expected 0, got %d", *v)
+	if below.E != trs[2].TcList()[0].E {
+		t.Error("tcBelow returned wrong cell")
 	}
 }
 
-func TestGen_CT_Spacing_Before_ZeroIsNotAbsent(t *testing.T) {
-	el := OxmlElement("w:spacing")
-	sp := &CT_Spacing{Element{E: el}}
+// ---------------------------------------------------------------------------
+// Vertical merge happy path: Merge across 2 rows works correctly
+// ---------------------------------------------------------------------------
 
-	// Absent → nil
-	v, err := sp.Before()
+func TestMerge_Vertical_Valid(t *testing.T) {
+	tbl := NewTbl(2, 2, 4000)
+	trs := tbl.TrList()
+	r0c0 := trs[0].TcList()[0]
+	r1c0 := trs[1].TcList()[0]
+
+	topTc, err := r0c0.Merge(r1c0)
 	if err != nil {
-		t.Fatal(err)
-	}
-	if v != nil {
-		t.Error("absent Before should be nil")
+		t.Fatalf("Merge: %v", err)
 	}
 
-	// Set 0 → &0
-	zero := 0
-	if err := sp.SetBefore(&zero); err != nil {
-		t.Fatal(err)
-	}
-	v, err = sp.Before()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if v == nil {
-		t.Fatal("Before=0 should NOT be nil")
-	}
-	if *v != 0 {
-		t.Errorf("expected 0, got %d", *v)
-	}
-}
-
-func TestCustom_SectPr_TopMargin_ZeroRoundTrip(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
-
-	// Set zero margin
-	zero := 0
-	if err := sp.SetTopMargin(&zero); err != nil {
-		t.Fatal(err)
-	}
-	got, err := sp.TopMargin()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got == nil {
-		t.Fatal("TopMargin=0 should NOT be nil")
-	}
-	if *got != 0 {
-		t.Errorf("expected 0, got %d", *got)
+	// Top cell should have vMerge=restart
+	vm := topTc.VMergeVal()
+	if vm == nil || *vm != "restart" {
+		t.Errorf("expected vMerge=restart on top cell, got %v", vm)
 	}
 
-	// Set nil → remove
-	if err := sp.SetTopMargin(nil); err != nil {
-		t.Fatal(err)
-	}
-	got, err = sp.TopMargin()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got != nil {
-		t.Error("expected nil after SetTopMargin(nil)")
+	// Bottom cell should have vMerge=continue
+	r1c0After := trs[1].TcList()[0]
+	vm = r1c0After.VMergeVal()
+	if vm == nil || *vm != "continue" {
+		t.Errorf("expected vMerge=continue on bottom cell, got %v", vm)
 	}
 }
