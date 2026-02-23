@@ -19,20 +19,26 @@ Usage:
 """
 
 import argparse
+import gc
 import json
 import os
 import shutil
 import subprocess
 import sys
-import base64
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass, field, asdict
-from io import BytesIO
 from pathlib import Path
 
 import numpy as np
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
+
+# Allow very large images — some docx pages render to 100M+ pixels.
+# Without this, PIL raises DecompressionBombError and kills the worker.
+Image.MAX_IMAGE_PIXELS = None
+
+# Cap for SSIM comparison: downscale images larger than this to save RAM.
+# 4000px per side is plenty for SSIM accuracy at 150 DPI.
+_MAX_SSIM_SIDE = 4000
 
 
 # ---------------------------------------------------------------------------
@@ -40,9 +46,14 @@ from skimage.metrics import structural_similarity as ssim
 # ---------------------------------------------------------------------------
 
 def docx_to_pdf_batch(docx_dir: Path, pdf_dir: Path) -> None:
-    """Convert all .docx in *docx_dir* to PDF using LibreOffice headless."""
+    """Convert all .docx in *docx_dir* to PDF using LibreOffice headless.
+
+    Resilient: if a batch chunk fails (e.g. encrypted/corrupt file), falls
+    back to converting each file in that chunk individually so one bad file
+    doesn't kill the entire run.
+    """
     pdf_dir.mkdir(parents=True, exist_ok=True)
-    cmd = [
+    base_cmd = [
         "libreoffice", "--headless", "--convert-to", "pdf",
         "--outdir", str(pdf_dir),
     ]
@@ -50,17 +61,27 @@ def docx_to_pdf_batch(docx_dir: Path, pdf_dir: Path) -> None:
     if not docx_files:
         return
 
-    # LibreOffice can be unreliable with huge batches – chunk into 50.
     chunk_size = 50
     for i in range(0, len(docx_files), chunk_size):
         chunk = docx_files[i:i + chunk_size]
-        subprocess.run(
-            cmd + [str(f) for f in chunk],
-            check=True,
+        result = subprocess.run(
+            base_cmd + [str(f) for f in chunk],
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
             timeout=600,
         )
+        if result.returncode != 0:
+            # Batch failed — retry each file individually so only the
+            # broken ones are skipped.
+            for f in chunk:
+                r = subprocess.run(
+                    base_cmd + [str(f)],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.PIPE,
+                    timeout=120,
+                )
+                if r.returncode != 0:
+                    print(f"  [warn] LibreOffice failed on {f.name}, skipping")
 
 
 def pdf_to_pngs(pdf_path: Path, png_dir: Path, dpi: int = 150) -> list[Path]:
@@ -88,10 +109,20 @@ def pdf_to_pngs(pdf_path: Path, png_dir: Path, dpi: int = 150) -> list[Path]:
 # SSIM comparison
 # ---------------------------------------------------------------------------
 
+def _load_gray(path: Path) -> np.ndarray:
+    """Load image as grayscale numpy array, downscaling if too large."""
+    img = Image.open(path).convert("L")
+    w, h = img.size
+    if w > _MAX_SSIM_SIDE or h > _MAX_SSIM_SIDE:
+        scale = _MAX_SSIM_SIDE / max(w, h)
+        img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
+    return np.array(img)
+
+
 def compute_ssim(img_a_path: Path, img_b_path: Path) -> tuple[float, np.ndarray | None]:
     """Return (ssim_score, diff_image_array) for two page images."""
-    a = np.array(Image.open(img_a_path).convert("L"))
-    b = np.array(Image.open(img_b_path).convert("L"))
+    a = _load_gray(img_a_path)
+    b = _load_gray(img_b_path)
 
     # Resize to match if shapes differ (shouldn't happen, but safety).
     if a.shape != b.shape:
@@ -146,6 +177,29 @@ def process_one_file(
 ) -> FileReport:
     stem = Path(name).stem
     report = FileReport(name=name)
+
+    try:
+        return _process_one_file_inner(name, stem, report, orig_pdf_dir, rt_pdf_dir, work_dir, report_img_dir, dpi)
+    except MemoryError:
+        report.ok = False
+        report.error = "out of memory (image too large)"
+        return report
+    except Exception as exc:
+        report.ok = False
+        report.error = str(exc)
+        return report
+
+
+def _process_one_file_inner(
+    name: str,
+    stem: str,
+    report: FileReport,
+    orig_pdf_dir: Path,
+    rt_pdf_dir: Path,
+    work_dir: Path,
+    report_img_dir: Path,
+    dpi: int,
+) -> FileReport:
 
     orig_pdf = orig_pdf_dir / f"{stem}.pdf"
     rt_pdf = rt_pdf_dir / f"{stem}.pdf"
@@ -220,6 +274,11 @@ def process_one_file(
 
     report.min_ssim = min(scores) if scores else 1.0
     report.mean_ssim = float(np.mean(scores)) if scores else 1.0
+
+    # Clean up temporary full-size PNGs to free tmpfs space.
+    shutil.rmtree(orig_png_dir, ignore_errors=True)
+    shutil.rmtree(rt_png_dir, ignore_errors=True)
+
     return report
 
 
@@ -390,25 +449,20 @@ def main() -> None:
     compare_names = [n for n in file_names if n not in failed_rt]
     print(f"[compare] comparing {len(compare_names)} files …")
 
-    with ProcessPoolExecutor(max_workers=args.workers) as pool:
-        futures = {
-            pool.submit(
-                process_one_file, name,
-                orig_pdf_dir, rt_pdf_dir, work_dir, report_img_dir, args.dpi,
-            ): name
-            for name in compare_names
-        }
-        done = 0
-        for future in as_completed(futures):
-            done += 1
-            name = futures[future]
-            try:
-                rep = future.result()
-            except Exception as exc:
-                rep = FileReport(name=name, ok=False, error=str(exc))
-            reports.append(rep)
-            if done % 50 == 0 or done == len(compare_names):
-                print(f"  [{done}/{len(compare_names)}]")
+    for i, name in enumerate(compare_names, 1):
+        try:
+            rep = process_one_file(
+                name, orig_pdf_dir, rt_pdf_dir, work_dir, report_img_dir, args.dpi,
+            )
+        except Exception as exc:
+            rep = FileReport(name=name, ok=False, error=str(exc))
+        reports.append(rep)
+
+        # Free memory after each file — large PNGs can eat GBs.
+        gc.collect()
+
+        if i % 50 == 0 or i == len(compare_names):
+            print(f"  [{i}/{len(compare_names)}]")
 
     # ---- step 3: generate report ----
     generate_html_report(reports, report_path, args.threshold)
