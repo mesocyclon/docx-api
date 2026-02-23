@@ -10,7 +10,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/user/go-docx/pkg/docx/opc"
+	"github.com/vortex/go-docx/pkg/docx/opc"
 )
 
 // --------------------------------------------------------------------------
