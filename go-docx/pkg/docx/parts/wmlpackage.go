@@ -25,12 +25,7 @@ func NewWmlPackage(pkg *opc.OpcPackage) *WmlPackage {
 }
 
 // ImageParts returns the ImageParts collection for this package.
-//
-// Mirrors Python Package.image_parts (lazyproperty).
 func (wp *WmlPackage) ImageParts() *ImageParts {
-	if wp.imageParts == nil {
-		wp.imageParts = NewImageParts()
-	}
 	return wp.imageParts
 }
 
