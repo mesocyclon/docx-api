@@ -1091,6 +1091,13 @@ func (pr *CT_TcPr) VMergeValStr() *string {
 		return nil
 	}
 	v := vm.Val()
+	// Per OOXML spec §17.4.85: when w:vMerge is present without a val
+	// attribute, the default is "continue" (CT_VMerge val is optional,
+	// default=continue). Python handles this via OptionalAttribute(default=ST_Merge.CONTINUE).
+	if v == "" {
+		s := "continue"
+		return &s
+	}
 	return &v
 }
 

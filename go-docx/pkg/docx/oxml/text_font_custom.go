@@ -523,6 +523,54 @@ func (rPr *CT_RPr) Superscript() (*bool, error) {
 	return &result, nil
 }
 
+// --- ComplexScript (w:cs) ---
+
+// ComplexScriptVal returns the tri-state complex-script value.
+func (rPr *CT_RPr) ComplexScriptVal() *bool {
+	return rPr.getBoolVal("w:cs")
+}
+
+// SetComplexScriptVal sets the complex-script tri-state.
+func (rPr *CT_RPr) SetComplexScriptVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddCs, rPr.RemoveCs)
+}
+
+// --- CsBold (w:bCs) ---
+
+// CsBoldVal returns the tri-state complex-script bold value.
+func (rPr *CT_RPr) CsBoldVal() *bool {
+	return rPr.getBoolVal("w:bCs")
+}
+
+// SetCsBoldVal sets the complex-script bold tri-state.
+func (rPr *CT_RPr) SetCsBoldVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddBCs, rPr.RemoveBCs)
+}
+
+// --- CsItalic (w:iCs) ---
+
+// CsItalicVal returns the tri-state complex-script italic value.
+func (rPr *CT_RPr) CsItalicVal() *bool {
+	return rPr.getBoolVal("w:iCs")
+}
+
+// SetCsItalicVal sets the complex-script italic tri-state.
+func (rPr *CT_RPr) SetCsItalicVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddICs, rPr.RemoveICs)
+}
+
+// --- Rtl (w:rtl) ---
+
+// RtlVal returns the tri-state right-to-left value.
+func (rPr *CT_RPr) RtlVal() *bool {
+	return rPr.getBoolVal("w:rtl")
+}
+
+// SetRtlVal sets the right-to-left tri-state.
+func (rPr *CT_RPr) SetRtlVal(v *bool) error {
+	return rPr.setBoolValWith(v, rPr.GetOrAddRtl, rPr.RemoveRtl)
+}
+
 // SetSuperscript sets the superscript state.
 func (rPr *CT_RPr) SetSuperscript(v *bool) error {
 	if v == nil {

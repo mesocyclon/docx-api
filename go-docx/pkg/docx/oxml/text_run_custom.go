@@ -1,6 +1,7 @@
 package oxml
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/beevik/etree"
@@ -172,4 +173,82 @@ func appendRunContentFromText(r *CT_R, text string) {
 		}
 	}
 	flush()
+}
+
+// InsertCommentRangeStartAbove inserts a <w:commentRangeStart> element
+// with the given commentID immediately before this run in its parent.
+//
+// Mirrors Python CT_R.insert_comment_range_start_above.
+func (r *CT_R) InsertCommentRangeStartAbove(commentID int) {
+	parent := r.E.Parent()
+	if parent == nil {
+		return
+	}
+	crs := parent.CreateElement("w:commentRangeStart")
+	crs.Space = "w"
+	crs.Tag = "commentRangeStart"
+	crs.CreateAttr("w:id", strconv.Itoa(commentID))
+	// Move before this run: find run index, remove crs from end, insert at run index
+	idx := childIndex(parent, r.E)
+	parent.RemoveChild(crs)
+	parent.InsertChildAt(idx, crs)
+}
+
+// InsertCommentRangeEndAndReferenceBelow inserts a <w:commentRangeEnd> and
+// a <w:r> with <w:commentReference> immediately after this run in its parent.
+//
+// Produces:
+//
+//	<w:commentRangeEnd w:id="N"/>
+//	<w:r>
+//	  <w:rPr><w:rStyle w:val="CommentReference"/></w:rPr>
+//	  <w:commentReference w:id="N"/>
+//	</w:r>
+//
+// Mirrors Python CT_R.insert_comment_range_end_and_reference_below.
+func (r *CT_R) InsertCommentRangeEndAndReferenceBelow(commentID int) {
+	parent := r.E.Parent()
+	if parent == nil {
+		return
+	}
+	idStr := strconv.Itoa(commentID)
+	idx := childIndex(parent, r.E)
+
+	// Build commentRangeEnd
+	cre := parent.CreateElement("w:commentRangeEnd")
+	cre.Space = "w"
+	cre.Tag = "commentRangeEnd"
+	cre.CreateAttr("w:id", idStr)
+	// Move to just after this run
+	parent.RemoveChild(cre)
+	parent.InsertChildAt(idx+1, cre)
+
+	// Build reference run: <w:r><w:rPr><w:rStyle w:val="CommentReference"/></w:rPr><w:commentReference w:id="N"/></w:r>
+	refRun := parent.CreateElement("w:r")
+	refRun.Space = "w"
+	refRun.Tag = "r"
+	rPr := refRun.CreateElement("w:rPr")
+	rPr.Space = "w"
+	rPr.Tag = "rPr"
+	rStyle := rPr.CreateElement("w:rStyle")
+	rStyle.Space = "w"
+	rStyle.Tag = "rStyle"
+	rStyle.CreateAttr("w:val", "CommentReference")
+	cr := refRun.CreateElement("w:commentReference")
+	cr.Space = "w"
+	cr.Tag = "commentReference"
+	cr.CreateAttr("w:id", idStr)
+	// Move to just after commentRangeEnd
+	parent.RemoveChild(refRun)
+	parent.InsertChildAt(idx+2, refRun)
+}
+
+// childIndex returns the index of child in parent's children, or -1.
+func childIndex(parent, child *etree.Element) int {
+	for i, c := range parent.Child {
+		if el, ok := c.(*etree.Element); ok && el == child {
+			return i
+		}
+	}
+	return -1
 }

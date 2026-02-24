@@ -46,3 +46,8 @@ type InvalidSpanError struct {
 func NewInvalidSpanError(msg string, args ...any) *InvalidSpanError {
 	return &InvalidSpanError{DocxError{msg: fmt.Sprintf(msg, args...)}}
 }
+
+// errIndexOutOfRange returns an IndexError-equivalent for collections.
+func errIndexOutOfRange(collection string, idx, length int) error {
+	return fmt.Errorf("docx: %s index [%d] out of range (len=%d)", collection, idx, length)
+}
