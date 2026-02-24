@@ -8,64 +8,16 @@ import (
 )
 
 // --------------------------------------------------------------------------
-// BabelFish — style name translation
+// BabelFish — style name translation (delegates to oxml.BabelFish)
 // --------------------------------------------------------------------------
 
-// BabelFish translates style names between UI form (e.g. "Heading 1")
-// and internal/styles.xml form (e.g. "heading 1").
-//
-// Mirrors Python BabelFish.
-var babelFishAliases = [][2]string{
-	{"Caption", "caption"},
-	{"Footer", "footer"},
-	{"Header", "header"},
-	{"Heading 1", "heading 1"},
-	{"Heading 2", "heading 2"},
-	{"Heading 3", "heading 3"},
-	{"Heading 4", "heading 4"},
-	{"Heading 5", "heading 5"},
-	{"Heading 6", "heading 6"},
-	{"Heading 7", "heading 7"},
-	{"Heading 8", "heading 8"},
-	{"Heading 9", "heading 9"},
-}
-
-var (
-	ui2internalMap = buildUI2InternalMap()
-	internal2uiMap = buildInternal2UIMap()
-)
-
-func buildUI2InternalMap() map[string]string {
-	m := make(map[string]string, len(babelFishAliases))
-	for _, a := range babelFishAliases {
-		m[a[0]] = a[1]
-	}
-	return m
-}
-
-func buildInternal2UIMap() map[string]string {
-	m := make(map[string]string, len(babelFishAliases))
-	for _, a := range babelFishAliases {
-		m[a[1]] = a[0]
-	}
-	return m
-}
-
 // UI2Internal converts a UI style name to internal form.
-func UI2Internal(name string) string {
-	if v, ok := ui2internalMap[name]; ok {
-		return v
-	}
-	return name
-}
+// Delegates to the canonical oxml.UI2Internal.
+func UI2Internal(name string) string { return oxml.UI2Internal(name) }
 
 // Internal2UI converts an internal style name to UI form.
-func Internal2UI(name string) string {
-	if v, ok := internal2uiMap[name]; ok {
-		return v
-	}
-	return name
-}
+// Delegates to the canonical oxml.Internal2UI.
+func Internal2UI(name string) string { return oxml.Internal2UI(name) }
 
 // --------------------------------------------------------------------------
 // StyleFactory

@@ -396,8 +396,15 @@ func (dp *DocumentPart) GetStyleID(styleOrName interface{}, styleType enum.WdSty
 		return &id, nil
 
 	case string:
-		// Style name — mirrors Python _get_style_id_from_name.
-		s := ss.GetByName(v)
+		// Style name — mirrors Python _get_style_id_from_name →
+		// Styles.__getitem__ → BabelFish.ui2internal → get_by_name,
+		// with fallback to get_by_id (deprecated in Python).
+		internalName := oxml.UI2Internal(v)
+		s := ss.GetByName(internalName)
+		if s == nil {
+			// Fallback: try by ID (mirrors Python Styles.__getitem__ fallback).
+			s = ss.GetByID(v)
+		}
 		if s == nil {
 			return nil, fmt.Errorf("parts: no style with name %q", v)
 		}

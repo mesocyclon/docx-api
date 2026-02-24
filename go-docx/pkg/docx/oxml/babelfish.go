@@ -1,0 +1,71 @@
+package oxml
+
+// --------------------------------------------------------------------------
+// BabelFish — style name UI↔internal translation
+// --------------------------------------------------------------------------
+//
+// Translates special-case style names between their UI form (e.g. "Heading 1")
+// and the internal/styles.xml form (e.g. "heading 1").
+//
+// Lives in oxml so that both pkg/docx and pkg/docx/parts can use it without
+// circular imports. Mirrors Python docx.styles.BabelFish exactly.
+
+// babelFishAliases is the canonical alias table.
+// Matches Python BabelFish.style_aliases one-to-one.
+var babelFishAliases = [][2]string{
+	{"Caption", "caption"},
+	{"Footer", "footer"},
+	{"Header", "header"},
+	{"Heading 1", "heading 1"},
+	{"Heading 2", "heading 2"},
+	{"Heading 3", "heading 3"},
+	{"Heading 4", "heading 4"},
+	{"Heading 5", "heading 5"},
+	{"Heading 6", "heading 6"},
+	{"Heading 7", "heading 7"},
+	{"Heading 8", "heading 8"},
+	{"Heading 9", "heading 9"},
+}
+
+var (
+	ui2internalMap = buildUI2InternalMap()
+	internal2uiMap = buildInternal2UIMap()
+)
+
+func buildUI2InternalMap() map[string]string {
+	m := make(map[string]string, len(babelFishAliases))
+	for _, a := range babelFishAliases {
+		m[a[0]] = a[1]
+	}
+	return m
+}
+
+func buildInternal2UIMap() map[string]string {
+	m := make(map[string]string, len(babelFishAliases))
+	for _, a := range babelFishAliases {
+		m[a[1]] = a[0]
+	}
+	return m
+}
+
+// UI2Internal converts a UI-facing style name to its internal/styles.xml form.
+// Names without a mapping are returned unchanged.
+//
+// Mirrors Python BabelFish.ui2internal.
+func UI2Internal(name string) string {
+	if v, ok := ui2internalMap[name]; ok {
+		return v
+	}
+	return name
+}
+
+// Internal2UI converts an internal/styles.xml name to its UI form.
+// Names without a mapping are returned unchanged.
+//
+// Mirrors Python BabelFish.internal2ui.
+func Internal2UI(name string) string {
+	if v, ok := internal2uiMap[name]; ok {
+		return v
+	}
+	return name
+}
