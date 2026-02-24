@@ -27,8 +27,8 @@ func NewStreamReader(r io.ReadSeeker, bigEndian bool, baseOffset int64) *StreamR
 	return &StreamReader{r: r, byteOrder: order, baseOffset: baseOffset}
 }
 
-// ReadByte returns the uint8 value at baseOffset + base + offset.
-func (sr *StreamReader) ReadByte(base, offset int64) (byte, error) {
+// ReadByteAt returns the uint8 value at baseOffset + base + offset.
+func (sr *StreamReader) ReadByteAt(base, offset int64) (byte, error) {
 	buf, err := sr.readBytes(1, base, offset)
 	if err != nil {
 		return 0, err
@@ -65,8 +65,8 @@ func (sr *StreamReader) ReadStr(charCount int, base, offset int64) (string, erro
 	return string(buf), nil
 }
 
-// Seek positions the underlying stream to baseOffset + base + offset.
-func (sr *StreamReader) Seek(base, offset int64) error {
+// SeekTo positions the underlying stream to baseOffset + base + offset.
+func (sr *StreamReader) SeekTo(base, offset int64) error {
 	location := sr.baseOffset + base + offset
 	_, err := sr.r.Seek(location, io.SeekStart)
 	if err != nil {
@@ -97,7 +97,7 @@ func (sr *StreamReader) SetByteOrder(bigEndian bool) {
 // readBytes reads count bytes from baseOffset + base + offset.
 // Returns ErrUnexpectedEOF if fewer than count bytes are available.
 func (sr *StreamReader) readBytes(count int, base, offset int64) ([]byte, error) {
-	if err := sr.Seek(base, offset); err != nil {
+	if err := sr.SeekTo(base, offset); err != nil {
 		return nil, err
 	}
 	buf := make([]byte, count)

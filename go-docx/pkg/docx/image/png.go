@@ -120,7 +120,7 @@ func parsePNGChunks(stream io.ReadSeeker) (*pngChunks, error) {
 			if err != nil {
 				return nil, fmt.Errorf("image/png: reading pHYs vert: %w", err)
 			}
-			us, err := sr.ReadByte(dataOffset, 8)
+			us, err := sr.ReadByteAt(dataOffset, 8)
 			if err != nil {
 				return nil, fmt.Errorf("image/png: reading pHYs units: %w", err)
 			}

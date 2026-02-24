@@ -202,7 +202,7 @@ func (mf *markerFinder) next(start int64) (byte, int64, error) {
 // offsetOfNextFFByte returns the offset of the next 0xFF byte starting at start.
 // Mirrors Python _MarkerFinder._offset_of_next_ff_byte.
 func (mf *markerFinder) offsetOfNextFFByte(start int64) (int64, error) {
-	if err := mf.stream.Seek(start, 0); err != nil {
+	if err := mf.stream.SeekTo(start, 0); err != nil {
 		return 0, err
 	}
 	for {
@@ -223,7 +223,7 @@ func (mf *markerFinder) offsetOfNextFFByte(start int64) (int64, error) {
 // nextNonFFByte returns (offset, byte) of the next non-0xFF byte starting at start.
 // Mirrors Python _MarkerFinder._next_non_ff_byte.
 func (mf *markerFinder) nextNonFFByte(start int64) (int64, byte, error) {
-	if err := mf.stream.Seek(start, 0); err != nil {
+	if err := mf.stream.SeekTo(start, 0); err != nil {
 		return 0, 0, err
 	}
 	for {
@@ -280,8 +280,8 @@ type baseMarker struct {
 	segmentLength_ int
 }
 
-func (m *baseMarker) markerCode() byte    { return m.code_ }
-func (m *baseMarker) segmentLength() int  { return m.segmentLength_ }
+func (m *baseMarker) markerCode() byte   { return m.code_ }
+func (m *baseMarker) segmentLength() int { return m.segmentLength_ }
 
 // parseBaseMarker creates a generic marker.
 // Mirrors Python _Marker.from_stream.
@@ -347,7 +347,7 @@ func parseApp0Marker(code byte, sr *StreamReader, offset int64) (*app0Marker, er
 	if err != nil {
 		return nil, err
 	}
-	densityUnits, err := sr.ReadByte(offset, 9)
+	densityUnits, err := sr.ReadByteAt(offset, 9)
 	if err != nil {
 		return nil, err
 	}
@@ -431,7 +431,7 @@ func parseApp1Marker(code byte, sr *StreamReader, offset int64) (*app1Marker, er
 // isNonExifApp1 checks if the APP1 segment is NOT an Exif segment.
 // Mirrors Python _App1Marker._is_non_Exif_APP1_segment.
 func isNonExifApp1(sr *StreamReader, offset int64) bool {
-	if err := sr.Seek(offset+2, 0); err != nil {
+	if err := sr.SeekTo(offset+2, 0); err != nil {
 		return true
 	}
 	var sig [6]byte
@@ -447,7 +447,7 @@ func isNonExifApp1(sr *StreamReader, offset int64) bool {
 func tiffFromExifSegment(sr *StreamReader, offset int64, segmentLength int) (imageHeader, error) {
 	// Seek to the TIFF data within the APP1 segment (offset + 8 skips
 	// the 2-byte segment length and 6-byte "Exif\x00\x00" signature)
-	if err := sr.Seek(offset+8, 0); err != nil {
+	if err := sr.SeekTo(offset+8, 0); err != nil {
 		return nil, err
 	}
 

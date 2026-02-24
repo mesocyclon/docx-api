@@ -11,7 +11,7 @@ func TestStreamReader_ReadByte(t *testing.T) {
 	data := []byte{0x00, 0x42, 0xFF}
 	sr := NewStreamReader(bytes.NewReader(data), true, 0)
 
-	b, err := sr.ReadByte(0, 1)
+	b, err := sr.ReadByteAt(0, 1)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -119,7 +119,7 @@ func TestStreamReader_BaseOffset(t *testing.T) {
 	data := []byte{0x00, 0x00, 0x00, 0x42, 0xFF}
 	sr := NewStreamReader(bytes.NewReader(data), true, 2) // base offset 2
 
-	b, err := sr.ReadByte(1, 0) // reads at position 2+1+0 = 3
+	b, err := sr.ReadByteAt(1, 0) // reads at position 2+1+0 = 3
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -149,7 +149,7 @@ func TestStreamReader_Tell(t *testing.T) {
 	data := []byte{0x01, 0x02, 0x03}
 	sr := NewStreamReader(bytes.NewReader(data), true, 0)
 
-	sr.ReadByte(2, 0)
+	sr.ReadByteAt(2, 0)
 	pos, err := sr.Tell()
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)

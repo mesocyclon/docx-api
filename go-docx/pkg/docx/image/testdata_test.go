@@ -109,8 +109,8 @@ func buildMinimalJFIF(width, height uint16, densityUnits byte, xDensity, yDensit
 	app0 := make([]byte, 16)
 	binary.BigEndian.PutUint16(app0[0:], 16) // segment length
 	copy(app0[2:7], "JFIF\x00")              // identifier
-	app0[7] = 1                               // major version
-	app0[8] = 1                               // minor version
+	app0[7] = 1                              // major version
+	app0[8] = 1                              // minor version
 	app0[9] = densityUnits
 	binary.BigEndian.PutUint16(app0[10:], xDensity)
 	binary.BigEndian.PutUint16(app0[12:], yDensity)
@@ -188,20 +188,25 @@ func buildMinimalExifJPEG(width, height uint16, dpi uint32) []byte {
 	return buf.Bytes()
 }
 
-// buildMinimalExifJPEGNonExif creates a JPEG with a non-Exif APP1 segment.
+// buildMinimalExifJPEGNonExif creates a JPEG whose APP1 segment is detected
+// as Exif by the 4-byte signature table ("Exif" at offset 6) but fails the
+// stricter 6-byte "Exif\x00\x00" check in isNonExifApp1, causing DPI to
+// default to 72.
 func buildMinimalExifJPEGNonExif(width, height uint16) []byte {
 	var buf bytes.Buffer
 
 	// SOI
 	buf.Write([]byte{0xFF, 0xD8})
 
-	// APP1 with non-Exif content (e.g., XMP)
+	// APP1 whose content starts with "Exif" (matches 4-byte signature at
+	// offset 6) but whose 5th and 6th bytes are NOT \x00\x00, so the
+	// 6-byte Exif check inside parseApp1Marker fails → DPI defaults to 72.
 	buf.Write([]byte{0xFF, 0xE1})
-	xmpData := []byte("http://ns.adobe.com/xap/1.0/\x00<x:xmpmeta/>")
+	app1Content := []byte("Exif\x01\x02some non-exif payload padding")
 	segLen := make([]byte, 2)
-	binary.BigEndian.PutUint16(segLen, uint16(2+len(xmpData)))
+	binary.BigEndian.PutUint16(segLen, uint16(2+len(app1Content)))
 	buf.Write(segLen)
-	buf.Write(xmpData)
+	buf.Write(app1Content)
 
 	// SOF0
 	buf.Write([]byte{0xFF, 0xC0})
@@ -297,7 +302,13 @@ func buildMinimalTIFFBytes(width, height uint32, dpi uint32, bigEndian bool) []b
 		order.PutUint16(data[off:], tag)
 		order.PutUint16(data[off+2:], fieldType)
 		order.PutUint32(data[off+4:], count)
-		order.PutUint32(data[off+8:], value)
+		// TIFF spec: inline SHORT values occupy the first 2 bytes of
+		// the 4-byte value field; remaining bytes are zero padding.
+		if fieldType == tiffFieldSHORT {
+			order.PutUint16(data[off+8:], uint16(value))
+		} else {
+			order.PutUint32(data[off+8:], value)
+		}
 		entryIdx++
 	}
 
@@ -363,7 +374,11 @@ func buildMinimalTIFFCm(width, height uint32, dotsPerCm uint32, bigEndian bool) 
 		order.PutUint16(data[off:], tag)
 		order.PutUint16(data[off+2:], fieldType)
 		order.PutUint32(data[off+4:], count)
-		order.PutUint32(data[off+8:], value)
+		if fieldType == tiffFieldSHORT {
+			order.PutUint16(data[off+8:], uint16(value))
+		} else {
+			order.PutUint32(data[off+8:], value)
+		}
 		entryIdx++
 	}
 
@@ -417,7 +432,11 @@ func buildMinimalTIFFAspectOnly(width, height uint32, bigEndian bool) []byte {
 		order.PutUint16(data[off:], tag)
 		order.PutUint16(data[off+2:], fieldType)
 		order.PutUint32(data[off+4:], count)
-		order.PutUint32(data[off+8:], value)
+		if fieldType == tiffFieldSHORT {
+			order.PutUint16(data[off+8:], uint16(value))
+		} else {
+			order.PutUint32(data[off+8:], value)
+		}
 		entryIdx++
 	}
 

@@ -186,7 +186,9 @@ func TestImage_SHA1_Stable(t *testing.T) {
 	}
 
 	// Verify calling SHA1 again returns cached value
-	if img1.SHA1() != img1.SHA1() {
+	sha1a := img1.SHA1()
+	sha1b := img1.SHA1()
+	if sha1a != sha1b {
 		t.Error("SHA1 should be cached")
 	}
 }
@@ -210,7 +212,7 @@ func TestImage_Width_Height_EMU(t *testing.T) {
 		t.Fatalf("FromBlob: %v", err)
 	}
 
-	expectedW := int64(float64(72) / 72.0 * 914400) // 914400
+	expectedW := int64(float64(72) / 72.0 * 914400)  // 914400
 	expectedH := int64(float64(144) / 72.0 * 914400) // 1828800
 
 	if img.Width() != expectedW {

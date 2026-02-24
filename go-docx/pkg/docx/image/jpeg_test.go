@@ -2,6 +2,7 @@ package image
 
 import (
 	"bytes"
+	"encoding/binary"
 	"testing"
 )
 
@@ -120,37 +121,37 @@ func TestJPEG_Truncated(t *testing.T) {
 }
 
 func TestJPEG_MarkerScanFF00(t *testing.T) {
-	// Verify that FF 00 sequences are skipped during marker scanning
-	// Build a JFIF with some FF 00 bytes injected between SOI and APP0
+	// Verify that FF 00 sequences are skipped during marker scanning.
+	// FF 00 is placed BETWEEN APP0 and SOF0 (not before APP0) so that
+	// the "JFIF" signature remains at file offset 6 for format detection.
 	var buf bytes.Buffer
-	buf.Write([]byte{0xFF, 0xD8})      // SOI
-	buf.Write([]byte{0xFF, 0x00})      // FF 00 = not a marker, skip
-	buf.Write([]byte{0xFF, 0xE0})      // APP0
 
+	// SOI
+	buf.Write([]byte{0xFF, 0xD8})
+
+	// APP0 (JFIF) — "JFIF" will be at offset 6 in the file
+	buf.Write([]byte{0xFF, 0xE0})
 	app0 := make([]byte, 16)
-	app0[0] = 0x00
-	app0[1] = 16
+	binary.BigEndian.PutUint16(app0[0:], 16) // segment length
 	copy(app0[2:7], "JFIF\x00")
-	app0[7] = 1
-	app0[8] = 1
-	app0[9] = 1 // density units
-	app0[10] = 0
-	app0[11] = 72
-	app0[12] = 0
-	app0[13] = 72
+	app0[7] = 1 // major version
+	app0[8] = 1 // minor version
+	app0[9] = 1 // density units = DPI
+	binary.BigEndian.PutUint16(app0[10:], 72)
+	binary.BigEndian.PutUint16(app0[12:], 72)
 	buf.Write(app0)
+
+	// FF 00 stuffed byte — NOT a marker, scanner must skip it
+	buf.Write([]byte{0xFF, 0x00})
 
 	// SOF0
 	buf.Write([]byte{0xFF, 0xC0})
 	sof := make([]byte, 11)
-	sof[0] = 0
-	sof[1] = 11
-	sof[2] = 8
-	sof[3] = 0
-	sof[4] = 10 // height = 10
-	sof[5] = 0
-	sof[6] = 20 // width = 20
-	sof[7] = 3
+	binary.BigEndian.PutUint16(sof[0:], 11) // segment length
+	sof[2] = 8                              // data precision
+	binary.BigEndian.PutUint16(sof[3:], 10) // height = 10
+	binary.BigEndian.PutUint16(sof[5:], 20) // width = 20
+	sof[7] = 3                              // num components
 	buf.Write(sof)
 
 	// SOS
