@@ -295,15 +295,34 @@ func (dp *DocumentPart) CommentsElement() (*oxml.CT_Comments, error) {
 // CoreProperties
 // --------------------------------------------------------------------------
 
-// CoreProperties returns the part related by RTCoreProperties.
+// CoreProperties returns the CorePropertiesPart for this document. If the
+// package has no core properties part, a default one is created and related.
 //
-// Mirrors Python DocumentPart.core_properties → self.package.core_properties.
-func (dp *DocumentPart) CoreProperties() (opc.Part, error) {
+// Mirrors Python Package._core_properties_part (lazy creation).
+func (dp *DocumentPart) CoreProperties() (*CorePropertiesPart, error) {
 	pkg := dp.Package()
 	if pkg == nil {
 		return nil, fmt.Errorf("parts: document part has no package")
 	}
-	return pkg.RelatedPart(opc.RTCoreProperties)
+
+	part, err := pkg.RelatedPart(opc.RTCoreProperties)
+	if err == nil {
+		cpp, ok := part.(*CorePropertiesPart)
+		if ok {
+			return cpp, nil
+		}
+		// Part exists but was loaded as wrong type (shouldn't happen with factory)
+		return nil, fmt.Errorf("parts: core properties part is %T, expected *CorePropertiesPart", part)
+	}
+
+	// Not found — create default and relate to package
+	// Mirrors Python: self.relate_to(core_properties_part, RT.CORE_PROPERTIES)
+	cpp, err := DefaultCorePropertiesPart(pkg)
+	if err != nil {
+		return nil, fmt.Errorf("parts: creating default core properties: %w", err)
+	}
+	pkg.RelateTo(cpp, opc.RTCoreProperties)
+	return cpp, nil
 }
 
 // --------------------------------------------------------------------------

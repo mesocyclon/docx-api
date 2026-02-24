@@ -4,11 +4,13 @@ package parts
 
 import (
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 
 	"github.com/beevik/etree"
 	"github.com/vortex/go-docx/pkg/docx/enum"
+	"github.com/vortex/go-docx/pkg/docx/image"
 	"github.com/vortex/go-docx/pkg/docx/opc"
 	"github.com/vortex/go-docx/pkg/docx/oxml"
 )
@@ -21,6 +23,7 @@ import (
 type StoryPart struct {
 	*opc.XmlPart
 	docPart *DocumentPart // cached, mirrors Python lazyproperty _document_part
+	wmlPkg  *WmlPackage   // set during package init, needed for image insertion
 }
 
 // NewStoryPart creates a StoryPart wrapping the given XmlPart.
@@ -131,6 +134,67 @@ func (sp *StoryPart) documentPart() (*DocumentPart, error) {
 // DocumentPart to set itself as its own document part.
 func (sp *StoryPart) SetDocumentPart(dp *DocumentPart) {
 	sp.docPart = dp
+}
+
+// SetWmlPackage sets the WML package reference, enabling image insertion
+// from streams via GetOrAddImageFromReader.
+func (sp *StoryPart) SetWmlPackage(wp *WmlPackage) {
+	sp.wmlPkg = wp
+}
+
+// WmlPkg returns the WML package reference, or nil if not set.
+func (sp *StoryPart) WmlPkg() *WmlPackage {
+	return sp.wmlPkg
+}
+
+// GetOrAddImageFromReader creates or deduplicates an image from the given
+// reader and returns (rId, ImagePart). This is the stream-based version that
+// mirrors the Python StoryPart.get_or_add_image(image_descriptor) flow:
+//
+//	image_part = package.get_or_add_image_part(image_descriptor)
+//	rId = self.relate_to(image_part, RT.IMAGE)
+//	return rId, image_part
+func (sp *StoryPart) GetOrAddImageFromReader(r io.ReadSeeker) (string, *ImagePart, error) {
+	if sp.wmlPkg == nil {
+		return "", nil, fmt.Errorf("parts: WmlPackage not set on StoryPart (required for image insertion)")
+	}
+	// Read blob
+	if _, err := r.Seek(0, io.SeekStart); err != nil {
+		return "", nil, fmt.Errorf("parts: seeking image stream: %w", err)
+	}
+	blob, err := io.ReadAll(r)
+	if err != nil {
+		return "", nil, fmt.Errorf("parts: reading image stream: %w", err)
+	}
+	// Parse image metadata
+	img, err := image.FromBlob(blob, "")
+	if err != nil {
+		return "", nil, fmt.Errorf("parts: parsing image: %w", err)
+	}
+	// Create ImagePart
+	ip := NewImagePartFromImage(img, blob)
+	// Dedup via WmlPackage
+	ip = sp.wmlPkg.GetOrAddImagePart(ip)
+	// Wire relationship
+	rId := sp.Rels().GetOrAdd(opc.RTImage, ip).RID
+	return rId, ip, nil
+}
+
+// NewPicInlineFromReader creates a new CT_Inline element from an image stream.
+// This mirrors the Python StoryPart.new_pic_inline(image_descriptor, width, height)
+// flow, where the caller provides a path or stream, not a pre-built ImagePart.
+func (sp *StoryPart) NewPicInlineFromReader(r io.ReadSeeker, width, height *int64) (*oxml.CT_Inline, error) {
+	rId, ip, err := sp.GetOrAddImageFromReader(r)
+	if err != nil {
+		return nil, err
+	}
+	cx, cy, err := ip.ScaledDimensions(width, height)
+	if err != nil {
+		return nil, fmt.Errorf("parts: computing scaled dimensions: %w", err)
+	}
+	shapeID := sp.NextID()
+	filename := ip.Filename()
+	return oxml.NewPicInline(shapeID, rId, filename, cx, cy)
 }
 
 // DropRel removes the relationship identified by rId if its reference count

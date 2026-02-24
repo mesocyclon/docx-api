@@ -63,11 +63,12 @@ func (c *BlockItemContainer) AddParagraph(text string, style interface{}) (*Para
 }
 
 // AddTable appends a new table with the given rows, columns, and width (twips).
+// The table is inserted before any trailing w:sectPr to maintain schema order.
 //
-// Mirrors Python BlockItemContainer.add_table.
+// Mirrors Python BlockItemContainer.add_table (_insert_tbl with successor w:sectPr).
 func (c *BlockItemContainer) AddTable(rows, cols int, widthTwips int) (*Table, error) {
 	tbl := oxml.NewTbl(rows, cols, widthTwips)
-	c.element.AddChild(tbl.E)
+	c.insertBeforeSectPr(tbl.E)
 	return NewTable(tbl, c.part), nil
 }
 
@@ -123,9 +124,35 @@ func (c *BlockItemContainer) Element() *etree.Element { return c.element }
 // Part returns the story part this container belongs to.
 func (c *BlockItemContainer) Part() *parts.StoryPart { return c.part }
 
-// addP creates and appends a new <w:p> element.
+// addP creates and inserts a new <w:p> element before any trailing w:sectPr.
 func (c *BlockItemContainer) addP() *oxml.CT_P {
-	pE := c.element.CreateElement("p")
+	pE := etree.NewElement("p")
 	pE.Space = "w"
+	c.insertBeforeSectPr(pE)
 	return &oxml.CT_P{Element: oxml.Element{E: pE}}
+}
+
+// insertBeforeSectPr inserts child into this container, placing it just before
+// the first direct child <w:sectPr> if one exists. If no w:sectPr child is
+// present, the element is appended to the end. This matches the Python
+// xmlchemy successor constraint: both w:p and w:tbl have successors=('w:sectPr',).
+//
+// Only CT_Body has a trailing w:sectPr; for CT_Tc, CT_HdrFtr, and CT_Comment
+// there is no such child, so this degrades to a simple append.
+func (c *BlockItemContainer) insertBeforeSectPr(child *etree.Element) {
+	children := c.element.Child
+	for i, tok := range children {
+		if el, ok := tok.(*etree.Element); ok {
+			if el.Tag == "sectPr" && el.Space == "w" {
+				// Remove child from any existing parent
+				if p := child.Parent(); p != nil {
+					p.RemoveChild(child)
+				}
+				c.element.InsertChildAt(i, child)
+				return
+			}
+		}
+	}
+	// No w:sectPr — append normally
+	c.element.AddChild(child)
 }

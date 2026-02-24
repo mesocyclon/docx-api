@@ -41,16 +41,22 @@ func (cf *ColorFormat) RGB() *RGBColor {
 
 // SetRGB sets the RGB color. Passing nil removes the color.
 //
-// Mirrors Python ColorFormat.rgb (setter).
+// Mirrors Python ColorFormat.rgb (setter): always removes the existing w:color
+// element first (clearing any themeColor attribute), then adds a fresh one if
+// value is not nil.
 func (cf *ColorFormat) SetRGB(v *RGBColor) error {
+	rPr := cf.r.RPr()
 	if v == nil {
-		rPr := cf.r.RPr()
 		if rPr == nil {
 			return nil
 		}
-		return rPr.SetColorVal(nil)
+		rPr.RemoveColor()
+		return nil
 	}
-	rPr := cf.r.GetOrAddRPr()
+	rPr = cf.r.GetOrAddRPr()
+	// Remove existing color element entirely (clears themeColor etc.)
+	rPr.RemoveColor()
+	// Create fresh color element with only the val attribute
 	hex := v.String()
 	return rPr.SetColorVal(&hex)
 }

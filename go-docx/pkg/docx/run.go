@@ -2,6 +2,7 @@ package docx
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/vortex/go-docx/pkg/docx/enum"
 	"github.com/vortex/go-docx/pkg/docx/oxml"
@@ -60,10 +61,26 @@ func breakTypeToAttrs(bt enum.WdBreakType) (string, string) {
 	}
 }
 
-// AddPicture adds an inline picture to this run and returns the InlineShape.
+// AddPicture adds an inline picture to this run from an image stream and
+// returns the InlineShape. Width and height are optional EMU dimensions;
+// pass nil for native size or to compute proportionally.
 //
-// Mirrors Python Run.add_picture.
-func (run *Run) AddPicture(imgPart *parts.ImagePart, width, height *int64) (*InlineShape, error) {
+// Mirrors Python Run.add_picture(image_path_or_stream, width, height).
+func (run *Run) AddPicture(r io.ReadSeeker, width, height *int64) (*InlineShape, error) {
+	if run.part == nil {
+		return nil, fmt.Errorf("docx: run has no story part (required for image insertion)")
+	}
+	inline, err := run.part.NewPicInlineFromReader(r, width, height)
+	if err != nil {
+		return nil, fmt.Errorf("docx: creating pic inline from stream: %w", err)
+	}
+	run.r.AddDrawingWithInline(inline)
+	return NewInlineShape(inline), nil
+}
+
+// AddPictureFromPart adds an inline picture from a pre-built ImagePart.
+// This is the lower-level API; prefer AddPicture for the standard flow.
+func (run *Run) AddPictureFromPart(imgPart *parts.ImagePart, width, height *int64) (*InlineShape, error) {
 	inline, err := run.part.NewPicInline(imgPart, width, height)
 	if err != nil {
 		return nil, fmt.Errorf("docx: creating pic inline: %w", err)

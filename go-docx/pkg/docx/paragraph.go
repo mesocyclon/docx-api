@@ -183,9 +183,10 @@ func (para *Paragraph) Text() string {
 // SetText replaces all paragraph content with a single run containing text.
 //
 // Mirrors Python Paragraph.text (setter).
-func (para *Paragraph) SetText(text string) {
+func (para *Paragraph) SetText(text string) error {
 	para.Clear()
-	para.AddRun(text, nil) //nolint:errcheck
+	_, err := para.AddRun(text, nil)
+	return err
 }
 
 // CT_P returns the underlying oxml element.

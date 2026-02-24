@@ -252,7 +252,7 @@ func NewCell(tc *oxml.CT_Tc, table *Table) *Cell {
 //
 // Mirrors Python _Cell.add_table.
 func (c *Cell) AddTable(rows, cols int) (*Table, error) {
-	width := 914400 // default Inches(1) in twips
+	width := 1440 // default Inches(1) = 1440 twips
 	w, err := c.tc.WidthTwips()
 	if err == nil && w != nil {
 		width = *w

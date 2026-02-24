@@ -128,16 +128,94 @@ func (s *Section) FirstPageFooter() *Footer {
 }
 
 // IterInnerContent returns paragraphs and tables in this section body.
+//
+// Mirrors Python Section.iter_inner_content → CT_SectPr.iter_inner_content →
+// _SectBlockElementIterator. Only returns block-items belonging to THIS section,
+// not the entire document body.
 func (s *Section) IterInnerContent() []*InnerContentItem {
-	var result []*InnerContentItem
-	for _, child := range s.sectPr.E.Parent().ChildElements() {
+	body := s.sectPr.E.Parent()
+	if body == nil {
+		return nil
+	}
+
+	// Determine section boundaries. Sections are delimited by sectPr elements:
+	// - Paragraph-based: w:p/w:pPr/w:sectPr marks end of a section (the p itself belongs to that section)
+	// - Body-based: w:body/w:sectPr marks the last section
+	//
+	// We walk body children once, collecting (start, end) ranges for each section.
+
+	type sectionRange struct {
+		startIdx int // inclusive index into body children
+		endIdx   int // exclusive index into body children
+		sectPrEl *etree.Element
+	}
+
+	children := body.ChildElements()
+	var ranges []sectionRange
+	rangeStart := 0
+
+	for i, child := range children {
 		if child.Space == "w" && child.Tag == "p" {
+			// Check if this paragraph contains w:pPr/w:sectPr
+			if pSectPr := findParagraphSectPr(child); pSectPr != nil {
+				// This paragraph (inclusive) ends a section
+				ranges = append(ranges, sectionRange{
+					startIdx: rangeStart,
+					endIdx:   i + 1, // include this p
+					sectPrEl: pSectPr,
+				})
+				rangeStart = i + 1
+			}
+		} else if child.Space == "w" && child.Tag == "sectPr" {
+			// Body-level sectPr: last section
+			ranges = append(ranges, sectionRange{
+				startIdx: rangeStart,
+				endIdx:   i, // exclude the sectPr itself
+				sectPrEl: child,
+			})
+		}
+	}
+
+	// Find which range matches our sectPr
+	for _, sr := range ranges {
+		if sr.sectPrEl == s.sectPr.E {
+			return collectBlockItems(children[sr.startIdx:sr.endIdx], s.docPart)
+		}
+	}
+
+	return nil
+}
+
+// findParagraphSectPr returns the w:sectPr element inside w:p/w:pPr, or nil.
+func findParagraphSectPr(p *etree.Element) *etree.Element {
+	for _, child := range p.ChildElements() {
+		if child.Space == "w" && child.Tag == "pPr" {
+			for _, gc := range child.ChildElements() {
+				if gc.Space == "w" && gc.Tag == "sectPr" {
+					return gc
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// collectBlockItems filters elements for w:p and w:tbl, wrapping them as
+// InnerContentItems with the appropriate proxy objects.
+func collectBlockItems(elems []*etree.Element, docPart *parts.DocumentPart) []*InnerContentItem {
+	var result []*InnerContentItem
+	var sp *parts.StoryPart
+	if docPart != nil {
+		sp = &docPart.StoryPart
+	}
+	for _, child := range elems {
+		switch {
+		case child.Space == "w" && child.Tag == "p":
 			p := &oxml.CT_P{Element: oxml.Element{E: child}}
-			sp := (*parts.StoryPart)(nil)
 			result = append(result, &InnerContentItem{paragraph: NewParagraph(p, sp)})
-		} else if child.Space == "w" && child.Tag == "tbl" {
+		case child.Space == "w" && child.Tag == "tbl":
 			tbl := &oxml.CT_Tbl{Element: oxml.Element{E: child}}
-			result = append(result, &InnerContentItem{table: NewTable(tbl, nil)})
+			result = append(result, &InnerContentItem{table: NewTable(tbl, sp)})
 		}
 	}
 	return result
@@ -190,7 +268,9 @@ func (ss *Sections) Iter() []*Section {
 
 // Header is a proxy for a page header.
 //
-// Mirrors Python _Header(_BaseHeaderFooter).
+// Mirrors Python _Header(_BaseHeaderFooter(BlockItemContainer)).
+// Provides BlockItemContainer methods (AddParagraph, AddTable, Paragraphs,
+// Tables, IterInnerContent) by delegating to the underlying header part.
 type Header struct {
 	sectPr  *oxml.CT_SectPr
 	docPart *parts.DocumentPart
@@ -223,20 +303,88 @@ func (h *Header) SetIsLinkedToPrevious(v bool) error {
 	return err
 }
 
+// AddParagraph appends a new paragraph to this header.
+//
+// Mirrors Python BlockItemContainer.add_paragraph (inherited by _BaseHeaderFooter).
+func (h *Header) AddParagraph(text string, style interface{}) (*Paragraph, error) {
+	bic, err := h.blockItemContainer()
+	if err != nil {
+		return nil, fmt.Errorf("docx: header add paragraph: %w", err)
+	}
+	return bic.AddParagraph(text, style)
+}
+
+// AddTable appends a new table to this header.
+//
+// Mirrors Python BlockItemContainer.add_table (inherited by _BaseHeaderFooter).
+func (h *Header) AddTable(rows, cols int, widthTwips int) (*Table, error) {
+	bic, err := h.blockItemContainer()
+	if err != nil {
+		return nil, fmt.Errorf("docx: header add table: %w", err)
+	}
+	return bic.AddTable(rows, cols, widthTwips)
+}
+
 // Paragraphs returns the paragraphs in this header.
+//
+// Mirrors Python BlockItemContainer.paragraphs (inherited by _BaseHeaderFooter).
 func (h *Header) Paragraphs() []*Paragraph {
-	hdrE := h.element()
-	if hdrE == nil {
+	bic, err := h.blockItemContainer()
+	if err != nil {
 		return nil
 	}
-	var result []*Paragraph
-	for _, child := range hdrE.ChildElements() {
-		if child.Space == "w" && child.Tag == "p" {
-			p := &oxml.CT_P{Element: oxml.Element{E: child}}
-			result = append(result, NewParagraph(p, nil))
-		}
+	return bic.Paragraphs()
+}
+
+// Tables returns the tables in this header.
+//
+// Mirrors Python BlockItemContainer.tables (inherited by _BaseHeaderFooter).
+func (h *Header) Tables() []*Table {
+	bic, err := h.blockItemContainer()
+	if err != nil {
+		return nil
 	}
-	return result
+	return bic.Tables()
+}
+
+// IterInnerContent returns paragraphs and tables in this header in document order.
+//
+// Mirrors Python BlockItemContainer.iter_inner_content (inherited by _BaseHeaderFooter).
+func (h *Header) IterInnerContent() []*InnerContentItem {
+	bic, err := h.blockItemContainer()
+	if err != nil {
+		return nil
+	}
+	return bic.IterInnerContent()
+}
+
+// Part returns the HeaderPart as a StoryPart. This overrides the part
+// accessor to provide the correct StoryPart for style resolution and
+// image insertion in header content.
+//
+// Mirrors Python _BaseHeaderFooter.part property.
+func (h *Header) Part() *parts.StoryPart {
+	hp := h.getOrAddDefinition()
+	if hp == nil {
+		return nil
+	}
+	return &hp.StoryPart
+}
+
+// blockItemContainer creates a BlockItemContainer backed by the header part's
+// element and StoryPart. Created fresh each call to match Python's property
+// behavior (no stale cache if definition changes).
+func (h *Header) blockItemContainer() (*BlockItemContainer, error) {
+	hp := h.getOrAddDefinition()
+	if hp == nil {
+		return nil, fmt.Errorf("docx: failed to resolve header definition")
+	}
+	el := hp.Element()
+	if el == nil {
+		return nil, fmt.Errorf("docx: header part has nil element")
+	}
+	bic := NewBlockItemContainer(el, &hp.StoryPart)
+	return &bic, nil
 }
 
 func (h *Header) hasDefinition() bool {
@@ -260,14 +408,6 @@ func (h *Header) dropDefinition() {
 	if rId != "" {
 		h.docPart.DropHeaderPart(rId)
 	}
-}
-
-func (h *Header) element() *etree.Element {
-	part := h.getOrAddDefinition()
-	if part == nil {
-		return nil
-	}
-	return part.Element()
 }
 
 // getOrAddDefinition mirrors Python _BaseHeaderFooter._get_or_add_definition.
@@ -312,7 +452,9 @@ func (h *Header) priorHeader() *Header {
 
 // Footer is a proxy for a page footer.
 //
-// Mirrors Python _Footer(_BaseHeaderFooter).
+// Mirrors Python _Footer(_BaseHeaderFooter(BlockItemContainer)).
+// Provides BlockItemContainer methods (AddParagraph, AddTable, Paragraphs,
+// Tables, IterInnerContent) by delegating to the underlying footer part.
 type Footer struct {
 	sectPr  *oxml.CT_SectPr
 	docPart *parts.DocumentPart
@@ -343,20 +485,88 @@ func (f *Footer) SetIsLinkedToPrevious(v bool) error {
 	return err
 }
 
+// AddParagraph appends a new paragraph to this footer.
+//
+// Mirrors Python BlockItemContainer.add_paragraph (inherited by _BaseHeaderFooter).
+func (f *Footer) AddParagraph(text string, style interface{}) (*Paragraph, error) {
+	bic, err := f.blockItemContainer()
+	if err != nil {
+		return nil, fmt.Errorf("docx: footer add paragraph: %w", err)
+	}
+	return bic.AddParagraph(text, style)
+}
+
+// AddTable appends a new table to this footer.
+//
+// Mirrors Python BlockItemContainer.add_table (inherited by _BaseHeaderFooter).
+func (f *Footer) AddTable(rows, cols int, widthTwips int) (*Table, error) {
+	bic, err := f.blockItemContainer()
+	if err != nil {
+		return nil, fmt.Errorf("docx: footer add table: %w", err)
+	}
+	return bic.AddTable(rows, cols, widthTwips)
+}
+
 // Paragraphs returns the paragraphs in this footer.
+//
+// Mirrors Python BlockItemContainer.paragraphs (inherited by _BaseHeaderFooter).
 func (f *Footer) Paragraphs() []*Paragraph {
-	ftrE := f.element()
-	if ftrE == nil {
+	bic, err := f.blockItemContainer()
+	if err != nil {
 		return nil
 	}
-	var result []*Paragraph
-	for _, child := range ftrE.ChildElements() {
-		if child.Space == "w" && child.Tag == "p" {
-			p := &oxml.CT_P{Element: oxml.Element{E: child}}
-			result = append(result, NewParagraph(p, nil))
-		}
+	return bic.Paragraphs()
+}
+
+// Tables returns the tables in this footer.
+//
+// Mirrors Python BlockItemContainer.tables (inherited by _BaseHeaderFooter).
+func (f *Footer) Tables() []*Table {
+	bic, err := f.blockItemContainer()
+	if err != nil {
+		return nil
 	}
-	return result
+	return bic.Tables()
+}
+
+// IterInnerContent returns paragraphs and tables in this footer in document order.
+//
+// Mirrors Python BlockItemContainer.iter_inner_content (inherited by _BaseHeaderFooter).
+func (f *Footer) IterInnerContent() []*InnerContentItem {
+	bic, err := f.blockItemContainer()
+	if err != nil {
+		return nil
+	}
+	return bic.IterInnerContent()
+}
+
+// Part returns the FooterPart as a StoryPart. This overrides the part
+// accessor to provide the correct StoryPart for style resolution and
+// image insertion in footer content.
+//
+// Mirrors Python _BaseHeaderFooter.part property.
+func (f *Footer) Part() *parts.StoryPart {
+	fp := f.getOrAddDefinition()
+	if fp == nil {
+		return nil
+	}
+	return &fp.StoryPart
+}
+
+// blockItemContainer creates a BlockItemContainer backed by the footer part's
+// element and StoryPart. Created fresh each call to match Python's property
+// behavior.
+func (f *Footer) blockItemContainer() (*BlockItemContainer, error) {
+	fp := f.getOrAddDefinition()
+	if fp == nil {
+		return nil, fmt.Errorf("docx: failed to resolve footer definition")
+	}
+	el := fp.Element()
+	if el == nil {
+		return nil, fmt.Errorf("docx: footer part has nil element")
+	}
+	bic := NewBlockItemContainer(el, &fp.StoryPart)
+	return &bic, nil
 }
 
 func (f *Footer) hasDefinition() bool {
@@ -380,14 +590,6 @@ func (f *Footer) dropDefinition() {
 	if rId != "" {
 		f.docPart.DropRel(rId)
 	}
-}
-
-func (f *Footer) element() *etree.Element {
-	part := f.getOrAddDefinition()
-	if part == nil {
-		return nil
-	}
-	return part.Element()
 }
 
 func (f *Footer) getOrAddDefinition() *parts.FooterPart {

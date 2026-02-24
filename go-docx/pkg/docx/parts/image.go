@@ -48,6 +48,26 @@ func NewImagePartWithMeta(partName opc.PackURI, contentType string, blob []byte,
 	}
 }
 
+// NewImagePartFromImage creates an ImagePart from a parsed image.Image and its
+// raw blob bytes. Used by the stream-based image insertion flow.
+//
+// Mirrors Python ImagePart.from_image(image, partname) classmethod.
+func NewImagePartFromImage(img *image.Image, blob []byte) *ImagePart {
+	fn := img.Filename()
+	if fn == "" {
+		fn = "image." + img.Ext()
+	}
+	return &ImagePart{
+		BasePart:   opc.NewBasePart("", img.ContentType(), blob, nil),
+		metaLoaded: true,
+		pxWidth:    img.PxWidth(),
+		pxHeight:   img.PxHeight(),
+		horzDpi:    img.HorzDpi(),
+		vertDpi:    img.VertDpi(),
+		filename:   fn,
+	}
+}
+
 // SHA1 returns the hex-encoded SHA1 hash of this image's blob.
 // The value is cached after the first computation.
 //

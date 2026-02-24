@@ -10,11 +10,13 @@ import (
 // constructors. This factory is used when opening a .docx package so that
 // the generic OPC unmarshaller produces the correct part types.
 //
-// Mirrors Python PartFactory configuration in docx/package.py.
+// Mirrors Python PartFactory configuration in docx/__init__.py.
 func NewDocxPartFactory() *opc.PartFactory {
 	f := opc.NewPartFactory()
 
 	// Register content-type → constructor mappings
+	// Mirrors Python: PartFactory.part_type_for[CT.*] = *Part
+	f.Register(opc.CTOpcCoreProperties, LoadCorePropertiesPart)
 	f.Register(opc.CTWmlDocumentMain, LoadDocumentPart)
 	f.Register(opc.CTWmlDocument, LoadDocumentPart)
 	f.Register(opc.CTWmlStyles, LoadStylesPart)
