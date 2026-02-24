@@ -3,9 +3,9 @@
 # Visual regression testing for OPC and DOCX roundtrip layers.
 #
 # 1. Put your .docx files into opc-visual-regtest/test-files/
-# 2. Run:  make run              (OPC layer, default)
-#     or:  make run LAYER=docx   (DOCX layer)
-# 3. Open: opc-visual-regtest/report/index.html
+# 2. Run:  make run              (DOCX layer, default)
+#     or:  make run LAYER=opc   (opc layer)
+# 3. Open: visual-regtest/report/index.html
 #
 # Optional overrides:
 #   make run LAYER=docx SSIM_THRESHOLD=0.95 DPI=200 WORKERS=8
@@ -15,7 +15,7 @@ SHELL      := /bin/bash
 MAKEFLAGS  += --no-print-directory
 
 # Defaults
-LAYER          ?= opc
+LAYER          ?= docx
 SSIM_THRESHOLD ?= 0.98
 DPI            ?= 150
 WORKERS        ?= 4
