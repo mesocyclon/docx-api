@@ -167,7 +167,88 @@ func (p *XmlPart) Blob() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("opc: serializing XML part %q: %w", p.partName, err)
 	}
+	// etree decodes &#10;/&#13;/&#9; in attribute values during parsing
+	// (per XML spec) but writes them back as literal \n/\r/\t characters.
+	// Per the XML attribute-value normalization rules, a subsequent parse
+	// would collapse these to spaces — corrupting data such as VML
+	// textpath multiline strings.  Re-escape them to character references.
+	b = escapeAttrWhitespace(b)
 	return b, nil
+}
+
+// escapeAttrWhitespace re-encodes literal \n, \r, and \t inside XML
+// attribute values to their character-reference forms (&#10; &#13; &#9;).
+//
+// etree (and most Go XML encoders) do not escape these, which is technically
+// valid XML but breaks roundtrip fidelity because the XML spec's
+// attribute-value normalization replaces them with spaces on the next parse.
+//
+// The function is a simple state machine over the serialized bytes;
+// it only modifies bytes that appear between quote characters inside tags.
+func escapeAttrWhitespace(b []byte) []byte {
+	// Quick scan: if no newlines/tabs exist at all, skip allocation.
+	hasSpecial := false
+	for _, c := range b {
+		if c == '\n' || c == '\r' || c == '\t' {
+			hasSpecial = true
+			break
+		}
+	}
+	if !hasSpecial {
+		return b
+	}
+
+	// State machine: track whether we are inside <...> and inside "..." or '...'.
+	out := make([]byte, 0, len(b)+64)
+	inTag := false // inside < ... >
+	var quote byte // 0 = not in attr value, '"' or '\'' = inside
+
+	for _, c := range b {
+		if !inTag {
+			if c == '<' {
+				inTag = true
+				quote = 0
+			}
+			out = append(out, c)
+			continue
+		}
+
+		// Inside a tag.
+		if quote == 0 {
+			// Not inside an attribute value.
+			switch c {
+			case '>':
+				inTag = false
+				out = append(out, c)
+			case '"', '\'':
+				quote = c
+				out = append(out, c)
+			default:
+				out = append(out, c)
+			}
+			continue
+		}
+
+		// Inside an attribute value.
+		if c == quote {
+			// Closing quote.
+			quote = 0
+			out = append(out, c)
+			continue
+		}
+
+		switch c {
+		case '\n':
+			out = append(out, []byte("&#10;")...)
+		case '\r':
+			out = append(out, []byte("&#13;")...)
+		case '\t':
+			out = append(out, []byte("&#9;")...)
+		default:
+			out = append(out, c)
+		}
+	}
+	return out
 }
 
 // --------------------------------------------------------------------------

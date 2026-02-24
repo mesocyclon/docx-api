@@ -18,7 +18,6 @@ func NewDocxPartFactory() *opc.PartFactory {
 	// Mirrors Python: PartFactory.part_type_for[CT.*] = *Part
 	f.Register(opc.CTOpcCoreProperties, LoadCorePropertiesPart)
 	f.Register(opc.CTWmlDocumentMain, LoadDocumentPart)
-	f.Register(opc.CTWmlDocument, LoadDocumentPart)
 	f.Register(opc.CTWmlStyles, LoadStylesPart)
 	f.Register(opc.CTWmlSettings, LoadSettingsPart)
 	f.Register(opc.CTWmlComments, LoadCommentsPart)

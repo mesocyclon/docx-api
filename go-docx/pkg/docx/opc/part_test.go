@@ -242,3 +242,103 @@ func TestPartFactory_DefaultFallback(t *testing.T) {
 		t.Errorf("blob mismatch: got %q", string(gotBlob))
 	}
 }
+
+// ---------------------------------------------------------------------------
+// escapeAttrWhitespace
+// ---------------------------------------------------------------------------
+
+func TestEscapeAttrWhitespace_NewlinesInAttr(t *testing.T) {
+	t.Parallel()
+	input := []byte(`<v:textpath string="Line1&#10;Line2&#10;"/>`)
+	// After etree parse→serialize, &#10; becomes literal \n:
+	broken := []byte("<v:textpath string=\"Line1\nLine2\n\"/>")
+	got := escapeAttrWhitespace(broken)
+	want := `<v:textpath string="Line1&#10;Line2&#10;"/>`
+	if string(got) != want {
+		t.Errorf("escapeAttrWhitespace:\n got: %q\nwant: %q", string(got), want)
+	}
+	// Original with &#10; already encoded should pass through (no literal \n).
+	got2 := escapeAttrWhitespace(input)
+	if string(got2) != string(input) {
+		t.Errorf("should not modify already-escaped: %q", string(got2))
+	}
+}
+
+func TestEscapeAttrWhitespace_TabsAndCR(t *testing.T) {
+	t.Parallel()
+	input := []byte("<el attr=\"a\tb\rc\"/>")
+	got := escapeAttrWhitespace(input)
+	want := `<el attr="a&#9;b&#13;c"/>`
+	if string(got) != want {
+		t.Errorf("got: %q\nwant: %q", string(got), want)
+	}
+}
+
+func TestEscapeAttrWhitespace_TextContentUntouched(t *testing.T) {
+	t.Parallel()
+	// Newlines in text content (outside tags) must NOT be escaped.
+	input := []byte("<root>\n  <child>text\nhere</child>\n</root>")
+	got := escapeAttrWhitespace(input)
+	if string(got) != string(input) {
+		t.Errorf("text content was modified:\n got: %q\norig: %q", string(got), string(input))
+	}
+}
+
+func TestEscapeAttrWhitespace_SingleQuoteAttr(t *testing.T) {
+	t.Parallel()
+	input := []byte("<el attr='a\nb'/>")
+	got := escapeAttrWhitespace(input)
+	want := "<el attr='a&#10;b'/>"
+	if string(got) != want {
+		t.Errorf("got: %q\nwant: %q", string(got), want)
+	}
+}
+
+func TestEscapeAttrWhitespace_NoSpecialChars(t *testing.T) {
+	t.Parallel()
+	input := []byte(`<root><child attr="value">text</child></root>`)
+	got := escapeAttrWhitespace(input)
+	// Should return same slice (no allocation).
+	if &got[0] != &input[0] {
+		t.Error("expected same slice when no escaping needed")
+	}
+}
+
+func TestEscapeAttrWhitespace_VMLRealistic(t *testing.T) {
+	t.Parallel()
+	// Simulates what etree produces for fdo74110.docx v:textpath
+	input := []byte(`<v:textpath style="font-family:&quot;Noto Sans&quot;;font-size:28pt" string="IBM RoadRunner` + "\n" + `Blade Center` + "\n" + `QS22/LS21 Cluster` + "\n" + `"></v:textpath>`)
+	got := escapeAttrWhitespace(input)
+	want := `<v:textpath style="font-family:&quot;Noto Sans&quot;;font-size:28pt" string="IBM RoadRunner&#10;Blade Center&#10;QS22/LS21 Cluster&#10;"></v:textpath>`
+	if string(got) != want {
+		t.Errorf("VML roundtrip:\n got: %s\nwant: %s", string(got), want)
+	}
+}
+
+func TestXmlPart_Blob_EscapesAttrNewlines(t *testing.T) {
+	t.Parallel()
+	// XML with &#10; in attribute — should survive parse→serialize roundtrip.
+	xml := `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
+		`<root><el attr="line1&#10;line2"></el></root>`
+	xp, err := NewXmlPart("/test.xml", CTXml, []byte(xml), nil)
+	if err != nil {
+		t.Fatalf("NewXmlPart: %v", err)
+	}
+	blob, err := xp.Blob()
+	if err != nil {
+		t.Fatalf("Blob: %v", err)
+	}
+	s := string(blob)
+	if !contains(s, "line1&#10;line2") {
+		t.Errorf("&#10; not preserved in attribute:\n%s", s)
+	}
+}
+
+func contains(s, substr string) bool {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return true
+		}
+	}
+	return false
+}
