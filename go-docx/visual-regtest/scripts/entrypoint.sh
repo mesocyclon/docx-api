@@ -52,7 +52,7 @@ echo "[entrypoint] found ${NFILES} .docx files in corpus"
 
 if [ "${NFILES}" -eq 0 ]; then
     echo "[entrypoint] ERROR: no .docx files found in ${ORIG_DIR}"
-    echo "[entrypoint] Put your .docx files into opc-visual-regtest/test-files/ and rebuild."
+    echo "[entrypoint] Put your .docx files into visual-regtest/test-files/ and rebuild."
     exit 1
 fi
 
@@ -79,5 +79,5 @@ python3 /opt/scripts/compare_ssim.py \
 
 echo ""
 echo "=============================================="
-echo " Report: opc-visual-regtest/report/index.html"
+echo " Report: visual-regtest/report/index.html"
 echo "=============================================="

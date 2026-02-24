@@ -1,8 +1,8 @@
-# opc-visual-regtest/Makefile
+# visual-regtest/Makefile
 # ============================================================================
 # Visual regression testing for OPC and DOCX roundtrip layers.
 #
-# 1. Put your .docx files into opc-visual-regtest/test-files/
+# 1. Put your .docx files into visual-regtest/test-files/
 # 2. Run:  make run              (DOCX layer, default)
 #     or:  make run LAYER=opc   (opc layer)
 # 3. Open: visual-regtest/report/index.html
@@ -34,7 +34,7 @@ help: ## Show this help
 check-files:
 	@if [ -z "$$(ls -A $(CURDIR)/test-files/*.docx 2>/dev/null)" ]; then \
 		echo ""; \
-		echo "  ERROR: no .docx files in opc-visual-regtest/test-files/"; \
+		echo "  ERROR: no .docx files in visual-regtest/test-files/"; \
 		echo "  Put your test documents there and re-run."; \
 		echo ""; \
 		exit 1; \

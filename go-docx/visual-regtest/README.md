@@ -15,10 +15,10 @@ Two layers can be tested:
 
 ```bash
 # 1. Drop your .docx files into the test-files/ directory
-cp /path/to/your/*.docx opc-visual-regtest/test-files/
+cp /path/to/your/*.docx visual-regtest/test-files/
 
-# 2. Run (from the opc-visual-regtest/ directory)
-cd opc-visual-regtest
+# 2. Run (from the visual-regtest/ directory)
+cd visual-regtest
 
 make run                # OPC layer (default)
 make run LAYER=docx     # DOCX layer
@@ -108,7 +108,7 @@ Parse `report/index.json` programmatically, or check stderr for the summary line
 ## File layout
 
 ```
-opc-visual-regtest/
+visual-regtest/
 ├── test-files/             ← put your .docx files here
 │   └── .gitkeep
 ├── report/                 ← generated (gitignored)

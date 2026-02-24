@@ -4,7 +4,7 @@
 # Contains: Go 1.25 · LibreOffice (headless) · poppler-utils · Python 3 +
 #           scikit-image, Pillow, numpy
 #
-# Test corpus is baked into the image from opc-visual-regtest/test-files/.
+# Test corpus is baked into the image from visual-regtest/test-files/.
 #
 # Two roundtrip binaries are built:
 #   roundtrip-opc  – OPC layer only  (opc.OpenFile → SaveToFile)
@@ -35,14 +35,14 @@ RUN python3 -m pip install --break-system-packages --no-cache-dir \
 # ---------- project source & build ----------------------------------------
 WORKDIR /workspace
 COPY . .
-RUN go build -o /usr/local/bin/roundtrip-opc  ./opc-visual-regtest/roundtrip/opc \
- && go build -o /usr/local/bin/roundtrip-docx ./opc-visual-regtest/roundtrip/docx
+RUN go build -o /usr/local/bin/roundtrip-opc  ./visual-regtest/roundtrip/opc \
+ && go build -o /usr/local/bin/roundtrip-docx ./visual-regtest/roundtrip/docx
 
 # ---------- test corpus (baked in) ----------------------------------------
-COPY opc-visual-regtest/test-files/ /corpus/
+COPY visual-regtest/test-files/ /corpus/
 
 # ---------- scripts -------------------------------------------------------
-COPY opc-visual-regtest/scripts/ /opt/scripts/
+COPY visual-regtest/scripts/ /opt/scripts/
 RUN chmod +x /opt/scripts/entrypoint.sh
 
 # ---------- runtime -------------------------------------------------------
