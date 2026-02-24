@@ -1,7 +1,8 @@
 # docker-compose.yml
 #
 # Alternative to Makefile. Run from project root:
-#   docker compose -f opc-visual-regtest/docker-compose.yml up --build
+#   LAYER=opc  docker compose -f opc-visual-regtest/docker-compose.yml up --build
+#   LAYER=docx docker compose -f opc-visual-regtest/docker-compose.yml up --build
 
 services:
   regtest:
@@ -11,6 +12,7 @@ services:
     volumes:
       - ./report:/output       # HTML report lands here
     environment:
+      - LAYER=${LAYER:-docx}
       - SSIM_THRESHOLD=${SSIM_THRESHOLD:-0.98}
       - DPI=${DPI:-150}
       - WORKERS=${WORKERS:-4}

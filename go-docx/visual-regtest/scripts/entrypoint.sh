@@ -2,18 +2,35 @@
 # entrypoint.sh – orchestrates the visual regression pipeline inside Docker.
 #
 # The test corpus is baked into the image at /corpus.
-# The roundtrip binary is pre-built at /usr/local/bin/roundtrip.
+# Two roundtrip binaries are pre-built:
+#   /usr/local/bin/roundtrip-opc   (OPC layer)
+#   /usr/local/bin/roundtrip-docx  (docx layer)
+#
 # Report output goes to /output (bind-mounted from the host).
 #
 # Environment variables (all have sensible defaults):
+#   LAYER           – which layer to test: opc | docx  (default: opc)
 #   SSIM_THRESHOLD  – SSIM pass threshold  (default: 0.98)
 #   DPI             – rendering resolution  (default: 150)
 #   WORKERS         – parallel workers      (default: 4)
 set -euo pipefail
 
+LAYER="${LAYER:-opc}"
 THRESHOLD="${SSIM_THRESHOLD:-0.98}"
 DPI="${DPI:-150}"
 WORKERS="${WORKERS:-4}"
+
+# Validate LAYER.
+case "${LAYER}" in
+    opc|docx) ;;
+    *)
+        echo "[entrypoint] ERROR: LAYER must be 'opc' or 'docx', got '${LAYER}'"
+        exit 1
+        ;;
+esac
+
+ROUNDTRIP_BIN="/usr/local/bin/roundtrip-${LAYER}"
+LABEL=$(echo "${LAYER}" | tr '[:lower:]' '[:upper:]')
 
 DATA="/data"
 ORIG_DIR="/corpus"
@@ -22,8 +39,9 @@ WORK_DIR="${DATA}/work"
 REPORT_DIR="/output"
 
 echo "=============================================="
-echo " OPC Visual Regression Test"
+echo " ${LABEL} Visual Regression Test"
 echo "=============================================="
+echo " Layer:     ${LAYER}"
 echo " Threshold: ${THRESHOLD}"
 echo " DPI:       ${DPI}"
 echo " Workers:   ${WORKERS}"
@@ -39,11 +57,11 @@ if [ "${NFILES}" -eq 0 ]; then
 fi
 
 # --------------------------------------------------------------------------
-# Step 1: Run OPC roundtrip on all .docx files.
+# Step 1: Run roundtrip on all .docx files.
 # --------------------------------------------------------------------------
 mkdir -p "${RT_DIR}"
-echo "[entrypoint] running OPC roundtrip …"
-/usr/local/bin/roundtrip --input="${ORIG_DIR}" --output="${RT_DIR}" --workers="${WORKERS}"
+echo "[entrypoint] running ${LABEL} roundtrip …"
+"${ROUNDTRIP_BIN}" --input="${ORIG_DIR}" --output="${RT_DIR}" --workers="${WORKERS}"
 
 # --------------------------------------------------------------------------
 # Step 2: SSIM comparison + report.

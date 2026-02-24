@@ -1,10 +1,16 @@
 # ===========================================================================
-# OPC Visual Regression Test – self-contained Docker image
+# Visual Regression Test – self-contained Docker image
 #
 # Contains: Go 1.25 · LibreOffice (headless) · poppler-utils · Python 3 +
 #           scikit-image, Pillow, numpy
 #
 # Test corpus is baked into the image from opc-visual-regtest/test-files/.
+#
+# Two roundtrip binaries are built:
+#   roundtrip-opc  – OPC layer only  (opc.OpenFile → SaveToFile)
+#   roundtrip-docx – full docx layer (docx.OpenFile → doc.SaveFile)
+#
+# Select which layer to test via the LAYER env variable (default: opc).
 # ===========================================================================
 FROM golang:1.25-bookworm
 
@@ -29,7 +35,8 @@ RUN python3 -m pip install --break-system-packages --no-cache-dir \
 # ---------- project source & build ----------------------------------------
 WORKDIR /workspace
 COPY . .
-RUN go build -o /usr/local/bin/roundtrip ./opc-visual-regtest/roundtrip
+RUN go build -o /usr/local/bin/roundtrip-opc  ./opc-visual-regtest/roundtrip/opc \
+ && go build -o /usr/local/bin/roundtrip-docx ./opc-visual-regtest/roundtrip/docx
 
 # ---------- test corpus (baked in) ----------------------------------------
 COPY opc-visual-regtest/test-files/ /corpus/
@@ -39,7 +46,8 @@ COPY opc-visual-regtest/scripts/ /opt/scripts/
 RUN chmod +x /opt/scripts/entrypoint.sh
 
 # ---------- runtime -------------------------------------------------------
-ENV SSIM_THRESHOLD=0.98 \
+ENV LAYER=docx \
+    SSIM_THRESHOLD=0.98 \
     DPI=150 \
     WORKERS=4
 

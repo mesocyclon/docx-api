@@ -1,23 +1,25 @@
 # opc-visual-regtest/Makefile
 # ============================================================================
-# Visual regression testing for the OPC roundtrip layer.
+# Visual regression testing for OPC and DOCX roundtrip layers.
 #
 # 1. Put your .docx files into opc-visual-regtest/test-files/
-# 2. Run:  make run
+# 2. Run:  make run              (OPC layer, default)
+#     or:  make run LAYER=docx   (DOCX layer)
 # 3. Open: opc-visual-regtest/report/index.html
 #
 # Optional overrides:
-#   make run SSIM_THRESHOLD=0.95 DPI=200 WORKERS=8
+#   make run LAYER=docx SSIM_THRESHOLD=0.95 DPI=200 WORKERS=8
 # ============================================================================
 
 SHELL      := /bin/bash
 MAKEFLAGS  += --no-print-directory
 
 # Defaults
+LAYER          ?= opc
 SSIM_THRESHOLD ?= 0.98
 DPI            ?= 150
 WORKERS        ?= 4
-IMAGE_NAME     ?= opc-visual-regtest
+IMAGE_NAME     ?= visual-regtest
 REPORT_DIR     := $(CURDIR)/report
 
 # Project root = one level up from this Makefile.
@@ -45,11 +47,12 @@ build: check-files ## Build the Docker image (includes test files)
 		-f $(CURDIR)/Dockerfile \
 		$(PROJECT_ROOT)
 
-run: build ## Run the full pipeline
+run: build ## Run the full pipeline (LAYER=opc|docx)
 	@mkdir -p $(REPORT_DIR)
 	docker run --rm \
 		-v "$(REPORT_DIR):/output" \
 		--tmpfs /data:size=4G \
+		-e LAYER=$(LAYER) \
 		-e SSIM_THRESHOLD=$(SSIM_THRESHOLD) \
 		-e DPI=$(DPI) \
 		-e WORKERS=$(WORKERS) \
