@@ -197,3 +197,57 @@ func (run *Run) SetUnderline(v interface{}) error {
 
 // CT_R returns the underlying oxml element.
 func (run *Run) CT_R() *oxml.CT_R { return run.r }
+
+// RunContentItem represents one item from a run's inner content:
+// either a string (accumulated text), *Drawing, or *RenderedPageBreak.
+type RunContentItem struct {
+	text              *string
+	drawing           *Drawing
+	renderedPageBreak *RenderedPageBreak
+}
+
+// IsText returns true if this item is accumulated text.
+func (it *RunContentItem) IsText() bool { return it.text != nil }
+
+// IsDrawing returns true if this item is a Drawing.
+func (it *RunContentItem) IsDrawing() bool { return it.drawing != nil }
+
+// IsRenderedPageBreak returns true if this item is a RenderedPageBreak.
+func (it *RunContentItem) IsRenderedPageBreak() bool { return it.renderedPageBreak != nil }
+
+// Text returns the text string, or "" if this item is not text.
+func (it *RunContentItem) Text() string {
+	if it.text != nil {
+		return *it.text
+	}
+	return ""
+}
+
+// Drawing returns the Drawing, or nil if this item is not a drawing.
+func (it *RunContentItem) Drawing() *Drawing { return it.drawing }
+
+// RenderedPageBreak returns the RenderedPageBreak, or nil if not a page break.
+func (it *RunContentItem) RenderedPageBreak() *RenderedPageBreak { return it.renderedPageBreak }
+
+// IterInnerContent returns the content items in this run in the order they appear.
+//
+// Text-like elements (w:t, w:br, w:cr, w:tab, etc.) are accumulated into
+// contiguous strings. Drawing and rendered-page-break elements are yielded
+// individually, interrupting any accumulated text.
+//
+// Mirrors Python Run.iter_inner_content → yields str | Drawing | RenderedPageBreak.
+func (run *Run) IterInnerContent() []*RunContentItem {
+	var result []*RunContentItem
+	for _, item := range run.r.InnerContentItems() {
+		switch v := item.(type) {
+		case string:
+			s := v
+			result = append(result, &RunContentItem{text: &s})
+		case *oxml.CT_Drawing:
+			result = append(result, &RunContentItem{drawing: NewDrawing(v, run.part)})
+		case *oxml.CT_LastRenderedPageBreak:
+			result = append(result, &RunContentItem{renderedPageBreak: NewRenderedPageBreak(v, run.part)})
+		}
+	}
+	return result
+}

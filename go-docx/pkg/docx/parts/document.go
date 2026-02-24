@@ -339,22 +339,20 @@ func (dp *DocumentPart) GetStyle(styleID *string, styleType enum.WdStyleType) (*
 	return s, nil
 }
 
+// styledObject is an interface satisfied by domain-level style objects
+// (e.g. docx.BaseStyle) that provide identity and type information.
+// This avoids circular imports between the parts and docx packages.
+type styledObject interface {
+	StyleID() string
+	Type() enum.WdStyleType
+}
+
 // GetStyleID returns the style_id string for styleOrName of styleType.
 // Returns nil if styleOrName is nil or if the resolved style is the default
-// for styleType.
+// for styleType. Accepts string (style name), style objects satisfying
+// styledObject (e.g. *docx.BaseStyle), or nil.
 //
 // Mirrors Python DocumentPart.get_style_id → self.styles.get_style_id(style_or_name, style_type).
-//
-// Python _get_style_id_from_style:
-//
-//	if style.type != style_type:
-//	    raise ValueError("assigned style is type %s, need type %s")
-//	if style == self.default(style_type):
-//	    return None
-//	return style.style_id
-//
-// NOTE: Full BaseStyle support (accepting style objects) is added in MR-11.
-// For MR-9 this handles string name lookups.
 func (dp *DocumentPart) GetStyleID(styleOrName interface{}, styleType enum.WdStyleType) (*string, error) {
 	if styleOrName == nil {
 		return nil, nil
@@ -363,26 +361,43 @@ func (dp *DocumentPart) GetStyleID(styleOrName interface{}, styleType enum.WdSty
 	if err != nil {
 		return nil, err
 	}
-	name, ok := styleOrName.(string)
-	if !ok {
-		return nil, fmt.Errorf("parts: GetStyleID expects string or nil (BaseStyle support in MR-11), got %T", styleOrName)
+
+	switch v := styleOrName.(type) {
+	case styledObject:
+		// Style object (e.g. *docx.BaseStyle) — mirrors Python _get_style_id_from_style.
+		if v.Type() != styleType {
+			return nil, fmt.Errorf("parts: assigned style is type %v, need type %v", v.Type(), styleType)
+		}
+		// If this style is the default for its type, return nil (matches Python).
+		def := ss.DefaultFor(styleType)
+		if def != nil && def.StyleId() == v.StyleID() {
+			return nil, nil
+		}
+		id := v.StyleID()
+		return &id, nil
+
+	case string:
+		// Style name — mirrors Python _get_style_id_from_name.
+		s := ss.GetByName(v)
+		if s == nil {
+			return nil, fmt.Errorf("parts: no style with name %q", v)
+		}
+		// Check style type matches (Python raises ValueError on mismatch).
+		xmlType, _ := styleType.ToXml()
+		if s.Type() != xmlType {
+			return nil, fmt.Errorf("parts: style %q is type %q, need type %q", v, s.Type(), xmlType)
+		}
+		// If this style is the default for its type, return nil (matches Python).
+		def := ss.DefaultFor(styleType)
+		if def != nil && def.E == s.E {
+			return nil, nil
+		}
+		id := s.StyleId()
+		return &id, nil
+
+	default:
+		return nil, fmt.Errorf("parts: GetStyleID expects string, style object, or nil, got %T", styleOrName)
 	}
-	s := ss.GetByName(name)
-	if s == nil {
-		return nil, fmt.Errorf("parts: no style with name %q", name)
-	}
-	// Check style type matches (Python raises ValueError on mismatch).
-	xmlType, _ := styleType.ToXml()
-	if s.Type() != xmlType {
-		return nil, fmt.Errorf("parts: style %q is type %q, need type %q", name, s.Type(), xmlType)
-	}
-	// If this style is the default for its type, return nil (matches Python).
-	def := ss.DefaultFor(styleType)
-	if def != nil && def.E == s.E {
-		return nil, nil
-	}
-	id := s.StyleId()
-	return &id, nil
 }
 
 // --------------------------------------------------------------------------

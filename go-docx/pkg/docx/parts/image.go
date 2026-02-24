@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/vortex/go-docx/pkg/docx/image"
 	"github.com/vortex/go-docx/pkg/docx/opc"
 )
 
@@ -14,11 +15,10 @@ import (
 // Mirrors Python ImagePart(Part).
 type ImagePart struct {
 	*opc.BasePart
-	sha1Hash string // lazy, "" until first SHA1() call
+	sha1Hash   string // lazy, "" until first SHA1() call
+	metaLoaded bool   // true once dimensions/DPI have been parsed
 
-	// Image metadata — populated after parsing. These fields are set when
-	// the image layer (MR-10) is integrated. For now, ImageParts loaded
-	// from packages carry blob data but metadata is deferred.
+	// Image metadata — populated lazily from blob or explicitly via SetImageMeta.
 	pxWidth  int
 	pxHeight int
 	horzDpi  int
@@ -38,12 +38,13 @@ func NewImagePartWithMeta(partName opc.PackURI, contentType string, blob []byte,
 	pxWidth, pxHeight, horzDpi, vertDpi int, filename string,
 ) *ImagePart {
 	return &ImagePart{
-		BasePart: opc.NewBasePart(partName, contentType, blob, nil),
-		pxWidth:  pxWidth,
-		pxHeight: pxHeight,
-		horzDpi:  horzDpi,
-		vertDpi:  vertDpi,
-		filename: filename,
+		BasePart:   opc.NewBasePart(partName, contentType, blob, nil),
+		metaLoaded: true,
+		pxWidth:    pxWidth,
+		pxHeight:   pxHeight,
+		horzDpi:    horzDpi,
+		vertDpi:    vertDpi,
+		filename:   filename,
 	}
 }
 
@@ -89,19 +90,58 @@ func (ip *ImagePart) SetImageMeta(pxWidth, pxHeight, horzDpi, vertDpi int) {
 	ip.pxHeight = pxHeight
 	ip.horzDpi = horzDpi
 	ip.vertDpi = vertDpi
+	ip.metaLoaded = true
+}
+
+// ensureMeta lazily parses the image blob to populate dimensions and DPI
+// metadata on first access. This mirrors Python's lazy Image property on
+// ImagePart which parses the blob when first needed.
+func (ip *ImagePart) ensureMeta() error {
+	if ip.metaLoaded {
+		return nil
+	}
+	blob, _ := ip.Blob()
+	if len(blob) == 0 {
+		return fmt.Errorf("parts: image part has no blob data")
+	}
+	img, err := image.FromBlob(blob, ip.Filename())
+	if err != nil {
+		return fmt.Errorf("parts: parsing image header: %w", err)
+	}
+	ip.pxWidth = img.PxWidth()
+	ip.pxHeight = img.PxHeight()
+	ip.horzDpi = img.HorzDpi()
+	ip.vertDpi = img.VertDpi()
+	if ip.filename == "" {
+		ip.filename = img.Filename()
+	}
+	ip.metaLoaded = true
+	return nil
 }
 
 // PxWidth returns the pixel width of this image.
-func (ip *ImagePart) PxWidth() int { return ip.pxWidth }
+func (ip *ImagePart) PxWidth() int {
+	_ = ip.ensureMeta()
+	return ip.pxWidth
+}
 
 // PxHeight returns the pixel height of this image.
-func (ip *ImagePart) PxHeight() int { return ip.pxHeight }
+func (ip *ImagePart) PxHeight() int {
+	_ = ip.ensureMeta()
+	return ip.pxHeight
+}
 
 // HorzDpi returns the horizontal dots per inch of this image.
-func (ip *ImagePart) HorzDpi() int { return ip.horzDpi }
+func (ip *ImagePart) HorzDpi() int {
+	_ = ip.ensureMeta()
+	return ip.horzDpi
+}
 
 // VertDpi returns the vertical dots per inch of this image.
-func (ip *ImagePart) VertDpi() int { return ip.vertDpi }
+func (ip *ImagePart) VertDpi() int {
+	_ = ip.ensureMeta()
+	return ip.vertDpi
+}
 
 // --------------------------------------------------------------------------
 // ImagePart.default_cx / default_cy — for embedded display size
@@ -114,6 +154,9 @@ func (ip *ImagePart) VertDpi() int { return ip.vertDpi }
 //
 //	Inches(px_width / horz_dpi) → int(px_width / horz_dpi * 914400)
 func (ip *ImagePart) DefaultCx() (int64, error) {
+	if err := ip.ensureMeta(); err != nil {
+		return 0, err
+	}
 	if ip.horzDpi == 0 {
 		return 0, fmt.Errorf("parts: image has no DPI metadata")
 	}
@@ -128,6 +171,9 @@ func (ip *ImagePart) DefaultCx() (int64, error) {
 //
 //	Emu(int(round(914400 * px_height / horz_dpi)))
 func (ip *ImagePart) DefaultCy() (int64, error) {
+	if err := ip.ensureMeta(); err != nil {
+		return 0, err
+	}
 	if ip.horzDpi == 0 {
 		return 0, fmt.Errorf("parts: image has no DPI metadata")
 	}
@@ -146,6 +192,9 @@ func (ip *ImagePart) DefaultCy() (int64, error) {
 //
 //	Inches(self.px_width / self.horz_dpi) → int(px_width / horz_dpi * 914400)
 func (ip *ImagePart) NativeWidth() (int64, error) {
+	if err := ip.ensureMeta(); err != nil {
+		return 0, err
+	}
 	if ip.horzDpi == 0 {
 		return 0, fmt.Errorf("parts: image has no DPI metadata")
 	}
@@ -161,6 +210,9 @@ func (ip *ImagePart) NativeWidth() (int64, error) {
 //
 //	Inches(self.px_height / self.vert_dpi) → int(px_height / vert_dpi * 914400)
 func (ip *ImagePart) NativeHeight() (int64, error) {
+	if err := ip.ensureMeta(); err != nil {
+		return 0, err
+	}
 	if ip.vertDpi == 0 {
 		return 0, fmt.Errorf("parts: image has no vertical DPI metadata")
 	}

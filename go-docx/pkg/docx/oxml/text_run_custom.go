@@ -150,6 +150,57 @@ func (t *CT_Text) SetPreserveSpace() {
 
 // --- Run content appender utility ---
 
+// RunInnerContentItem represents one item from a run's inner content:
+// either a string (accumulated text), *CT_Drawing, or *CT_LastRenderedPageBreak.
+type RunInnerContentItem = interface{}
+
+// InnerContentItems returns the inner content items of this run in document order.
+// Text-like elements (w:t, w:br, w:cr, w:tab, w:noBreakHyphen, w:ptab) are
+// accumulated into contiguous strings. Drawing and LastRenderedPageBreak elements
+// are yielded individually, interrupting any accumulated text.
+//
+// Mirrors Python CT_R.inner_content_items using a TextAccumulator pattern.
+func (r *CT_R) InnerContentItems() []RunInnerContentItem {
+	var result []RunInnerContentItem
+	var textBuf strings.Builder
+
+	flushText := func() {
+		if textBuf.Len() > 0 {
+			result = append(result, textBuf.String())
+			textBuf.Reset()
+		}
+	}
+
+	for _, child := range r.E.ChildElements() {
+		if child.Space != "w" {
+			continue
+		}
+		switch child.Tag {
+		case "drawing":
+			flushText()
+			result = append(result, &CT_Drawing{Element{E: child}})
+		case "lastRenderedPageBreak":
+			flushText()
+			result = append(result, &CT_LastRenderedPageBreak{Element{E: child}})
+		case "t":
+			textBuf.WriteString(child.Text())
+		case "br":
+			br := &CT_Br{Element{E: child}}
+			textBuf.WriteString(br.TextEquivalent())
+		case "cr":
+			textBuf.WriteString("\n")
+		case "tab":
+			textBuf.WriteString("\t")
+		case "noBreakHyphen":
+			textBuf.WriteString("-")
+		case "ptab":
+			textBuf.WriteString("\t")
+		}
+	}
+	flushText()
+	return result
+}
+
 // appendRunContentFromText translates a string into run content elements.
 // Tabs → <w:tab/>, newlines → <w:br/>, regular chars → <w:t>.
 func appendRunContentFromText(r *CT_R, text string) {
