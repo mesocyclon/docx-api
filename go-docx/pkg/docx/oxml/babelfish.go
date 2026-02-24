@@ -7,11 +7,9 @@ package oxml
 // Translates special-case style names between their UI form (e.g. "Heading 1")
 // and the internal/styles.xml form (e.g. "heading 1").
 //
-// Lives in oxml so that both pkg/docx and pkg/docx/parts can use it without
-// circular imports. Mirrors Python docx.styles.BabelFish exactly.
+// Lives in oxml because it's a static mapping table used by CT_Styles methods.
+// Mirrors Python docx.styles.BabelFish exactly.
 
-// babelFishAliases is the canonical alias table.
-// Matches Python BabelFish.style_aliases one-to-one.
 var babelFishAliases = [][2]string{
 	{"Caption", "caption"},
 	{"Footer", "footer"},
@@ -48,7 +46,7 @@ func buildInternal2UIMap() map[string]string {
 	return m
 }
 
-// UI2Internal converts a UI-facing style name to its internal/styles.xml form.
+// UI2Internal converts a UI style name to its internal/styles.xml form.
 // Names without a mapping are returned unchanged.
 //
 // Mirrors Python BabelFish.ui2internal.

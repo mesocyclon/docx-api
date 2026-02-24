@@ -311,6 +311,54 @@ func (s *CT_Style) IsBuiltin() bool {
 }
 
 // ===========================================================================
+// CT_Styles — style ID resolution
+// ===========================================================================
+
+// GetStyleIDByName resolves a UI style name to its XML style ID string.
+//
+// Applies BabelFish translation, looks up by name (with fallback to ID),
+// validates the style type, and returns nil if the style is the default
+// for its type.
+//
+// This is the full algorithm that Python spreads across:
+//   - Styles.__getitem__     (BabelFish + get_by_name + fallback get_by_id)
+//   - Styles._get_style_id_from_name  (delegates to __getitem__ + _get_style_id_from_style)
+//   - Styles._get_style_id_from_style (type check + default check)
+func (ss *CT_Styles) GetStyleIDByName(uiName string, styleType enum.WdStyleType) (*string, error) {
+	// 1. BabelFish translation (Python: BabelFish.ui2internal)
+	internalName := UI2Internal(uiName)
+
+	// 2. Lookup by name (Python: self._element.get_by_name)
+	s := ss.GetByName(internalName)
+
+	// 3. Fallback to ID (Python: self._element.get_by_id — deprecated path)
+	if s == nil {
+		s = ss.GetByID(uiName)
+	}
+
+	// 4. Not found → error (Python: raise KeyError)
+	if s == nil {
+		return nil, fmt.Errorf("oxml: no style with name %q", uiName)
+	}
+
+	// 5. Type check (Python: _get_style_id_from_style raises ValueError)
+	xmlType, _ := styleType.ToXml()
+	if s.Type() != xmlType {
+		return nil, fmt.Errorf("oxml: style %q is type %q, need %q", uiName, s.Type(), xmlType)
+	}
+
+	// 6. Default check → return nil (Python: if style == self.default(style_type): return None)
+	def := ss.DefaultFor(styleType)
+	if def != nil && def.StyleId() == s.StyleId() {
+		return nil, nil
+	}
+
+	// 7. Return style ID
+	id := s.StyleId()
+	return &id, nil
+}
+
+// ===========================================================================
 // CT_LatentStyles — custom methods
 // ===========================================================================
 

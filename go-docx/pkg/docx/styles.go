@@ -8,7 +8,7 @@ import (
 )
 
 // --------------------------------------------------------------------------
-// BabelFish — style name translation (delegates to oxml.BabelFish)
+// BabelFish — style name translation (canonical source: oxml.BabelFish)
 // --------------------------------------------------------------------------
 
 // UI2Internal converts a UI style name to internal form.
@@ -157,11 +157,7 @@ func (s *Styles) LatentStyles() *LatentStyles {
 }
 
 func (s *Styles) getStyleIDFromName(name string, styleType enum.WdStyleType) (*string, error) {
-	style, err := s.Get(name)
-	if err != nil {
-		return nil, fmt.Errorf("docx: style %q not found: %w", name, err)
-	}
-	return s.getStyleIDFromStyle(style, styleType)
+	return s.element.GetStyleIDByName(name, styleType)
 }
 
 func (s *Styles) getStyleIDFromStyle(style *BaseStyle, styleType enum.WdStyleType) (*string, error) {

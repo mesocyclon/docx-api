@@ -358,69 +358,45 @@ func (dp *DocumentPart) GetStyle(styleID *string, styleType enum.WdStyleType) (*
 	return s, nil
 }
 
-// styledObject is an interface satisfied by domain-level style objects
-// (e.g. docx.BaseStyle) that provide identity and type information.
-// This avoids circular imports between the parts and docx packages.
+// styledObject is satisfied by domain-level style objects (e.g. docx.BaseStyle).
+// Standard Go consumer-side interface — parts doesn't import docx.
 type styledObject interface {
 	StyleID() string
 	Type() enum.WdStyleType
 }
 
 // GetStyleID returns the style_id string for styleOrName of styleType.
-// Returns nil if styleOrName is nil or if the resolved style is the default
-// for styleType. Accepts string (style name), style objects satisfying
-// styledObject (e.g. *docx.BaseStyle), or nil.
 //
-// Mirrors Python DocumentPart.get_style_id → self.styles.get_style_id(style_or_name, style_type).
+// Mirrors Python DocumentPart.get_style_id → self.styles.get_style_id.
+// The algorithm (BabelFish + lookup + type check + default check) lives
+// in oxml.CT_Styles.GetStyleIDByName; this method just dispatches by type.
 func (dp *DocumentPart) GetStyleID(styleOrName interface{}, styleType enum.WdStyleType) (*string, error) {
 	if styleOrName == nil {
 		return nil, nil
 	}
-	ss, err := dp.Styles()
-	if err != nil {
-		return nil, err
-	}
-
 	switch v := styleOrName.(type) {
+	case string:
+		ss, err := dp.Styles()
+		if err != nil {
+			return nil, err
+		}
+		return ss.GetStyleIDByName(v, styleType)
 	case styledObject:
-		// Style object (e.g. *docx.BaseStyle) — mirrors Python _get_style_id_from_style.
+		// Validate type (Python: _get_style_id_from_style raises ValueError).
 		if v.Type() != styleType {
 			return nil, fmt.Errorf("parts: assigned style is type %v, need type %v", v.Type(), styleType)
 		}
-		// If this style is the default for its type, return nil (matches Python).
+		// Default check (Python: if style == self.default(style_type): return None).
+		ss, err := dp.Styles()
+		if err != nil {
+			return nil, err
+		}
 		def := ss.DefaultFor(styleType)
 		if def != nil && def.StyleId() == v.StyleID() {
 			return nil, nil
 		}
 		id := v.StyleID()
 		return &id, nil
-
-	case string:
-		// Style name — mirrors Python _get_style_id_from_name →
-		// Styles.__getitem__ → BabelFish.ui2internal → get_by_name,
-		// with fallback to get_by_id (deprecated in Python).
-		internalName := oxml.UI2Internal(v)
-		s := ss.GetByName(internalName)
-		if s == nil {
-			// Fallback: try by ID (mirrors Python Styles.__getitem__ fallback).
-			s = ss.GetByID(v)
-		}
-		if s == nil {
-			return nil, fmt.Errorf("parts: no style with name %q", v)
-		}
-		// Check style type matches (Python raises ValueError on mismatch).
-		xmlType, _ := styleType.ToXml()
-		if s.Type() != xmlType {
-			return nil, fmt.Errorf("parts: style %q is type %q, need type %q", v, s.Type(), xmlType)
-		}
-		// If this style is the default for its type, return nil (matches Python).
-		def := ss.DefaultFor(styleType)
-		if def != nil && def.E == s.E {
-			return nil, nil
-		}
-		id := s.StyleId()
-		return &id, nil
-
 	default:
 		return nil, fmt.Errorf("parts: GetStyleID expects string, style object, or nil, got %T", styleOrName)
 	}
