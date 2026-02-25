@@ -12,6 +12,7 @@ type OpcPackage struct {
 	rels        *Relationships
 	partFactory *PartFactory
 	parts       map[PackURI]Part
+	appPkg      any // application-level package (e.g. *parts.WmlPackage); mirrors Python Package(OpcPackage) inheritance
 }
 
 // NewOpcPackage creates an empty OpcPackage.
@@ -24,6 +25,21 @@ func NewOpcPackage(factory *PartFactory) *OpcPackage {
 		partFactory: factory,
 		parts:       make(map[PackURI]Part),
 	}
+}
+
+// AppPackage returns the application-level package stored on this OpcPackage.
+//
+// In Python, Package(OpcPackage) uses inheritance — every Part._package IS
+// the WML-level Package subclass. In Go we use composition: the WML-level
+// WmlPackage is stored here, and any Part that needs WML services (e.g.
+// image deduplication) retrieves it via Part.Package().AppPackage().
+func (p *OpcPackage) AppPackage() any {
+	return p.appPkg
+}
+
+// SetAppPackage stores the application-level package on this OpcPackage.
+func (p *OpcPackage) SetAppPackage(app any) {
+	p.appPkg = app
 }
 
 // --------------------------------------------------------------------------

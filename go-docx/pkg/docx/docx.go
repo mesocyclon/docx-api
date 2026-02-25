@@ -66,20 +66,23 @@ func documentFromPackage(pkg *opc.OpcPackage) (*Document, error) {
 	if err != nil {
 		return nil, fmt.Errorf("docx: no main document part: %w", err)
 	}
-	// Validate content type BEFORE casting. Mirrors Python:
-	//   if document_part.content_type != CT.WML_DOCUMENT_MAIN:
-	//       raise ValueError("file '%s' is not a Word file, content type is '%s'")
-	ct := mainPart.ContentType()
-	if ct != opc.CTWmlDocumentMain {
-		return nil, fmt.Errorf("docx: not a Word file, content type is %q", ct)
-	}
 	docPart, ok := mainPart.(*parts.DocumentPart)
 	if !ok {
 		return nil, fmt.Errorf("docx: main part is %T, expected *DocumentPart", mainPart)
 	}
+	// Validate content type (mirrors Python check: CT.WML_DOCUMENT_MAIN).
+	ct := docPart.ContentType()
+	if ct != opc.CTWmlDocumentMain && ct != opc.CTWmlDocument {
+		return nil, fmt.Errorf("docx: not a Word file, content type is %q", ct)
+	}
 	// Create WmlPackage wrapper, run AfterUnmarshal to gather image parts.
 	wmlPkg := parts.NewWmlPackage(pkg)
 	wmlPkg.AfterUnmarshal()
+
+	// Store WmlPackage on OpcPackage so any Part can reach it via
+	// Package().AppPackage(). This mirrors Python where Package subclasses
+	// OpcPackage — every Part._package IS the WML-level Package.
+	pkg.SetAppPackage(wmlPkg)
 
 	return newDocument(docPart, wmlPkg)
 }

@@ -23,7 +23,6 @@ import (
 type StoryPart struct {
 	*opc.XmlPart
 	docPart *DocumentPart // cached, mirrors Python lazyproperty _document_part
-	wmlPkg  *WmlPackage   // set during package init, needed for image insertion
 }
 
 // NewStoryPart creates a StoryPart wrapping the given XmlPart.
@@ -136,15 +135,18 @@ func (sp *StoryPart) SetDocumentPart(dp *DocumentPart) {
 	sp.docPart = dp
 }
 
-// SetWmlPackage sets the WML package reference, enabling image insertion
-// from streams via GetOrAddImageFromReader.
-func (sp *StoryPart) SetWmlPackage(wp *WmlPackage) {
-	sp.wmlPkg = wp
-}
-
-// WmlPkg returns the WML package reference, or nil if not set.
-func (sp *StoryPart) WmlPkg() *WmlPackage {
-	return sp.wmlPkg
+// wmlPackage returns the WML package for this part by resolving it from
+// the underlying OpcPackage.AppPackage(). This mirrors Python where
+// Part._package IS the Package(OpcPackage) subclass — any Part can call
+// self._package.get_or_add_image_part() because _package is the WML-level
+// package. In Go the equivalent is Package().AppPackage().(*WmlPackage).
+func (sp *StoryPart) wmlPackage() *WmlPackage {
+	pkg := sp.Package()
+	if pkg == nil {
+		return nil
+	}
+	wp, _ := pkg.AppPackage().(*WmlPackage)
+	return wp
 }
 
 // GetOrAddImageFromReader creates or deduplicates an image from the given
@@ -155,8 +157,9 @@ func (sp *StoryPart) WmlPkg() *WmlPackage {
 //	rId = self.relate_to(image_part, RT.IMAGE)
 //	return rId, image_part
 func (sp *StoryPart) GetOrAddImageFromReader(r io.ReadSeeker) (string, *ImagePart, error) {
-	if sp.wmlPkg == nil {
-		return "", nil, fmt.Errorf("parts: WmlPackage not set on StoryPart (required for image insertion)")
+	wp := sp.wmlPackage()
+	if wp == nil {
+		return "", nil, fmt.Errorf("parts: WmlPackage not set on OpcPackage (required for image insertion)")
 	}
 	// Read blob
 	if _, err := r.Seek(0, io.SeekStart); err != nil {
@@ -174,7 +177,7 @@ func (sp *StoryPart) GetOrAddImageFromReader(r io.ReadSeeker) (string, *ImagePar
 	// Create ImagePart
 	ip := NewImagePartFromImage(img, blob)
 	// Dedup via WmlPackage
-	ip = sp.wmlPkg.GetOrAddImagePart(ip)
+	ip = wp.GetOrAddImagePart(ip)
 	// Wire relationship
 	rId := sp.Rels().GetOrAdd(opc.RTImage, ip).RID
 	return rId, ip, nil

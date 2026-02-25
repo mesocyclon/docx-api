@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/beevik/etree"
+	"github.com/vortex/go-docx/pkg/docx/image"
 	"github.com/vortex/go-docx/pkg/docx/oxml"
 	"github.com/vortex/go-docx/pkg/docx/parts"
 )
@@ -64,6 +65,32 @@ func (d *Drawing) ImagePart() (*parts.ImagePart, error) {
 		return nil, fmt.Errorf("docx: related part for rId %q is not an ImagePart", rId)
 	}
 	return ip, nil
+}
+
+// Image returns the image.Image metadata for the embedded picture. Returns
+// an error if the drawing does not contain a picture or if the image blob
+// cannot be parsed.
+//
+// This is a convenience method; it is equivalent to:
+//
+//	ip, _ := drawing.ImagePart()
+//	img, _ := image.FromBlob(ip.Blob())
+//
+// Mirrors Python Drawing.image (which returns image_part.image).
+func (d *Drawing) Image() (*image.Image, error) {
+	ip, err := d.ImagePart()
+	if err != nil {
+		return nil, err
+	}
+	blob, err := ip.Blob()
+	if err != nil {
+		return nil, fmt.Errorf("docx: reading image blob: %w", err)
+	}
+	img, err := image.FromBlob(blob, ip.Filename())
+	if err != nil {
+		return nil, fmt.Errorf("docx: parsing image: %w", err)
+	}
+	return img, nil
 }
 
 // pictureRId finds the r:embed attribute on a:blip inside pic:blipFill.
