@@ -303,11 +303,10 @@ func (s *BaseStyle) SetBaseStyle(style *BaseStyle) error {
 }
 
 // Font returns the Font providing access to character formatting for this style.
+//
+// Mirrors Python CharacterStyle.font → Font(self._element).
 func (s *BaseStyle) Font() *Font {
-	rPr := s.element.GetOrAddRPr()
-	// Create a thin CT_R wrapper for the style's rPr
-	// Font expects a CT_R parent but we can wrap it
-	return &Font{r: &oxml.CT_R{Element: oxml.WrapElement(rPr.RawElement().Parent())}}
+	return newFontFromStyle(s.element)
 }
 
 // ParagraphFormat returns the ParagraphFormat for this style.

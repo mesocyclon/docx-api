@@ -2,26 +2,25 @@ package docx
 
 import (
 	"github.com/vortex/go-docx/pkg/docx/enum"
-	"github.com/vortex/go-docx/pkg/docx/oxml"
 )
 
 // ColorFormat provides access to color settings such as RGB and theme color.
 //
 // Mirrors Python ColorFormat(ElementProxy).
 type ColorFormat struct {
-	r *oxml.CT_R // rPr parent (CT_R or CT_Style wrapping rPr)
+	rPrOwner rPrProvider
 }
 
 // newColorFormat creates a new ColorFormat proxy.
-func newColorFormat(r *oxml.CT_R) *ColorFormat {
-	return &ColorFormat{r: r}
+func newColorFormat(owner rPrProvider) *ColorFormat {
+	return &ColorFormat{rPrOwner: owner}
 }
 
 // RGB returns the RGB color value, or nil if not set or auto.
 //
 // Mirrors Python ColorFormat.rgb (getter).
 func (cf *ColorFormat) RGB() *RGBColor {
-	rPr := cf.r.RPr()
+	rPr := cf.rPrOwner.RPr()
 	if rPr == nil {
 		return nil
 	}
@@ -45,7 +44,7 @@ func (cf *ColorFormat) RGB() *RGBColor {
 // element first (clearing any themeColor attribute), then adds a fresh one if
 // value is not nil.
 func (cf *ColorFormat) SetRGB(v *RGBColor) error {
-	rPr := cf.r.RPr()
+	rPr := cf.rPrOwner.RPr()
 	if v == nil {
 		if rPr == nil {
 			return nil
@@ -53,7 +52,7 @@ func (cf *ColorFormat) SetRGB(v *RGBColor) error {
 		rPr.RemoveColor()
 		return nil
 	}
-	rPr = cf.r.GetOrAddRPr()
+	rPr = cf.rPrOwner.GetOrAddRPr()
 	// Remove existing color element entirely (clears themeColor etc.)
 	rPr.RemoveColor()
 	// Create fresh color element with only the val attribute
@@ -65,7 +64,7 @@ func (cf *ColorFormat) SetRGB(v *RGBColor) error {
 //
 // Mirrors Python ColorFormat.theme_color (getter).
 func (cf *ColorFormat) ThemeColor() (*enum.MsoThemeColorIndex, error) {
-	rPr := cf.r.RPr()
+	rPr := cf.rPrOwner.RPr()
 	if rPr == nil {
 		return nil, nil
 	}
@@ -77,13 +76,13 @@ func (cf *ColorFormat) ThemeColor() (*enum.MsoThemeColorIndex, error) {
 // Mirrors Python ColorFormat.theme_color (setter).
 func (cf *ColorFormat) SetThemeColor(v *enum.MsoThemeColorIndex) error {
 	if v == nil {
-		rPr := cf.r.RPr()
+		rPr := cf.rPrOwner.RPr()
 		if rPr == nil {
 			return nil
 		}
 		return rPr.SetColorVal(nil)
 	}
-	rPr := cf.r.GetOrAddRPr()
+	rPr := cf.rPrOwner.GetOrAddRPr()
 	return rPr.SetColorTheme(v)
 }
 
@@ -91,7 +90,7 @@ func (cf *ColorFormat) SetThemeColor(v *enum.MsoThemeColorIndex) error {
 //
 // Mirrors Python ColorFormat.type (getter).
 func (cf *ColorFormat) Type() *enum.MsoColorType {
-	rPr := cf.r.RPr()
+	rPr := cf.rPrOwner.RPr()
 	if rPr == nil {
 		return nil
 	}
