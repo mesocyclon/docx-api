@@ -241,7 +241,7 @@ func TestBaseStyle_Delete(t *testing.T) {
 }
 
 // Mirrors Python: BaseStyle.paragraph_format
-func TestBaseStyle_ParagraphFormat(t *testing.T) {
+func TestBaseStyle_ParagraphFormat2(t *testing.T) {
 	ss := makeStylesFromDoc(t)
 	style, err := ss.Get("Normal")
 	if err != nil {

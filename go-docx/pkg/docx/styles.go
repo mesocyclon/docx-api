@@ -452,22 +452,22 @@ func (ls *LatentStyle) Delete() {
 
 // Hidden returns the tri-state hidden value.
 func (ls *LatentStyle) Hidden() *bool {
-	return ls.element.OnOffProp("semiHidden")
+	return ls.element.OnOffProp("w:semiHidden")
 }
 
 // SetHidden sets the hidden value.
 func (ls *LatentStyle) SetHidden(v *bool) error {
-	return ls.element.SetOnOffProp("semiHidden", v)
+	return ls.element.SetOnOffProp("w:semiHidden", v)
 }
 
 // Locked returns the tri-state locked value.
 func (ls *LatentStyle) Locked() *bool {
-	return ls.element.OnOffProp("locked")
+	return ls.element.OnOffProp("w:locked")
 }
 
 // SetLocked sets the locked value.
 func (ls *LatentStyle) SetLocked(v *bool) error {
-	return ls.element.SetOnOffProp("locked", v)
+	return ls.element.SetOnOffProp("w:locked", v)
 }
 
 // Name returns the style name.
@@ -502,20 +502,20 @@ func (ls *LatentStyle) SetPriority(v *int) error {
 
 // QuickStyle returns the tri-state quick-style value.
 func (ls *LatentStyle) QuickStyle() *bool {
-	return ls.element.OnOffProp("qFormat")
+	return ls.element.OnOffProp("w:qFormat")
 }
 
 // SetQuickStyle sets the quick-style value.
 func (ls *LatentStyle) SetQuickStyle(v *bool) error {
-	return ls.element.SetOnOffProp("qFormat", v)
+	return ls.element.SetOnOffProp("w:qFormat", v)
 }
 
 // UnhideWhenUsed returns the tri-state unhide-when-used value.
 func (ls *LatentStyle) UnhideWhenUsed() *bool {
-	return ls.element.OnOffProp("unhideWhenUsed")
+	return ls.element.OnOffProp("w:unhideWhenUsed")
 }
 
 // SetUnhideWhenUsed sets the unhide-when-used value.
 func (ls *LatentStyle) SetUnhideWhenUsed(v *bool) error {
-	return ls.element.SetOnOffProp("unhideWhenUsed", v)
+	return ls.element.SetOnOffProp("w:unhideWhenUsed", v)
 }
