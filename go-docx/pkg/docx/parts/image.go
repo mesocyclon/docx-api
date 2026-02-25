@@ -141,27 +141,35 @@ func (ip *ImagePart) ensureMeta() error {
 }
 
 // PxWidth returns the pixel width of this image.
-func (ip *ImagePart) PxWidth() int {
-	_ = ip.ensureMeta()
-	return ip.pxWidth
+func (ip *ImagePart) PxWidth() (int, error) {
+	if err := ip.ensureMeta(); err != nil {
+		return 0, err
+	}
+	return ip.pxWidth, nil
 }
 
 // PxHeight returns the pixel height of this image.
-func (ip *ImagePart) PxHeight() int {
-	_ = ip.ensureMeta()
-	return ip.pxHeight
+func (ip *ImagePart) PxHeight() (int, error) {
+	if err := ip.ensureMeta(); err != nil {
+		return 0, err
+	}
+	return ip.pxHeight, nil
 }
 
 // HorzDpi returns the horizontal dots per inch of this image.
-func (ip *ImagePart) HorzDpi() int {
-	_ = ip.ensureMeta()
-	return ip.horzDpi
+func (ip *ImagePart) HorzDpi() (int, error) {
+	if err := ip.ensureMeta(); err != nil {
+		return 0, err
+	}
+	return ip.horzDpi, nil
 }
 
 // VertDpi returns the vertical dots per inch of this image.
-func (ip *ImagePart) VertDpi() int {
-	_ = ip.ensureMeta()
-	return ip.vertDpi
+func (ip *ImagePart) VertDpi() (int, error) {
+	if err := ip.ensureMeta(); err != nil {
+		return 0, err
+	}
+	return ip.vertDpi, nil
 }
 
 // --------------------------------------------------------------------------

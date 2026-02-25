@@ -178,7 +178,9 @@ func (c *Comment) AddParagraph(text string, style ...StyleRef) (*Paragraph, erro
 	// (same as Python: paragraph._p.style = "CommentText")
 	if len(style) == 0 || style[0] == nil {
 		commentText := "CommentText"
-		_ = para.CT_P().SetStyle(&commentText)
+		if err := para.CT_P().SetStyle(&commentText); err != nil {
+			return nil, fmt.Errorf("docx: setting comment paragraph style: %w", err)
+		}
 	}
 	return para, nil
 }
