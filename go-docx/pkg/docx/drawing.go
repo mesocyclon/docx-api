@@ -51,6 +51,9 @@ func (d *Drawing) ImagePart() (*parts.ImagePart, error) {
 	if rId == "" {
 		return nil, fmt.Errorf("docx: drawing does not contain a picture")
 	}
+	if d.part == nil {
+		return nil, fmt.Errorf("docx: drawing has no story part (required for image resolution)")
+	}
 	rels := d.part.Rels()
 	if rels == nil {
 		return nil, fmt.Errorf("docx: drawing part has no relationships")
