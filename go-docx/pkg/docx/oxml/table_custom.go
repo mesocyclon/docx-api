@@ -516,9 +516,9 @@ func (pr *CT_TrPr) SetTrHeightHRuleVal(rule *enum.WdRowHeightRule) error {
 // NewTc creates a new <w:tc> element with a single empty <w:p>.
 func NewTc() *CT_Tc {
 	tcE := OxmlElement("w:tc")
-	pE := tcE.CreateElement("p")
-	pE.Space = "w"
-	return &CT_Tc{Element{e: tcE}}
+	tc := &CT_Tc{Element{e: tcE}}
+	tc.AddP()
+	return tc
 }
 
 // GridSpanVal returns the number of grid columns this cell spans (default 1).
@@ -780,8 +780,7 @@ func (tc *CT_Tc) MoveContentTo(other *CT_Tc) {
 		other.e.AddChild(block)
 	}
 	// Restore minimum required p
-	pE := tc.e.CreateElement("p")
-	pE.Space = "w"
+	tc.AddP()
 }
 
 // RemoveElement removes this tc from its parent row.

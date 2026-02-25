@@ -307,12 +307,15 @@ func (c *Cell) Text() string {
 
 // SetText replaces all cell content with a single paragraph containing text.
 //
-// Mirrors Python _Cell.text setter.
+// Mirrors Python _Cell.text setter:
+//
+//	tc.clear_content()
+//	p = tc.add_p()
+//	r = p.add_r()
+//	r.text = text
 func (c *Cell) SetText(text string) {
 	c.tc.ClearContent()
-	pE := c.tc.RawElement().CreateElement("p")
-	pE.Space = "w"
-	p := &oxml.CT_P{Element: oxml.WrapElement(pE)}
+	p := c.tc.AddP()
 	r := p.AddR()
 	r.SetRunText(text)
 }
