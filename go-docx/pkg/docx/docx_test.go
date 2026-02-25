@@ -15,7 +15,10 @@ func TestNew(t *testing.T) {
 	}
 	// The built-in default.docx body contains only w:sectPr, no w:p.
 	// Matches Python: len(Document().paragraphs) == 0.
-	paras := doc.Paragraphs()
+	paras, err2 := doc.Paragraphs()
+	if err2 != nil {
+		t.Fatalf("Paragraphs() error: %v", err2)
+	}
 	if len(paras) != 0 {
 		t.Errorf("expected 0 paragraphs in new doc, got %d", len(paras))
 	}

@@ -266,7 +266,7 @@ func (c *Cell) AddTable(rows, cols int) (*Table, error) {
 	if err != nil {
 		return nil, err
 	}
-	c.BlockItemContainer.AddParagraph("", nil) //nolint:errcheck
+	c.BlockItemContainer.AddParagraph("") //nolint:errcheck
 	return tbl, nil
 }
 
@@ -411,21 +411,13 @@ func (r *Row) tcAbove(tc *oxml.CT_Tc) *oxml.CT_Tc {
 }
 
 // GridColsBefore returns the count of unpopulated grid-columns before the first cell.
-func (r *Row) GridColsBefore() int {
-	v, err := r.tr.GridBeforeVal()
-	if err != nil {
-		return 0
-	}
-	return v
+func (r *Row) GridColsBefore() (int, error) {
+	return r.tr.GridBeforeVal()
 }
 
 // GridColsAfter returns the count of unpopulated grid-columns after the last cell.
-func (r *Row) GridColsAfter() int {
-	v, err := r.tr.GridAfterVal()
-	if err != nil {
-		return 0
-	}
-	return v
+func (r *Row) GridColsAfter() (int, error) {
+	return r.tr.GridAfterVal()
 }
 
 // Height returns the row height in twips, or nil if not set.
@@ -475,24 +467,27 @@ func (c *Column) SetWidth(twips *int) error {
 
 // Cells returns the cells in this column.
 func (c *Column) Cells() ([]*Cell, error) {
-	idx := c.index()
+	idx, err := c.index()
+	if err != nil {
+		return nil, err
+	}
 	return c.table.ColumnCells(idx)
 }
 
 // Table returns the Table this column belongs to.
 func (c *Column) Table() *Table { return c.table }
 
-func (c *Column) index() int {
+func (c *Column) index() (int, error) {
 	grid, err := c.table.tbl.TblGrid()
 	if err != nil {
-		return 0
+		return 0, fmt.Errorf("docx: getting table grid: %w", err)
 	}
 	for i, gc := range grid.GridColList() {
 		if gc.RawElement() == c.gridCol.RawElement() {
-			return i
+			return i, nil
 		}
 	}
-	return 0
+	return 0, fmt.Errorf("docx: column not found in grid")
 }
 
 // --------------------------------------------------------------------------

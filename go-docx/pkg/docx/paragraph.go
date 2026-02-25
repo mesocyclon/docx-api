@@ -190,7 +190,7 @@ func (para *Paragraph) Text() string {
 // Mirrors Python Paragraph.text (setter).
 func (para *Paragraph) SetText(text string) error {
 	para.Clear()
-	_, err := para.AddRun(text, nil)
+	_, err := para.AddRun(text)
 	return err
 }
 

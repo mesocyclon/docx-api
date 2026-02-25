@@ -16,13 +16,49 @@ func mustNewDoc(t *testing.T) *Document {
 	return doc
 }
 
+func mustParagraphs(t *testing.T, d *Document) []*Paragraph {
+	t.Helper()
+	p, err := d.Paragraphs()
+	if err != nil {
+		t.Fatalf("Paragraphs() error: %v", err)
+	}
+	return p
+}
+
+func mustTables(t *testing.T, d *Document) []*Table {
+	t.Helper()
+	tbl, err := d.Tables()
+	if err != nil {
+		t.Fatalf("Tables() error: %v", err)
+	}
+	return tbl
+}
+
+func mustInlineShapes(t *testing.T, d *Document) *InlineShapes {
+	t.Helper()
+	s, err := d.InlineShapes()
+	if err != nil {
+		t.Fatalf("InlineShapes() error: %v", err)
+	}
+	return s
+}
+
+func mustIterInnerContent(t *testing.T, d *Document) []*InnerContentItem {
+	t.Helper()
+	items, err := d.IterInnerContent()
+	if err != nil {
+		t.Fatalf("IterInnerContent() error: %v", err)
+	}
+	return items
+}
+
 // --------------------------------------------------------------------------
 // AddParagraph
 // --------------------------------------------------------------------------
 
 func TestDocument_AddParagraph(t *testing.T) {
 	doc := mustNewDoc(t)
-	before := len(doc.Paragraphs())
+	before := len(mustParagraphs(t, doc))
 
 	p, err := doc.AddParagraph("hello")
 	if err != nil {
@@ -31,12 +67,12 @@ func TestDocument_AddParagraph(t *testing.T) {
 	if p == nil {
 		t.Fatal("AddParagraph returned nil")
 	}
-	after := len(doc.Paragraphs())
+	after := len(mustParagraphs(t, doc))
 	if after != before+1 {
 		t.Errorf("Paragraphs count: want %d, got %d", before+1, after)
 	}
 
-	last := doc.Paragraphs()[after-1]
+	last := mustParagraphs(t, doc)[after-1]
 	if got := last.Text(); got != "hello" {
 		t.Errorf("last paragraph text: want %q, got %q", "hello", got)
 	}
@@ -92,7 +128,7 @@ func TestDocument_AddHeading_OutOfRange(t *testing.T) {
 
 func TestDocument_AddPageBreak(t *testing.T) {
 	doc := mustNewDoc(t)
-	before := len(doc.Paragraphs())
+	before := len(mustParagraphs(t, doc))
 	p, err := doc.AddPageBreak()
 	if err != nil {
 		t.Fatalf("AddPageBreak error: %v", err)
@@ -100,7 +136,7 @@ func TestDocument_AddPageBreak(t *testing.T) {
 	if p == nil {
 		t.Fatal("AddPageBreak returned nil")
 	}
-	after := len(doc.Paragraphs())
+	after := len(mustParagraphs(t, doc))
 	if after != before+1 {
 		t.Errorf("Paragraphs count after page break: want %d, got %d", before+1, after)
 	}
@@ -119,7 +155,7 @@ func TestDocument_AddTable(t *testing.T) {
 	if table == nil {
 		t.Fatal("AddTable returned nil")
 	}
-	tables := doc.Tables()
+	tables := mustTables(t, doc)
 	if len(tables) != 1 {
 		t.Errorf("Tables count: want 1, got %d", len(tables))
 	}
@@ -204,7 +240,7 @@ func TestDocument_Comments(t *testing.T) {
 
 func TestDocument_Paragraphs_EmptyDoc(t *testing.T) {
 	doc := mustNewDoc(t)
-	paras := doc.Paragraphs()
+	paras := mustParagraphs(t, doc)
 	// The default.docx template body contains only w:sectPr, no w:p.
 	// Python Document() also starts with 0 paragraphs.
 	if len(paras) != 0 {
@@ -214,7 +250,7 @@ func TestDocument_Paragraphs_EmptyDoc(t *testing.T) {
 
 func TestDocument_Tables_EmptyDoc(t *testing.T) {
 	doc := mustNewDoc(t)
-	tables := doc.Tables()
+	tables := mustTables(t, doc)
 	if len(tables) != 0 {
 		t.Errorf("expected 0 tables in default doc, got %d", len(tables))
 	}
@@ -226,7 +262,7 @@ func TestDocument_Tables_EmptyDoc(t *testing.T) {
 
 func TestDocument_InlineShapes(t *testing.T) {
 	doc := mustNewDoc(t)
-	shapes := doc.InlineShapes()
+	shapes := mustInlineShapes(t, doc)
 	if shapes == nil {
 		t.Fatal("InlineShapes() returned nil")
 	}
@@ -245,7 +281,7 @@ func TestDocument_IterInnerContent(t *testing.T) {
 	doc.AddTable(1, 1)
 	doc.AddParagraph("p2")
 
-	items := doc.IterInnerContent()
+	items := mustIterInnerContent(t, doc)
 	if len(items) < 3 {
 		t.Errorf("expected at least 3 items, got %d", len(items))
 	}
@@ -273,7 +309,10 @@ func TestDocument_IterInnerContent(t *testing.T) {
 
 func TestDocument_BlockWidth(t *testing.T) {
 	doc := mustNewDoc(t)
-	bw := doc.blockWidth()
+	bw, err := doc.blockWidth()
+	if err != nil {
+		t.Fatalf("blockWidth() error: %v", err)
+	}
 	// default.docx: w:w="12240" w:left="1800" w:right="1800"
 	// → 12240 - 1800 - 1800 = 8640 twips  (= 6" text width)
 	// This matches Python: Document()._block_width == 5486400 EMU == 8640 twips.
@@ -303,7 +342,7 @@ func TestDocument_Save_RoundTrip(t *testing.T) {
 	}
 
 	found := false
-	for _, p := range doc2.Paragraphs() {
+	for _, p := range mustParagraphs(t, doc2) {
 		if p.Text() == "Round trip" {
 			found = true
 			break
@@ -334,7 +373,7 @@ func TestDocument_Save_PreservesChanges(t *testing.T) {
 	}
 
 	texts := make(map[string]bool)
-	for _, p := range doc3.Paragraphs() {
+	for _, p := range mustParagraphs(t, doc3) {
 		texts[p.Text()] = true
 	}
 	if !texts["Original"] {
@@ -358,8 +397,8 @@ func TestDocument_Save_ByteStability(t *testing.T) {
 	doc2.Save(&buf2)
 
 	doc3, _ := OpenBytes(buf2.Bytes())
-	if len(doc2.Paragraphs()) != len(doc3.Paragraphs()) {
+	if len(mustParagraphs(t, doc2)) != len(mustParagraphs(t, doc3)) {
 		t.Errorf("paragraph count changed: %d → %d",
-			len(doc2.Paragraphs()), len(doc3.Paragraphs()))
+			len(mustParagraphs(t, doc2)), len(mustParagraphs(t, doc3)))
 	}
 }

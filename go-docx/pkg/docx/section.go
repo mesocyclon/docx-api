@@ -328,34 +328,34 @@ func (h *Header) AddTable(rows, cols int, widthTwips int) (*Table, error) {
 // Paragraphs returns the paragraphs in this header.
 //
 // Mirrors Python BlockItemContainer.paragraphs (inherited by _BaseHeaderFooter).
-func (h *Header) Paragraphs() []*Paragraph {
+func (h *Header) Paragraphs() ([]*Paragraph, error) {
 	bic, err := h.blockItemContainer()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: header paragraphs: %w", err)
 	}
-	return bic.Paragraphs()
+	return bic.Paragraphs(), nil
 }
 
 // Tables returns the tables in this header.
 //
 // Mirrors Python BlockItemContainer.tables (inherited by _BaseHeaderFooter).
-func (h *Header) Tables() []*Table {
+func (h *Header) Tables() ([]*Table, error) {
 	bic, err := h.blockItemContainer()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: header tables: %w", err)
 	}
-	return bic.Tables()
+	return bic.Tables(), nil
 }
 
 // IterInnerContent returns paragraphs and tables in this header in document order.
 //
 // Mirrors Python BlockItemContainer.iter_inner_content (inherited by _BaseHeaderFooter).
-func (h *Header) IterInnerContent() []*InnerContentItem {
+func (h *Header) IterInnerContent() ([]*InnerContentItem, error) {
 	bic, err := h.blockItemContainer()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: header inner content: %w", err)
 	}
-	return bic.IterInnerContent()
+	return bic.IterInnerContent(), nil
 }
 
 // Part returns the HeaderPart as a StoryPart. This overrides the part
@@ -510,34 +510,34 @@ func (f *Footer) AddTable(rows, cols int, widthTwips int) (*Table, error) {
 // Paragraphs returns the paragraphs in this footer.
 //
 // Mirrors Python BlockItemContainer.paragraphs (inherited by _BaseHeaderFooter).
-func (f *Footer) Paragraphs() []*Paragraph {
+func (f *Footer) Paragraphs() ([]*Paragraph, error) {
 	bic, err := f.blockItemContainer()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: footer paragraphs: %w", err)
 	}
-	return bic.Paragraphs()
+	return bic.Paragraphs(), nil
 }
 
 // Tables returns the tables in this footer.
 //
 // Mirrors Python BlockItemContainer.tables (inherited by _BaseHeaderFooter).
-func (f *Footer) Tables() []*Table {
+func (f *Footer) Tables() ([]*Table, error) {
 	bic, err := f.blockItemContainer()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: footer tables: %w", err)
 	}
-	return bic.Tables()
+	return bic.Tables(), nil
 }
 
 // IterInnerContent returns paragraphs and tables in this footer in document order.
 //
 // Mirrors Python BlockItemContainer.iter_inner_content (inherited by _BaseHeaderFooter).
-func (f *Footer) IterInnerContent() []*InnerContentItem {
+func (f *Footer) IterInnerContent() ([]*InnerContentItem, error) {
 	bic, err := f.blockItemContainer()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: footer inner content: %w", err)
 	}
-	return bic.IterInnerContent()
+	return bic.IterInnerContent(), nil
 }
 
 // Part returns the FooterPart as a StoryPart. This overrides the part

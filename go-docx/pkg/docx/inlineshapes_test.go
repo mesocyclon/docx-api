@@ -49,7 +49,10 @@ func TestInlineShapes_WithPicture_LenOne(t *testing.T) {
 		t.Fatalf("AddPicture: %v", err)
 	}
 
-	shapes := doc.InlineShapes()
+	shapes, err := doc.InlineShapes()
+	if err != nil {
+		t.Fatalf("InlineShapes() error: %v", err)
+	}
 	if shapes.Len() != 1 {
 		t.Errorf("InlineShapes.Len() = %d, want 1", shapes.Len())
 	}
@@ -118,7 +121,10 @@ func TestInlineShapes_SetWidth_RoundTrip(t *testing.T) {
 		t.Fatalf("OpenBytes: %v", err)
 	}
 
-	shapes := doc2.InlineShapes()
+	shapes, err := doc2.InlineShapes()
+	if err != nil {
+		t.Fatalf("InlineShapes() error: %v", err)
+	}
 	if shapes.Len() != 1 {
 		t.Fatalf("expected 1 inline shape, got %d", shapes.Len())
 	}
@@ -160,7 +166,10 @@ func TestInlineShapes_SetHeight_RoundTrip(t *testing.T) {
 		t.Fatalf("OpenBytes: %v", err)
 	}
 
-	shapes := doc2.InlineShapes()
+	shapes, err := doc2.InlineShapes()
+	if err != nil {
+		t.Fatalf("InlineShapes() error: %v", err)
+	}
 	if shapes.Len() != 1 {
 		t.Fatalf("expected 1 inline shape, got %d", shapes.Len())
 	}
@@ -217,7 +226,10 @@ func TestInlineShapes_MultiplePictures(t *testing.T) {
 		}
 	}
 
-	shapes := doc.InlineShapes()
+	shapes, err := doc.InlineShapes()
+	if err != nil {
+		t.Fatalf("InlineShapes() error: %v", err)
+	}
 	if shapes.Len() != 3 {
 		t.Errorf("InlineShapes.Len() = %d, want 3", shapes.Len())
 	}
@@ -238,7 +250,10 @@ func TestInlineShapes_Iter(t *testing.T) {
 		t.Fatalf("AddPicture: %v", err)
 	}
 
-	shapes := doc.InlineShapes()
+	shapes, err := doc.InlineShapes()
+	if err != nil {
+		t.Fatalf("InlineShapes() error: %v", err)
+	}
 	all := shapes.Iter()
 	if len(all) != 2 {
 		t.Errorf("Iter() len = %d, want 2", len(all))
@@ -256,8 +271,11 @@ func TestInlineShapes_Iter(t *testing.T) {
 
 func TestInlineShapes_Get_OutOfRange(t *testing.T) {
 	doc := mustNewDoc(t)
-	shapes := doc.InlineShapes()
-	_, err := shapes.Get(0)
+	shapes, err := doc.InlineShapes()
+	if err != nil {
+		t.Fatalf("InlineShapes() error: %v", err)
+	}
+	_, err = shapes.Get(0)
 	if err == nil {
 		t.Error("expected error for Get(0) on empty InlineShapes")
 	}

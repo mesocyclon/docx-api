@@ -83,11 +83,11 @@ func (cs *Comments) AddComment(text, author string, initials *string) (*Comment,
 	paragraphs := splitNewlines(text)
 	paras := comment.Paragraphs()
 	if len(paras) > 0 && len(paragraphs) > 0 {
-		if _, err := paras[0].AddRun(paragraphs[0], nil); err != nil {
+		if _, err := paras[0].AddRun(paragraphs[0]); err != nil {
 			return nil, err
 		}
 		for _, s := range paragraphs[1:] {
-			if _, err := comment.AddParagraph(s, nil); err != nil {
+			if _, err := comment.AddParagraph(s); err != nil {
 				return nil, err
 			}
 		}

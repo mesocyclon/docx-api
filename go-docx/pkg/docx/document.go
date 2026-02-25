@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/beevik/etree"
 	"github.com/vortex/go-docx/pkg/docx/enum"
 	"github.com/vortex/go-docx/pkg/docx/oxml"
 	"github.com/vortex/go-docx/pkg/docx/parts"
@@ -90,11 +89,11 @@ func (d *Document) AddParagraph(text string, style ...StyleRef) (*Paragraph, err
 //
 // Mirrors Python Document.add_picture → add_paragraph().add_run().add_picture().
 func (d *Document) AddPicture(r io.ReadSeeker, width, height *int64) (*InlineShape, error) {
-	para, err := d.AddParagraph("", nil)
+	para, err := d.AddParagraph("")
 	if err != nil {
 		return nil, fmt.Errorf("docx: add picture paragraph: %w", err)
 	}
-	run, err := para.AddRun("", nil)
+	run, err := para.AddRun("")
 	if err != nil {
 		return nil, fmt.Errorf("docx: add picture run: %w", err)
 	}
@@ -126,7 +125,10 @@ func (d *Document) AddTable(rows, cols int, style ...StyleRef) (*Table, error) {
 	if err != nil {
 		return nil, err
 	}
-	bw := d.blockWidth()
+	bw, err := d.blockWidth()
+	if err != nil {
+		return nil, err
+	}
 	table, err := b.AddTable(rows, cols, bw)
 	if err != nil {
 		return nil, err
@@ -207,34 +209,34 @@ func (d *Document) CoreProperties() (*CoreProperties, error) {
 // InlineShapes returns the InlineShapes collection for this document.
 //
 // Mirrors Python Document.inline_shapes → self._part.inline_shapes.
-func (d *Document) InlineShapes() *InlineShapes {
+func (d *Document) InlineShapes() (*InlineShapes, error) {
 	body := d.element.Body()
 	if body == nil || body.RawElement() == nil {
-		return newInlineShapes(etree.NewElement("body"))
+		return nil, fmt.Errorf("docx: document has no body element")
 	}
-	return newInlineShapes(body.RawElement())
+	return newInlineShapes(body.RawElement()), nil
 }
 
 // IterInnerContent returns all paragraphs and tables in document order.
 //
 // Mirrors Python Document.iter_inner_content → self._body.iter_inner_content().
-func (d *Document) IterInnerContent() []*InnerContentItem {
+func (d *Document) IterInnerContent() ([]*InnerContentItem, error) {
 	b, err := d.getBody()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: getting body: %w", err)
 	}
-	return b.IterInnerContent()
+	return b.IterInnerContent(), nil
 }
 
 // Paragraphs returns all top-level paragraphs in document order.
 //
 // Mirrors Python Document.paragraphs → self._body.paragraphs.
-func (d *Document) Paragraphs() []*Paragraph {
+func (d *Document) Paragraphs() ([]*Paragraph, error) {
 	b, err := d.getBody()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: getting body: %w", err)
 	}
-	return b.Paragraphs()
+	return b.Paragraphs(), nil
 }
 
 // Part returns the DocumentPart for this document.
@@ -276,12 +278,12 @@ func (d *Document) Styles() (*Styles, error) {
 // Tables returns all top-level tables in document order.
 //
 // Mirrors Python Document.tables → self._body.tables.
-func (d *Document) Tables() []*Table {
+func (d *Document) Tables() ([]*Table, error) {
 	b, err := d.getBody()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: getting body: %w", err)
 	}
-	return b.Tables()
+	return b.Tables(), nil
 }
 
 // --------------------------------------------------------------------------
@@ -311,14 +313,14 @@ func (d *Document) SaveFile(path string) error {
 //
 // Mirrors Python Document._block_width (but in twips, not EMU, since Go
 // Section methods return twips).
-func (d *Document) blockWidth() int {
+func (d *Document) blockWidth() (int, error) {
 	sections := d.Sections()
 	if sections.Len() == 0 {
-		return Inches(6.5).Twips()
+		return Inches(6.5).Twips(), nil
 	}
 	last, err := sections.Get(sections.Len() - 1)
 	if err != nil {
-		return Inches(6.5).Twips()
+		return 0, fmt.Errorf("docx: getting last section: %w", err)
 	}
 
 	pageWidth := Inches(8.5).Twips()
@@ -334,7 +336,7 @@ func (d *Document) blockWidth() int {
 		rightMargin = *rm
 	}
 
-	return pageWidth - leftMargin - rightMargin
+	return pageWidth - leftMargin - rightMargin, nil
 }
 
 // getBody returns the cached Body, creating it on first call.
