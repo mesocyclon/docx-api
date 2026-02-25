@@ -16,8 +16,8 @@ type Hyperlink struct {
 	part      *parts.StoryPart
 }
 
-// NewHyperlink creates a new Hyperlink proxy.
-func NewHyperlink(elm *oxml.CT_Hyperlink, part *parts.StoryPart) *Hyperlink {
+// newHyperlink creates a new Hyperlink proxy.
+func newHyperlink(elm *oxml.CT_Hyperlink, part *parts.StoryPart) *Hyperlink {
 	return &Hyperlink{hyperlink: elm, part: part}
 }
 
@@ -65,7 +65,7 @@ func (h *Hyperlink) Runs() []*Run {
 	rList := h.hyperlink.RList()
 	result := make([]*Run, len(rList))
 	for i, r := range rList {
-		result[i] = NewRun(r, h.part)
+		result[i] = newRun(r, h.part)
 	}
 	return result
 }

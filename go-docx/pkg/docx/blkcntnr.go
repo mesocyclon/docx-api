@@ -36,8 +36,8 @@ type BlockItemContainer struct {
 	part    *parts.StoryPart
 }
 
-// NewBlockItemContainer creates a new BlockItemContainer.
-func NewBlockItemContainer(element *etree.Element, part *parts.StoryPart) BlockItemContainer {
+// newBlockItemContainer creates a new BlockItemContainer.
+func newBlockItemContainer(element *etree.Element, part *parts.StoryPart) BlockItemContainer {
 	return BlockItemContainer{element: element, part: part}
 }
 
@@ -48,7 +48,7 @@ func NewBlockItemContainer(element *etree.Element, part *parts.StoryPart) BlockI
 // Mirrors Python BlockItemContainer.add_paragraph.
 func (c *BlockItemContainer) AddParagraph(text string, style interface{}) (*Paragraph, error) {
 	p := c.addP()
-	para := NewParagraph(p, c.part)
+	para := newParagraph(p, c.part)
 	if text != "" {
 		if _, err := para.AddRun(text, nil); err != nil {
 			return nil, fmt.Errorf("docx: adding run to paragraph: %w", err)
@@ -69,7 +69,7 @@ func (c *BlockItemContainer) AddParagraph(text string, style interface{}) (*Para
 func (c *BlockItemContainer) AddTable(rows, cols int, widthTwips int) (*Table, error) {
 	tbl := oxml.NewTbl(rows, cols, widthTwips)
 	c.insertBeforeSectPr(tbl.RawElement())
-	return NewTable(tbl, c.part), nil
+	return newTable(tbl, c.part), nil
 }
 
 // IterInnerContent returns a slice of InnerContentItems (Paragraph or Table)
@@ -81,10 +81,10 @@ func (c *BlockItemContainer) IterInnerContent() []*InnerContentItem {
 	for _, child := range c.element.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
 			p := &oxml.CT_P{Element: oxml.WrapElement(child)}
-			result = append(result, &InnerContentItem{paragraph: NewParagraph(p, c.part)})
+			result = append(result, &InnerContentItem{paragraph: newParagraph(p, c.part)})
 		} else if child.Space == "w" && child.Tag == "tbl" {
 			tbl := &oxml.CT_Tbl{Element: oxml.WrapElement(child)}
-			result = append(result, &InnerContentItem{table: NewTable(tbl, c.part)})
+			result = append(result, &InnerContentItem{table: newTable(tbl, c.part)})
 		}
 	}
 	return result
@@ -98,7 +98,7 @@ func (c *BlockItemContainer) Paragraphs() []*Paragraph {
 	for _, child := range c.element.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
 			p := &oxml.CT_P{Element: oxml.WrapElement(child)}
-			result = append(result, NewParagraph(p, c.part))
+			result = append(result, newParagraph(p, c.part))
 		}
 	}
 	return result
@@ -112,7 +112,7 @@ func (c *BlockItemContainer) Tables() []*Table {
 	for _, child := range c.element.ChildElements() {
 		if child.Space == "w" && child.Tag == "tbl" {
 			tbl := &oxml.CT_Tbl{Element: oxml.WrapElement(child)}
-			result = append(result, NewTable(tbl, c.part))
+			result = append(result, newTable(tbl, c.part))
 		}
 	}
 	return result

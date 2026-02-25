@@ -114,7 +114,7 @@ func (d *Document) AddSection(startType enum.WdSectionStart) (*Section, error) {
 	if err := newSectPr.SetStartType(startType); err != nil {
 		return nil, fmt.Errorf("docx: setting section start type: %w", err)
 	}
-	return NewSection(newSectPr, d.part), nil
+	return newSection(newSectPr, d.part), nil
 }
 
 // AddTable appends a new table with the given row and column counts.
@@ -186,7 +186,7 @@ func (d *Document) Comments() (*Comments, error) {
 	if err != nil {
 		return nil, fmt.Errorf("docx: getting comments element: %w", err)
 	}
-	return NewComments(elm, cp), nil
+	return newComments(elm, cp), nil
 }
 
 // CoreProperties returns the CoreProperties for this document.
@@ -201,7 +201,7 @@ func (d *Document) CoreProperties() (*CoreProperties, error) {
 	if err != nil {
 		return nil, fmt.Errorf("docx: getting core properties element: %w", err)
 	}
-	return NewCoreProperties(elm), nil
+	return newCoreProperties(elm), nil
 }
 
 // InlineShapes returns the InlineShapes collection for this document.
@@ -210,9 +210,9 @@ func (d *Document) CoreProperties() (*CoreProperties, error) {
 func (d *Document) InlineShapes() *InlineShapes {
 	body := d.element.Body()
 	if body == nil || body.RawElement() == nil {
-		return NewInlineShapes(etree.NewElement("body"))
+		return newInlineShapes(etree.NewElement("body"))
 	}
-	return NewInlineShapes(body.RawElement())
+	return newInlineShapes(body.RawElement())
 }
 
 // IterInnerContent returns all paragraphs and tables in document order.
@@ -248,7 +248,7 @@ func (d *Document) Part() *parts.DocumentPart {
 //
 // Mirrors Python Document.sections → Sections(self._element, self._part).
 func (d *Document) Sections() *Sections {
-	return NewSections(d.element, d.part)
+	return newSections(d.element, d.part)
 }
 
 // Settings returns the Settings proxy for this document.
@@ -259,7 +259,7 @@ func (d *Document) Settings() (*Settings, error) {
 	if err != nil {
 		return nil, fmt.Errorf("docx: getting settings: %w", err)
 	}
-	return NewSettings(elm), nil
+	return newSettings(elm), nil
 }
 
 // Styles returns the Styles proxy for this document.
@@ -270,7 +270,7 @@ func (d *Document) Styles() (*Styles, error) {
 	if err != nil {
 		return nil, fmt.Errorf("docx: getting styles: %w", err)
 	}
-	return NewStyles(elm), nil
+	return newStyles(elm), nil
 }
 
 // Tables returns all top-level tables in document order.

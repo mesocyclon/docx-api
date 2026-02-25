@@ -17,8 +17,8 @@ type Run struct {
 	part *parts.StoryPart
 }
 
-// NewRun creates a new Run proxy.
-func NewRun(r *oxml.CT_R, part *parts.StoryPart) *Run {
+// newRun creates a new Run proxy.
+func newRun(r *oxml.CT_R, part *parts.StoryPart) *Run {
 	return &Run{r: r, part: part}
 }
 
@@ -75,7 +75,7 @@ func (run *Run) AddPicture(r io.ReadSeeker, width, height *int64) (*InlineShape,
 		return nil, fmt.Errorf("docx: creating pic inline from stream: %w", err)
 	}
 	run.r.AddDrawingWithInline(inline)
-	return NewInlineShape(inline), nil
+	return newInlineShape(inline), nil
 }
 
 // AddPictureFromPart adds an inline picture from a pre-built ImagePart.
@@ -86,7 +86,7 @@ func (run *Run) AddPictureFromPart(imgPart *parts.ImagePart, width, height *int6
 		return nil, fmt.Errorf("docx: creating pic inline: %w", err)
 	}
 	run.r.AddDrawingWithInline(inline)
-	return NewInlineShape(inline), nil
+	return newInlineShape(inline), nil
 }
 
 // AddTab adds a <w:tab/> element at the end of the run.
@@ -135,7 +135,7 @@ func (run *Run) ContainsPageBreak() bool {
 //
 // Mirrors Python Run.font.
 func (run *Run) Font() *Font {
-	return NewFont(run.r)
+	return newFont(run.r)
 }
 
 // Italic returns the tri-state italic value (delegates to Font).
@@ -261,9 +261,9 @@ func (run *Run) IterInnerContent() []*RunContentItem {
 			s := v
 			result = append(result, &RunContentItem{text: &s})
 		case *oxml.CT_Drawing:
-			result = append(result, &RunContentItem{drawing: NewDrawing(v, run.part)})
+			result = append(result, &RunContentItem{drawing: newDrawing(v, run.part)})
 		case *oxml.CT_LastRenderedPageBreak:
-			result = append(result, &RunContentItem{renderedPageBreak: NewRenderedPageBreak(v, run.part)})
+			result = append(result, &RunContentItem{renderedPageBreak: newRenderedPageBreak(v, run.part)})
 		}
 	}
 	return result

@@ -15,8 +15,8 @@ type TabStops struct {
 	pPr *oxml.CT_PPr
 }
 
-// NewTabStops creates a new TabStops proxy.
-func NewTabStops(pPr *oxml.CT_PPr) *TabStops {
+// newTabStops creates a new TabStops proxy.
+func newTabStops(pPr *oxml.CT_PPr) *TabStops {
 	return &TabStops{pPr: pPr}
 }
 
@@ -39,7 +39,7 @@ func (ts *TabStops) Get(idx int) (*TabStop, error) {
 	if idx < 0 || idx >= len(lst) {
 		return nil, fmt.Errorf("docx: tab index [%d] out of range", idx)
 	}
-	return NewTabStop(lst[idx]), nil
+	return newTabStop(lst[idx]), nil
 }
 
 // Delete removes the tab stop at the given index.
@@ -68,7 +68,7 @@ func (ts *TabStops) Iter() []*TabStop {
 	lst := tabs.TabList()
 	result := make([]*TabStop, len(lst))
 	for i, t := range lst {
-		result[i] = NewTabStop(t)
+		result[i] = newTabStop(t)
 	}
 	return result
 }
@@ -83,7 +83,7 @@ func (ts *TabStops) AddTabStop(position int, alignment enum.WdTabAlignment, lead
 	if err != nil {
 		return nil, fmt.Errorf("docx: adding tab stop: %w", err)
 	}
-	return NewTabStop(tab), nil
+	return newTabStop(tab), nil
 }
 
 // ClearAll removes all custom tab stops.
@@ -100,8 +100,8 @@ type TabStop struct {
 	tab *oxml.CT_TabStop
 }
 
-// NewTabStop creates a new TabStop proxy.
-func NewTabStop(tab *oxml.CT_TabStop) *TabStop {
+// newTabStop creates a new TabStop proxy.
+func newTabStop(tab *oxml.CT_TabStop) *TabStop {
 	return &TabStop{tab: tab}
 }
 

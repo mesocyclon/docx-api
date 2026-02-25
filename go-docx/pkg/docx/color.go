@@ -12,8 +12,8 @@ type ColorFormat struct {
 	r *oxml.CT_R // rPr parent (CT_R or CT_Style wrapping rPr)
 }
 
-// NewColorFormat creates a new ColorFormat proxy.
-func NewColorFormat(r *oxml.CT_R) *ColorFormat {
+// newColorFormat creates a new ColorFormat proxy.
+func newColorFormat(r *oxml.CT_R) *ColorFormat {
 	return &ColorFormat{r: r}
 }
 

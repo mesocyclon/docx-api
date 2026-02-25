@@ -147,7 +147,7 @@ func TestFont_BoldTriState(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := makeR(t, tt.xml)
-			f := NewFont(r)
+			f := newFont(r)
 			got := f.Bold()
 			if got == nil && tt.expect == nil {
 				return
@@ -161,7 +161,7 @@ func TestFont_BoldTriState(t *testing.T) {
 
 func TestFont_SetBold(t *testing.T) {
 	r := makeR(t, "")
-	f := NewFont(r)
+	f := newFont(r)
 
 	// Set bold to true
 	if err := f.SetBold(boolPtr(true)); err != nil {
@@ -201,7 +201,7 @@ func TestFont_Name(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := makeR(t, tt.xml)
-			f := NewFont(r)
+			f := newFont(r)
 			got := f.Name()
 			if got == nil && tt.expect == nil {
 				return
@@ -216,7 +216,7 @@ func TestFont_Name(t *testing.T) {
 func TestFont_Size(t *testing.T) {
 	// size 24 = 12pt in half-points
 	r := makeR(t, `<w:rPr><w:sz w:val="24"/></w:rPr>`)
-	f := NewFont(r)
+	f := newFont(r)
 	got := f.Size()
 	if got == nil {
 		t.Fatal("expected non-nil Size()")
@@ -233,7 +233,7 @@ func TestFont_Size(t *testing.T) {
 
 func TestParagraph_Text(t *testing.T) {
 	p := makeP(t, `<w:r><w:t>Hello</w:t></w:r><w:r><w:t> World</w:t></w:r>`)
-	para := NewParagraph(p, nil)
+	para := newParagraph(p, nil)
 	if got := para.Text(); got != "Hello World" {
 		t.Errorf("Text() = %q, want %q", got, "Hello World")
 	}
@@ -241,7 +241,7 @@ func TestParagraph_Text(t *testing.T) {
 
 func TestParagraph_Runs(t *testing.T) {
 	p := makeP(t, `<w:r><w:t>A</w:t></w:r><w:r><w:t>B</w:t></w:r>`)
-	para := NewParagraph(p, nil)
+	para := newParagraph(p, nil)
 	runs := para.Runs()
 	if len(runs) != 2 {
 		t.Fatalf("len(Runs) = %d, want 2", len(runs))
@@ -253,7 +253,7 @@ func TestParagraph_Runs(t *testing.T) {
 
 func TestParagraph_AddRun(t *testing.T) {
 	p := makeP(t, "")
-	para := NewParagraph(p, nil)
+	para := newParagraph(p, nil)
 	r, err := para.AddRun("test", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -272,7 +272,7 @@ func TestParagraph_AddRun(t *testing.T) {
 
 func TestParagraphFormat_Alignment(t *testing.T) {
 	p := makeP(t, `<w:pPr><w:jc w:val="center"/></w:pPr>`)
-	para := NewParagraph(p, nil)
+	para := newParagraph(p, nil)
 	pf := para.ParagraphFormat()
 
 	got, err := pf.Alignment()
@@ -289,7 +289,7 @@ func TestParagraphFormat_Alignment(t *testing.T) {
 
 func TestParagraphFormat_KeepWithNext(t *testing.T) {
 	p := makeP(t, `<w:pPr><w:keepNext/></w:pPr>`)
-	para := NewParagraph(p, nil)
+	para := newParagraph(p, nil)
 	pf := para.ParagraphFormat()
 
 	got := pf.KeepWithNext()
@@ -301,7 +301,7 @@ func TestParagraphFormat_KeepWithNext(t *testing.T) {
 func TestParagraphFormat_SpaceAfter(t *testing.T) {
 	// 240 twips
 	p := makeP(t, `<w:pPr><w:spacing w:after="240"/></w:pPr>`)
-	para := NewParagraph(p, nil)
+	para := newParagraph(p, nil)
 	pf := para.ParagraphFormat()
 
 	got, err := pf.SpaceAfter()
@@ -319,7 +319,7 @@ func TestParagraphFormat_SpaceAfter(t *testing.T) {
 func TestParagraphFormat_LineSpacing_Multiple(t *testing.T) {
 	// w:line="480" w:lineRule="auto" → 480/240 = 2.0 (double spacing)
 	p := makeP(t, `<w:pPr><w:spacing w:line="480" w:lineRule="auto"/></w:pPr>`)
-	para := NewParagraph(p, nil)
+	para := newParagraph(p, nil)
 	pf := para.ParagraphFormat()
 
 	got, err := pf.LineSpacing()
@@ -341,7 +341,7 @@ func TestParagraphFormat_LineSpacing_Multiple(t *testing.T) {
 func TestParagraphFormat_LineSpacingRule_Single(t *testing.T) {
 	// 240 twips with MULTIPLE → SINGLE
 	p := makeP(t, `<w:pPr><w:spacing w:line="240" w:lineRule="auto"/></w:pPr>`)
-	para := NewParagraph(p, nil)
+	para := newParagraph(p, nil)
 	pf := para.ParagraphFormat()
 
 	rule, err := pf.LineSpacingRule()
@@ -366,7 +366,7 @@ func TestTable_Rows(t *testing.T) {
 		<w:tr><w:tc><w:p/></w:tc><w:tc><w:p/></w:tc></w:tr>
 		<w:tr><w:tc><w:p/></w:tc><w:tc><w:p/></w:tc></w:tr>
 	`)
-	table := NewTable(tbl, nil)
+	table := newTable(tbl, nil)
 
 	rows := table.Rows()
 	if rows.Len() != 2 {
@@ -379,7 +379,7 @@ func TestTable_Columns(t *testing.T) {
 		<w:tblGrid><w:gridCol w:w="5000"/><w:gridCol w:w="5000"/></w:tblGrid>
 		<w:tr><w:tc><w:p/></w:tc><w:tc><w:p/></w:tc></w:tr>
 	`)
-	table := NewTable(tbl, nil)
+	table := newTable(tbl, nil)
 
 	cols, err := table.Columns()
 	if err != nil {
@@ -396,7 +396,7 @@ func TestTable_CellAt(t *testing.T) {
 		<w:tr><w:tc><w:p><w:r><w:t>A1</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>B1</w:t></w:r></w:p></w:tc></w:tr>
 		<w:tr><w:tc><w:p><w:r><w:t>A2</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>B2</w:t></w:r></w:p></w:tc></w:tr>
 	`)
-	table := NewTable(tbl, nil)
+	table := newTable(tbl, nil)
 
 	cell, err := table.CellAt(0, 0)
 	if err != nil {
@@ -420,7 +420,7 @@ func TestTable_CellAt_OutOfRange(t *testing.T) {
 		<w:tblGrid><w:gridCol w:w="5000"/></w:tblGrid>
 		<w:tr><w:tc><w:p/></w:tc></w:tr>
 	`)
-	table := NewTable(tbl, nil)
+	table := newTable(tbl, nil)
 
 	_, err := table.CellAt(5, 0)
 	if err == nil {
@@ -443,7 +443,7 @@ func TestTable_HorizontalMerge(t *testing.T) {
 			</w:tc>
 		</w:tr>
 	`)
-	table := NewTable(tbl, nil)
+	table := newTable(tbl, nil)
 
 	// Both cell(0,0) and cell(0,1) should refer to the same cell
 	c1, err := table.CellAt(0, 0)
@@ -476,7 +476,7 @@ func TestTable_VerticalMerge(t *testing.T) {
 			</w:tc>
 		</w:tr>
 	`)
-	table := NewTable(tbl, nil)
+	table := newTable(tbl, nil)
 
 	// Both rows should reference the same cell (the "top" cell)
 	c1, err := table.CellAt(0, 0)
@@ -506,7 +506,7 @@ func TestSection_PageDimensions(t *testing.T) {
 	</w:sectPr>`
 	el := mustParseXml(t, xml)
 	sectPr := &oxml.CT_SectPr{Element: *el}
-	sec := NewSection(sectPr, nil)
+	sec := newSection(sectPr, nil)
 
 	w, err := sec.PageWidth()
 	if err != nil {
@@ -530,7 +530,7 @@ func TestSection_Margins(t *testing.T) {
 	</w:sectPr>`
 	el := mustParseXml(t, xml)
 	sectPr := &oxml.CT_SectPr{Element: *el}
-	sec := NewSection(sectPr, nil)
+	sec := newSection(sectPr, nil)
 
 	top, err := sec.TopMargin()
 	if err != nil {
@@ -584,7 +584,7 @@ func TestBabelFish_Internal2UI(t *testing.T) {
 
 func TestColorFormat_RGB(t *testing.T) {
 	r := makeR(t, `<w:rPr><w:color w:val="3C2F80"/></w:rPr>`)
-	cf := NewColorFormat(r)
+	cf := newColorFormat(r)
 
 	rgb := cf.RGB()
 	if rgb == nil {
@@ -597,7 +597,7 @@ func TestColorFormat_RGB(t *testing.T) {
 
 func TestColorFormat_Type_RGB(t *testing.T) {
 	r := makeR(t, `<w:rPr><w:color w:val="FF0000"/></w:rPr>`)
-	cf := NewColorFormat(r)
+	cf := newColorFormat(r)
 
 	ct := cf.Type()
 	if ct == nil {
@@ -610,7 +610,7 @@ func TestColorFormat_Type_RGB(t *testing.T) {
 
 func TestColorFormat_Type_Auto(t *testing.T) {
 	r := makeR(t, `<w:rPr><w:color w:val="auto"/></w:rPr>`)
-	cf := NewColorFormat(r)
+	cf := newColorFormat(r)
 
 	ct := cf.Type()
 	if ct == nil {
@@ -623,7 +623,7 @@ func TestColorFormat_Type_Auto(t *testing.T) {
 
 func TestColorFormat_Type_None(t *testing.T) {
 	r := makeR(t, ``)
-	cf := NewColorFormat(r)
+	cf := newColorFormat(r)
 
 	if cf.Type() != nil {
 		t.Error("expected nil Type for no rPr")
@@ -640,7 +640,7 @@ func TestSettings_OddAndEvenPages(t *testing.T) {
 	</w:settings>`
 	el := mustParseXml(t, xml)
 	s := &oxml.CT_Settings{Element: *el}
-	settings := NewSettings(s)
+	settings := newSettings(s)
 
 	if !settings.OddAndEvenPagesHeaderFooter() {
 		t.Error("expected OddAndEvenPagesHeaderFooter() = true")
@@ -651,7 +651,7 @@ func TestSettings_OddAndEvenPages_NotPresent(t *testing.T) {
 	xml := `<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`
 	el := mustParseXml(t, xml)
 	s := &oxml.CT_Settings{Element: *el}
-	settings := NewSettings(s)
+	settings := newSettings(s)
 
 	if settings.OddAndEvenPagesHeaderFooter() {
 		t.Error("expected OddAndEvenPagesHeaderFooter() = false when not present")
@@ -707,7 +707,7 @@ func TestHyperlink_Fragment(t *testing.T) {
 	</w:hyperlink>`
 	el := mustParseXml(t, xml)
 	h := &oxml.CT_Hyperlink{Element: *el}
-	hl := NewHyperlink(h, nil)
+	hl := newHyperlink(h, nil)
 
 	if hl.Fragment() != "_Toc147925734" {
 		t.Errorf("Fragment() = %q, want %q", hl.Fragment(), "_Toc147925734")
@@ -732,7 +732,7 @@ func TestHyperlink_Runs(t *testing.T) {
 	</w:hyperlink>`
 	el := mustParseXml(t, xml)
 	h := &oxml.CT_Hyperlink{Element: *el}
-	hl := NewHyperlink(h, nil)
+	hl := newHyperlink(h, nil)
 
 	runs := hl.Runs()
 	if len(runs) != 2 {
@@ -754,7 +754,7 @@ func TestInlineShapes_Len(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	iss := NewInlineShapes(el)
+	iss := newInlineShapes(el)
 	if iss.Len() != 2 {
 		t.Errorf("Len() = %d, want 2", iss.Len())
 	}
@@ -768,7 +768,7 @@ func TestInlineShapes_Empty(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	iss := NewInlineShapes(el)
+	iss := newInlineShapes(el)
 	if iss.Len() != 0 {
 		t.Errorf("Len() = %d, want 0", iss.Len())
 	}
@@ -788,7 +788,7 @@ func TestTabStops_Len(t *testing.T) {
 	</w:pPr>`
 	el := mustParseXml(t, xml)
 	pPr := &oxml.CT_PPr{Element: *el}
-	ts := NewTabStops(pPr)
+	ts := newTabStops(pPr)
 
 	if ts.Len() != 3 {
 		t.Errorf("Len() = %d, want 3", ts.Len())
@@ -808,7 +808,7 @@ func TestBlockItemContainer_Paragraphs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bic := NewBlockItemContainer(el, nil)
+	bic := newBlockItemContainer(el, nil)
 	paras := bic.Paragraphs()
 	if len(paras) != 2 {
 		t.Fatalf("len(Paragraphs) = %d, want 2", len(paras))
@@ -828,7 +828,7 @@ func TestBlockItemContainer_IterInnerContent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	bic := NewBlockItemContainer(el, nil)
+	bic := newBlockItemContainer(el, nil)
 	items := bic.IterInnerContent()
 	if len(items) != 3 {
 		t.Fatalf("len(IterInnerContent) = %d, want 3", len(items))

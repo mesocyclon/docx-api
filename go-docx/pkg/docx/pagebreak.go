@@ -20,8 +20,8 @@ type RenderedPageBreak struct {
 	part *parts.StoryPart
 }
 
-// NewRenderedPageBreak creates a new RenderedPageBreak proxy.
-func NewRenderedPageBreak(elm *oxml.CT_LastRenderedPageBreak, part *parts.StoryPart) *RenderedPageBreak {
+// newRenderedPageBreak creates a new RenderedPageBreak proxy.
+func newRenderedPageBreak(elm *oxml.CT_LastRenderedPageBreak, part *parts.StoryPart) *RenderedPageBreak {
 	return &RenderedPageBreak{lrpb: elm, part: part}
 }
 
@@ -44,7 +44,7 @@ func (rpb *RenderedPageBreak) PrecedingParagraphFragment() *Paragraph {
 	if err != nil {
 		return nil
 	}
-	return NewParagraph(fragP, rpb.part)
+	return newParagraph(fragP, rpb.part)
 }
 
 // FollowingParagraphFragment returns a "loose" paragraph containing the content
@@ -66,5 +66,5 @@ func (rpb *RenderedPageBreak) FollowingParagraphFragment() *Paragraph {
 	if err != nil {
 		return nil
 	}
-	return NewParagraph(fragP, rpb.part)
+	return newParagraph(fragP, rpb.part)
 }

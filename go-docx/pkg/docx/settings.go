@@ -9,8 +9,8 @@ type Settings struct {
 	settings *oxml.CT_Settings
 }
 
-// NewSettings creates a new Settings proxy wrapping the given CT_Settings element.
-func NewSettings(elm *oxml.CT_Settings) *Settings {
+// newSettings creates a new Settings proxy wrapping the given CT_Settings element.
+func newSettings(elm *oxml.CT_Settings) *Settings {
 	return &Settings{settings: elm}
 }
 

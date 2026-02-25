@@ -20,8 +20,8 @@ type InlineShapes struct {
 	body *etree.Element // CT_Body element
 }
 
-// NewInlineShapes creates a new InlineShapes proxy.
-func NewInlineShapes(body *etree.Element) *InlineShapes {
+// newInlineShapes creates a new InlineShapes proxy.
+func newInlineShapes(body *etree.Element) *InlineShapes {
 	return &InlineShapes{body: body}
 }
 
@@ -83,8 +83,8 @@ type InlineShape struct {
 	inline *oxml.CT_Inline
 }
 
-// NewInlineShape creates a new InlineShape proxy.
-func NewInlineShape(elm *oxml.CT_Inline) *InlineShape {
+// newInlineShape creates a new InlineShape proxy.
+func newInlineShape(elm *oxml.CT_Inline) *InlineShape {
 	return &InlineShape{inline: elm}
 }
 

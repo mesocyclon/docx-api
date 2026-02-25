@@ -16,8 +16,8 @@ type Comments struct {
 	commentsPart *parts.CommentsPart
 }
 
-// NewComments creates a new Comments proxy.
-func NewComments(elm *oxml.CT_Comments, part *parts.CommentsPart) *Comments {
+// newComments creates a new Comments proxy.
+func newComments(elm *oxml.CT_Comments, part *parts.CommentsPart) *Comments {
 	return &Comments{commentsElm: elm, commentsPart: part}
 }
 
@@ -123,7 +123,7 @@ type Comment struct {
 func newComment(elm *oxml.CT_Comment, part *parts.CommentsPart) *Comment {
 	sp := &part.StoryPart
 	return &Comment{
-		BlockItemContainer: NewBlockItemContainer(elm.RawElement(), sp),
+		BlockItemContainer: newBlockItemContainer(elm.RawElement(), sp),
 		commentElm:         elm,
 	}
 }

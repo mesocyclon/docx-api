@@ -20,13 +20,13 @@ type ParagraphFormat struct {
 	provider pPrProvider
 }
 
-// NewParagraphFormatFromP creates a ParagraphFormat wrapping a CT_P element.
-func NewParagraphFormatFromP(p *oxml.CT_P) *ParagraphFormat {
+// newParagraphFormatFromP creates a ParagraphFormat wrapping a CT_P element.
+func newParagraphFormatFromP(p *oxml.CT_P) *ParagraphFormat {
 	return &ParagraphFormat{provider: p}
 }
 
-// NewParagraphFormatFromStyle creates a ParagraphFormat wrapping a CT_Style element.
-func NewParagraphFormatFromStyle(s *oxml.CT_Style) *ParagraphFormat {
+// newParagraphFormatFromStyle creates a ParagraphFormat wrapping a CT_Style element.
+func newParagraphFormatFromStyle(s *oxml.CT_Style) *ParagraphFormat {
 	return &ParagraphFormat{provider: s}
 }
 
@@ -286,7 +286,7 @@ func (pf *ParagraphFormat) SetWidowControl(v *bool) error {
 // Mirrors Python ParagraphFormat.tab_stops (lazyproperty).
 func (pf *ParagraphFormat) TabStops() *TabStops {
 	pPr := pf.provider.GetOrAddPPr()
-	return NewTabStops(pPr)
+	return newTabStops(pPr)
 }
 
 // --- internal helpers ---

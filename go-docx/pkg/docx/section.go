@@ -17,8 +17,8 @@ type Section struct {
 	docPart *parts.DocumentPart
 }
 
-// NewSection creates a new Section proxy.
-func NewSection(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart) *Section {
+// newSection creates a new Section proxy.
+func newSection(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart) *Section {
 	return &Section{sectPr: sectPr, docPart: docPart}
 }
 
@@ -99,32 +99,32 @@ func (s *Section) SetDifferentFirstPageHeaderFooter(v bool) error {
 
 // Header returns the default (primary) page header.
 func (s *Section) Header() *Header {
-	return NewHeader(s.sectPr, s.docPart, enum.WdHeaderFooterIndexPrimary)
+	return newHeader(s.sectPr, s.docPart, enum.WdHeaderFooterIndexPrimary)
 }
 
 // Footer returns the default (primary) page footer.
 func (s *Section) Footer() *Footer {
-	return NewFooter(s.sectPr, s.docPart, enum.WdHeaderFooterIndexPrimary)
+	return newFooter(s.sectPr, s.docPart, enum.WdHeaderFooterIndexPrimary)
 }
 
 // EvenPageHeader returns the even-page header.
 func (s *Section) EvenPageHeader() *Header {
-	return NewHeader(s.sectPr, s.docPart, enum.WdHeaderFooterIndexEvenPage)
+	return newHeader(s.sectPr, s.docPart, enum.WdHeaderFooterIndexEvenPage)
 }
 
 // EvenPageFooter returns the even-page footer.
 func (s *Section) EvenPageFooter() *Footer {
-	return NewFooter(s.sectPr, s.docPart, enum.WdHeaderFooterIndexEvenPage)
+	return newFooter(s.sectPr, s.docPart, enum.WdHeaderFooterIndexEvenPage)
 }
 
 // FirstPageHeader returns the first-page header.
 func (s *Section) FirstPageHeader() *Header {
-	return NewHeader(s.sectPr, s.docPart, enum.WdHeaderFooterIndexFirstPage)
+	return newHeader(s.sectPr, s.docPart, enum.WdHeaderFooterIndexFirstPage)
 }
 
 // FirstPageFooter returns the first-page footer.
 func (s *Section) FirstPageFooter() *Footer {
-	return NewFooter(s.sectPr, s.docPart, enum.WdHeaderFooterIndexFirstPage)
+	return newFooter(s.sectPr, s.docPart, enum.WdHeaderFooterIndexFirstPage)
 }
 
 // IterInnerContent returns paragraphs and tables in this section body.
@@ -212,10 +212,10 @@ func collectBlockItems(elems []*etree.Element, docPart *parts.DocumentPart) []*I
 		switch {
 		case child.Space == "w" && child.Tag == "p":
 			p := &oxml.CT_P{Element: oxml.WrapElement(child)}
-			result = append(result, &InnerContentItem{paragraph: NewParagraph(p, sp)})
+			result = append(result, &InnerContentItem{paragraph: newParagraph(p, sp)})
 		case child.Space == "w" && child.Tag == "tbl":
 			tbl := &oxml.CT_Tbl{Element: oxml.WrapElement(child)}
-			result = append(result, &InnerContentItem{table: NewTable(tbl, sp)})
+			result = append(result, &InnerContentItem{table: newTable(tbl, sp)})
 		}
 	}
 	return result
@@ -233,8 +233,8 @@ type Sections struct {
 	docPart *parts.DocumentPart
 }
 
-// NewSections creates a new Sections proxy.
-func NewSections(docElm *oxml.CT_Document, docPart *parts.DocumentPart) *Sections {
+// newSections creates a new Sections proxy.
+func newSections(docElm *oxml.CT_Document, docPart *parts.DocumentPart) *Sections {
 	return &Sections{docElm: docElm, docPart: docPart}
 }
 
@@ -249,7 +249,7 @@ func (ss *Sections) Get(idx int) (*Section, error) {
 	if idx < 0 || idx >= len(lst) {
 		return nil, fmt.Errorf("docx: section index [%d] out of range", idx)
 	}
-	return NewSection(lst[idx], ss.docPart), nil
+	return newSection(lst[idx], ss.docPart), nil
 }
 
 // Iter returns all sections in document order.
@@ -257,7 +257,7 @@ func (ss *Sections) Iter() []*Section {
 	lst := ss.docElm.SectPrList()
 	result := make([]*Section, len(lst))
 	for i, sp := range lst {
-		result[i] = NewSection(sp, ss.docPart)
+		result[i] = newSection(sp, ss.docPart)
 	}
 	return result
 }
@@ -277,8 +277,8 @@ type Header struct {
 	index   enum.WdHeaderFooterIndex
 }
 
-// NewHeader creates a new Header proxy.
-func NewHeader(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.WdHeaderFooterIndex) *Header {
+// newHeader creates a new Header proxy.
+func newHeader(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.WdHeaderFooterIndex) *Header {
 	return &Header{sectPr: sectPr, docPart: docPart, index: index}
 }
 
@@ -383,7 +383,7 @@ func (h *Header) blockItemContainer() (*BlockItemContainer, error) {
 	if el == nil {
 		return nil, fmt.Errorf("docx: header part has nil element")
 	}
-	bic := NewBlockItemContainer(el, &hp.StoryPart)
+	bic := newBlockItemContainer(el, &hp.StoryPart)
 	return &bic, nil
 }
 
@@ -443,7 +443,7 @@ func (h *Header) priorHeader() *Header {
 	if prev == nil {
 		return nil
 	}
-	return NewHeader(prev, h.docPart, h.index)
+	return newHeader(prev, h.docPart, h.index)
 }
 
 // --------------------------------------------------------------------------
@@ -461,8 +461,8 @@ type Footer struct {
 	index   enum.WdHeaderFooterIndex
 }
 
-// NewFooter creates a new Footer proxy.
-func NewFooter(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.WdHeaderFooterIndex) *Footer {
+// newFooter creates a new Footer proxy.
+func newFooter(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.WdHeaderFooterIndex) *Footer {
 	return &Footer{sectPr: sectPr, docPart: docPart, index: index}
 }
 
@@ -565,7 +565,7 @@ func (f *Footer) blockItemContainer() (*BlockItemContainer, error) {
 	if el == nil {
 		return nil, fmt.Errorf("docx: footer part has nil element")
 	}
-	bic := NewBlockItemContainer(el, &fp.StoryPart)
+	bic := newBlockItemContainer(el, &fp.StoryPart)
 	return &bic, nil
 }
 
@@ -622,5 +622,5 @@ func (f *Footer) priorFooter() *Footer {
 	if prev == nil {
 		return nil
 	}
-	return NewFooter(prev, f.docPart, f.index)
+	return newFooter(prev, f.docPart, f.index)
 }

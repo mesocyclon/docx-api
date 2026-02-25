@@ -14,8 +14,8 @@ type Font struct {
 	r *oxml.CT_R
 }
 
-// NewFont creates a new Font proxy.
-func NewFont(r *oxml.CT_R) *Font {
+// newFont creates a new Font proxy.
+func newFont(r *oxml.CT_R) *Font {
 	return &Font{r: r}
 }
 
@@ -149,7 +149,7 @@ func (f *Font) SetWebHidden(v *bool) error { return f.setBoolProp(func(rPr *oxml
 
 // Color returns the ColorFormat for this font.
 func (f *Font) Color() *ColorFormat {
-	return NewColorFormat(f.r)
+	return newColorFormat(f.r)
 }
 
 // HighlightColor returns the highlight color index, or nil if not set.

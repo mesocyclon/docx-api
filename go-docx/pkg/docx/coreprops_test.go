@@ -27,7 +27,7 @@ func TestAddTable_InsertsBeforeSectPr(t *testing.T) {
 	sectPr := body.CreateElement("sectPr")
 	sectPr.Space = "w"
 
-	bic := NewBlockItemContainer(body, nil)
+	bic := newBlockItemContainer(body, nil)
 
 	// Add a table — should go BEFORE sectPr
 	_, err := bic.AddTable(1, 1, 5000)
@@ -60,7 +60,7 @@ func TestAddParagraph_InsertsBeforeSectPr(t *testing.T) {
 	sectPr := body.CreateElement("sectPr")
 	sectPr.Space = "w"
 
-	bic := NewBlockItemContainer(body, nil)
+	bic := newBlockItemContainer(body, nil)
 
 	_, err := bic.AddParagraph("hello", nil)
 	if err != nil {
@@ -89,7 +89,7 @@ func TestAddTable_NoSectPr_Appends(t *testing.T) {
 	p := tc.CreateElement("p")
 	p.Space = "w"
 
-	bic := NewBlockItemContainer(tc, nil)
+	bic := newBlockItemContainer(tc, nil)
 
 	_, err := bic.AddTable(1, 1, 3000)
 	if err != nil {
@@ -115,7 +115,7 @@ func TestMultipleInserts_BeforeSectPr(t *testing.T) {
 	sectPr := body.CreateElement("sectPr")
 	sectPr.Space = "w"
 
-	bic := NewBlockItemContainer(body, nil)
+	bic := newBlockItemContainer(body, nil)
 
 	bic.AddParagraph("first", nil)
 	bic.AddTable(1, 1, 5000)
@@ -175,7 +175,7 @@ func ctFromPart(cpp *parts.CorePropertiesPart) *oxml.CT_CoreProperties {
 
 func TestCoreProperties_ReadFromPart(t *testing.T) {
 	cpp := makeCorePropsPartForTest(makeCorePropsXML("Jane", "Report"))
-	cp := NewCoreProperties(ctFromPart(cpp))
+	cp := newCoreProperties(ctFromPart(cpp))
 
 	if got := cp.Author(); got != "Jane" {
 		t.Errorf("Author: expected 'Jane', got '%s'", got)
@@ -187,7 +187,7 @@ func TestCoreProperties_ReadFromPart(t *testing.T) {
 
 func TestCoreProperties_SettersAndGetters(t *testing.T) {
 	cpp := makeCorePropsPartForTest(makeCorePropsXML("", ""))
-	cp := NewCoreProperties(ctFromPart(cpp))
+	cp := newCoreProperties(ctFromPart(cpp))
 
 	tests := []struct {
 		name  string
@@ -221,7 +221,7 @@ func TestCoreProperties_SettersAndGetters(t *testing.T) {
 
 func TestCoreProperties_SharedElement_WriteBack(t *testing.T) {
 	cpp := makeCorePropsPartForTest(makeCorePropsXML("Original", ""))
-	cp := NewCoreProperties(ctFromPart(cpp))
+	cp := newCoreProperties(ctFromPart(cpp))
 
 	// Modify via proxy
 	if err := cp.SetAuthor("Modified"); err != nil {
@@ -243,7 +243,7 @@ func TestCoreProperties_SharedElement_WriteBack(t *testing.T) {
 
 func TestCoreProperties_DatetimeProperties(t *testing.T) {
 	cpp := makeCorePropsPartForTest(makeCorePropsXML("", ""))
-	cp := NewCoreProperties(ctFromPart(cpp))
+	cp := newCoreProperties(ctFromPart(cpp))
 
 	if cp.Created() != nil {
 		t.Error("Created should be nil initially")
@@ -271,7 +271,7 @@ func TestCoreProperties_DatetimeProperties(t *testing.T) {
 
 func TestCoreProperties_Revision(t *testing.T) {
 	cpp := makeCorePropsPartForTest(makeCorePropsXML("", ""))
-	cp := NewCoreProperties(ctFromPart(cpp))
+	cp := newCoreProperties(ctFromPart(cpp))
 
 	if got := cp.Revision(); got != 0 {
 		t.Errorf("Revision: expected 0, got %d", got)
@@ -291,7 +291,7 @@ func TestCoreProperties_Revision(t *testing.T) {
 
 func TestCoreProperties_255CharLimit(t *testing.T) {
 	cpp := makeCorePropsPartForTest(makeCorePropsXML("", ""))
-	cp := NewCoreProperties(ctFromPart(cpp))
+	cp := newCoreProperties(ctFromPart(cpp))
 
 	long := ""
 	for i := 0; i < 256; i++ {
@@ -312,7 +312,7 @@ func TestDefaultCorePropertiesPart(t *testing.T) {
 		t.Fatalf("DefaultCorePropertiesPart: %v", err)
 	}
 
-	cp := NewCoreProperties(ctFromPart(cpp))
+	cp := newCoreProperties(ctFromPart(cpp))
 
 	if got := cp.Title(); got != "Word Document" {
 		t.Errorf("Title: expected 'Word Document', got '%s'", got)

@@ -14,12 +14,12 @@ type CoreProperties struct {
 	ct *oxml.CT_CoreProperties
 }
 
-// NewCoreProperties creates a CoreProperties proxy wrapping the given
+// newCoreProperties creates a CoreProperties proxy wrapping the given
 // CT_CoreProperties element. The element must be the shared element owned
 // by a CorePropertiesPart — mutations are reflected on save.
 //
 // Mirrors Python CoreProperties(element).
-func NewCoreProperties(ct *oxml.CT_CoreProperties) *CoreProperties {
+func newCoreProperties(ct *oxml.CT_CoreProperties) *CoreProperties {
 	return &CoreProperties{ct: ct}
 }
 

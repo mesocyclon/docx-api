@@ -16,8 +16,8 @@ type Paragraph struct {
 	part *parts.StoryPart
 }
 
-// NewParagraph creates a new Paragraph proxy.
-func NewParagraph(p *oxml.CT_P, part *parts.StoryPart) *Paragraph {
+// newParagraph creates a new Paragraph proxy.
+func newParagraph(p *oxml.CT_P, part *parts.StoryPart) *Paragraph {
 	return &Paragraph{p: p, part: part}
 }
 
@@ -28,7 +28,7 @@ func NewParagraph(p *oxml.CT_P, part *parts.StoryPart) *Paragraph {
 // Mirrors Python Paragraph.add_run.
 func (para *Paragraph) AddRun(text string, style interface{}) (*Run, error) {
 	r := para.p.AddR()
-	run := NewRun(r, para.part)
+	run := newRun(r, para.part)
 	if text != "" {
 		run.SetText(text)
 	}
@@ -76,7 +76,7 @@ func (para *Paragraph) Hyperlinks() []*Hyperlink {
 	for _, child := range para.p.RawElement().ChildElements() {
 		if child.Space == "w" && child.Tag == "hyperlink" {
 			hl := &oxml.CT_Hyperlink{Element: oxml.WrapElement(child)}
-			result = append(result, NewHyperlink(hl, para.part))
+			result = append(result, newHyperlink(hl, para.part))
 		}
 	}
 	return result
@@ -91,7 +91,7 @@ func (para *Paragraph) InsertParagraphBefore(text string, style interface{}) (*P
 	if newP == nil {
 		return nil, fmt.Errorf("docx: cannot insert paragraph before (no parent)")
 	}
-	p := NewParagraph(newP, para.part)
+	p := newParagraph(newP, para.part)
 	if text != "" {
 		if _, err := p.AddRun(text, nil); err != nil {
 			return nil, err
@@ -113,9 +113,9 @@ func (para *Paragraph) IterInnerContent() []interface{} {
 	for _, item := range para.p.InnerContentElements() {
 		switch v := item.(type) {
 		case *oxml.CT_R:
-			result = append(result, NewRun(v, para.part))
+			result = append(result, newRun(v, para.part))
 		case *oxml.CT_Hyperlink:
-			result = append(result, NewHyperlink(v, para.part))
+			result = append(result, newHyperlink(v, para.part))
 		}
 	}
 	return result
@@ -126,7 +126,7 @@ func (para *Paragraph) IterInnerContent() []interface{} {
 //
 // Mirrors Python Paragraph.paragraph_format.
 func (para *Paragraph) ParagraphFormat() *ParagraphFormat {
-	return NewParagraphFormatFromP(para.p)
+	return newParagraphFormatFromP(para.p)
 }
 
 // RenderedPageBreaks returns all rendered page-breaks in this paragraph.
@@ -135,7 +135,7 @@ func (para *Paragraph) ParagraphFormat() *ParagraphFormat {
 func (para *Paragraph) RenderedPageBreaks() []*RenderedPageBreak {
 	var result []*RenderedPageBreak
 	for _, lrpb := range para.p.LastRenderedPageBreaks() {
-		result = append(result, NewRenderedPageBreak(lrpb, para.part))
+		result = append(result, newRenderedPageBreak(lrpb, para.part))
 	}
 	return result
 }
@@ -146,7 +146,7 @@ func (para *Paragraph) RenderedPageBreaks() []*RenderedPageBreak {
 func (para *Paragraph) Runs() []*Run {
 	var result []*Run
 	for _, r := range para.p.RList() {
-		result = append(result, NewRun(r, para.part))
+		result = append(result, newRun(r, para.part))
 	}
 	return result
 }

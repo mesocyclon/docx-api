@@ -20,13 +20,13 @@ func UI2Internal(name string) string { return oxml.UI2Internal(name) }
 func Internal2UI(name string) string { return oxml.Internal2UI(name) }
 
 // --------------------------------------------------------------------------
-// StyleFactory
+// styleFactory
 // --------------------------------------------------------------------------
 
-// StyleFactory creates the appropriate BaseStyle subtype for a CT_Style element.
+// styleFactory creates the appropriate BaseStyle subtype for a CT_Style element.
 //
 // Mirrors Python StyleFactory.
-func StyleFactory(styleElm *oxml.CT_Style) *BaseStyle {
+func styleFactory(styleElm *oxml.CT_Style) *BaseStyle {
 	return &BaseStyle{element: styleElm}
 }
 
@@ -41,8 +41,8 @@ type Styles struct {
 	element *oxml.CT_Styles
 }
 
-// NewStyles creates a new Styles proxy.
-func NewStyles(element *oxml.CT_Styles) *Styles {
+// newStyles creates a new Styles proxy.
+func newStyles(element *oxml.CT_Styles) *Styles {
 	return &Styles{element: element}
 }
 
@@ -63,12 +63,12 @@ func (s *Styles) Get(name string) (*BaseStyle, error) {
 	internalName := UI2Internal(name)
 	st := s.element.GetByName(internalName)
 	if st != nil {
-		return StyleFactory(st), nil
+		return styleFactory(st), nil
 	}
 	// Fallback: try by ID (deprecated)
 	st = s.element.GetByID(name)
 	if st != nil {
-		return StyleFactory(st), nil
+		return styleFactory(st), nil
 	}
 	return nil, fmt.Errorf("docx: no style with name %q", name)
 }
@@ -78,7 +78,7 @@ func (s *Styles) Iter() []*BaseStyle {
 	lst := s.element.StyleList()
 	result := make([]*BaseStyle, len(lst))
 	for i, st := range lst {
-		result[i] = StyleFactory(st)
+		result[i] = styleFactory(st)
 	}
 	return result
 }
@@ -100,7 +100,7 @@ func (s *Styles) AddStyle(name string, styleType enum.WdStyleType, builtin bool)
 	if err != nil {
 		return nil, err
 	}
-	return StyleFactory(st), nil
+	return styleFactory(st), nil
 }
 
 // Default returns the default style for the given type, or nil.
@@ -111,7 +111,7 @@ func (s *Styles) Default(styleType enum.WdStyleType) *BaseStyle {
 	if st == nil {
 		return nil
 	}
-	return StyleFactory(st)
+	return styleFactory(st)
 }
 
 // GetByID returns the style matching styleID and styleType. Returns the default
@@ -130,7 +130,7 @@ func (s *Styles) GetByID(styleID *string, styleType enum.WdStyleType) *BaseStyle
 	if st.Type() != stTypeXml {
 		return s.Default(styleType)
 	}
-	return StyleFactory(st)
+	return styleFactory(st)
 }
 
 // GetStyleID returns the style ID for the given style or name.
@@ -283,7 +283,7 @@ func (s *BaseStyle) BaseStyleObj() *BaseStyle {
 	if base == nil {
 		return nil
 	}
-	return StyleFactory(base)
+	return styleFactory(base)
 }
 
 // SetBaseStyle sets the base style. Passing nil removes the basedOn.
@@ -304,7 +304,7 @@ func (s *BaseStyle) Font() *Font {
 
 // ParagraphFormat returns the ParagraphFormat for this style.
 func (s *BaseStyle) ParagraphFormat() *ParagraphFormat {
-	return NewParagraphFormatFromStyle(s.element)
+	return newParagraphFormatFromStyle(s.element)
 }
 
 // NextParagraphStyle returns the style applied to the next paragraph.
@@ -317,7 +317,7 @@ func (s *BaseStyle) NextParagraphStyle() *BaseStyle {
 	if next.Type() != s.element.Type() {
 		return s
 	}
-	return StyleFactory(next)
+	return styleFactory(next)
 }
 
 // CT_Style returns the underlying oxml element.

@@ -17,8 +17,8 @@ type Drawing struct {
 	part    *parts.StoryPart
 }
 
-// NewDrawing creates a new Drawing proxy.
-func NewDrawing(drawing *oxml.CT_Drawing, part *parts.StoryPart) *Drawing {
+// newDrawing creates a new Drawing proxy.
+func newDrawing(drawing *oxml.CT_Drawing, part *parts.StoryPart) *Drawing {
 	return &Drawing{drawing: drawing, part: part}
 }
 

@@ -17,8 +17,8 @@ type Table struct {
 	part *parts.StoryPart
 }
 
-// NewTable creates a new Table proxy.
-func NewTable(tbl *oxml.CT_Tbl, part *parts.StoryPart) *Table {
+// newTable creates a new Table proxy.
+func newTable(tbl *oxml.CT_Tbl, part *parts.StoryPart) *Table {
 	return &Table{tbl: tbl, part: part}
 }
 
@@ -209,13 +209,13 @@ func (t *Table) cells() ([]*Cell, error) {
 				if aboveIdx >= 0 && aboveIdx < len(cells) {
 					cells = append(cells, cells[aboveIdx])
 				} else {
-					cells = append(cells, NewCell(tc, t))
+					cells = append(cells, newCell(tc, t))
 				}
 			} else if gsi > 0 {
 				// Same cell for horizontal span
 				cells = append(cells, cells[len(cells)-1])
 			} else {
-				cells = append(cells, NewCell(tc, t))
+				cells = append(cells, newCell(tc, t))
 			}
 		}
 	}
@@ -239,10 +239,10 @@ type Cell struct {
 	table *Table
 }
 
-// NewCell creates a new Cell proxy.
-func NewCell(tc *oxml.CT_Tc, table *Table) *Cell {
+// newCell creates a new Cell proxy.
+func newCell(tc *oxml.CT_Tc, table *Table) *Cell {
 	return &Cell{
-		BlockItemContainer: NewBlockItemContainer(tc.RawElement(), table.part),
+		BlockItemContainer: newBlockItemContainer(tc.RawElement(), table.part),
 		tc:                 tc,
 		table:              table,
 	}
@@ -282,7 +282,7 @@ func (c *Cell) Merge(other *Cell) (*Cell, error) {
 	if err != nil {
 		return nil, fmt.Errorf("docx: merging cells: %w", err)
 	}
-	return NewCell(merged, c.table), nil
+	return newCell(merged, c.table), nil
 }
 
 // Text returns the text content of this cell, paragraphs joined by newlines.
@@ -354,14 +354,14 @@ func (r *Row) Cells() []*Cell {
 			// Delegate to the tc above (recursively)
 			above := r.tcAbove(tc)
 			if above != nil {
-				cell := NewCell(above, r.table)
+				cell := newCell(above, r.table)
 				for i := 0; i < gridSpan; i++ {
 					cells = append(cells, cell)
 				}
 				continue
 			}
 		}
-		cell := NewCell(tc, r.table)
+		cell := newCell(tc, r.table)
 		for i := 0; i < gridSpan; i++ {
 			cells = append(cells, cell)
 		}
