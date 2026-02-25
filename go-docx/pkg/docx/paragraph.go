@@ -26,14 +26,14 @@ func newParagraph(p *oxml.CT_P, part *parts.StoryPart) *Paragraph {
 // converted to their XML equivalents.
 //
 // Mirrors Python Paragraph.add_run.
-func (para *Paragraph) AddRun(text string, style interface{}) (*Run, error) {
+func (para *Paragraph) AddRun(text string, style ...StyleRef) (*Run, error) {
 	r := para.p.AddR()
 	run := newRun(r, para.part)
 	if text != "" {
 		run.SetText(text)
 	}
-	if style != nil {
-		if err := run.SetStyle(style); err != nil {
+	if raw := resolveStyleRef(style); raw != nil {
+		if err := run.setStyleRaw(raw); err != nil {
 			return nil, fmt.Errorf("docx: setting run style: %w", err)
 		}
 	}
@@ -86,19 +86,19 @@ func (para *Paragraph) Hyperlinks() []*Hyperlink {
 // before this one. If text is non-empty, it is placed in a single run.
 //
 // Mirrors Python Paragraph.insert_paragraph_before.
-func (para *Paragraph) InsertParagraphBefore(text string, style interface{}) (*Paragraph, error) {
+func (para *Paragraph) InsertParagraphBefore(text string, style ...StyleRef) (*Paragraph, error) {
 	newP := para.p.AddPBefore()
 	if newP == nil {
 		return nil, fmt.Errorf("docx: cannot insert paragraph before (no parent)")
 	}
 	p := newParagraph(newP, para.part)
 	if text != "" {
-		if _, err := p.AddRun(text, nil); err != nil {
+		if _, err := p.AddRun(text); err != nil {
 			return nil, err
 		}
 	}
-	if style != nil {
-		if err := p.SetStyle(style); err != nil {
+	if raw := resolveStyleRef(style); raw != nil {
+		if err := p.setStyleRaw(raw); err != nil {
 			return nil, err
 		}
 	}
@@ -108,14 +108,14 @@ func (para *Paragraph) InsertParagraphBefore(text string, style interface{}) (*P
 // IterInnerContent returns runs and hyperlinks in this paragraph in document order.
 //
 // Mirrors Python Paragraph.iter_inner_content.
-func (para *Paragraph) IterInnerContent() []interface{} {
-	var result []interface{}
+func (para *Paragraph) IterInnerContent() []*InlineItem {
+	var result []*InlineItem
 	for _, item := range para.p.InnerContentElements() {
 		switch v := item.(type) {
 		case *oxml.CT_R:
-			result = append(result, newRun(v, para.part))
+			result = append(result, &InlineItem{run: newRun(v, para.part)})
 		case *oxml.CT_Hyperlink:
-			result = append(result, newHyperlink(v, para.part))
+			result = append(result, &InlineItem{hyperlink: newHyperlink(v, para.part)})
 		}
 	}
 	return result
@@ -165,8 +165,13 @@ func (para *Paragraph) Style() (*oxml.CT_Style, error) {
 // SetStyle sets the paragraph style. style can be a string name or nil.
 //
 // Mirrors Python Paragraph.style (setter).
-func (para *Paragraph) SetStyle(style interface{}) error {
-	styleID, err := para.part.GetStyleID(style, enum.WdStyleTypeParagraph)
+func (para *Paragraph) SetStyle(style StyleRef) error {
+	return para.setStyleRaw(resolveStyleRef([]StyleRef{style}))
+}
+
+// setStyleRaw passes the raw style value (string or styledObject) to the parts layer.
+func (para *Paragraph) setStyleRaw(raw any) error {
+	styleID, err := para.part.GetStyleID(raw, enum.WdStyleTypeParagraph)
 	if err != nil {
 		return err
 	}

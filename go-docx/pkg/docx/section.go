@@ -306,12 +306,12 @@ func (h *Header) SetIsLinkedToPrevious(v bool) error {
 // AddParagraph appends a new paragraph to this header.
 //
 // Mirrors Python BlockItemContainer.add_paragraph (inherited by _BaseHeaderFooter).
-func (h *Header) AddParagraph(text string, style interface{}) (*Paragraph, error) {
+func (h *Header) AddParagraph(text string, style ...StyleRef) (*Paragraph, error) {
 	bic, err := h.blockItemContainer()
 	if err != nil {
 		return nil, fmt.Errorf("docx: header add paragraph: %w", err)
 	}
-	return bic.AddParagraph(text, style)
+	return bic.AddParagraph(text, style...)
 }
 
 // AddTable appends a new table to this header.
@@ -488,12 +488,12 @@ func (f *Footer) SetIsLinkedToPrevious(v bool) error {
 // AddParagraph appends a new paragraph to this footer.
 //
 // Mirrors Python BlockItemContainer.add_paragraph (inherited by _BaseHeaderFooter).
-func (f *Footer) AddParagraph(text string, style interface{}) (*Paragraph, error) {
+func (f *Footer) AddParagraph(text string, style ...StyleRef) (*Paragraph, error) {
 	bic, err := f.blockItemContainer()
 	if err != nil {
 		return nil, fmt.Errorf("docx: footer add paragraph: %w", err)
 	}
-	return bic.AddParagraph(text, style)
+	return bic.AddParagraph(text, style...)
 }
 
 // AddTable appends a new table to this footer.

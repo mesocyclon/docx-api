@@ -13,11 +13,11 @@ import (
 
 func TestAddComment_RoundTrip_Single(t *testing.T) {
 	doc := mustNewDoc(t)
-	p, err := doc.AddParagraph("Annotated text", nil)
+	p, err := doc.AddParagraph("Annotated text")
 	if err != nil {
 		t.Fatalf("AddParagraph: %v", err)
 	}
-	run, err := p.AddRun("flagged", nil)
+	run, err := p.AddRun("flagged")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
@@ -51,11 +51,11 @@ func TestAddComment_RoundTrip_Single(t *testing.T) {
 
 func TestAddComment_RoundTrip_MetadataPreserved(t *testing.T) {
 	doc := mustNewDoc(t)
-	p, err := doc.AddParagraph("Test paragraph", nil)
+	p, err := doc.AddParagraph("Test paragraph")
 	if err != nil {
 		t.Fatalf("AddParagraph: %v", err)
 	}
-	run, err := p.AddRun("some text", nil)
+	run, err := p.AddRun("some text")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
@@ -105,15 +105,15 @@ func TestAddComment_RoundTrip_MetadataPreserved(t *testing.T) {
 
 func TestAddComment_RoundTrip_MultipleComments(t *testing.T) {
 	doc := mustNewDoc(t)
-	p, err := doc.AddParagraph("", nil)
+	p, err := doc.AddParagraph("")
 	if err != nil {
 		t.Fatalf("AddParagraph: %v", err)
 	}
-	run1, err := p.AddRun("first part", nil)
+	run1, err := p.AddRun("first part")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
-	run2, err := p.AddRun("second part", nil)
+	run2, err := p.AddRun("second part")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
@@ -147,19 +147,19 @@ func TestAddComment_RoundTrip_MultipleComments(t *testing.T) {
 
 func TestAddComment_RoundTrip_MultiRunRange(t *testing.T) {
 	doc := mustNewDoc(t)
-	p, err := doc.AddParagraph("", nil)
+	p, err := doc.AddParagraph("")
 	if err != nil {
 		t.Fatalf("AddParagraph: %v", err)
 	}
-	r1, err := p.AddRun("word1 ", nil)
+	r1, err := p.AddRun("word1 ")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
-	_, err = p.AddRun("word2 ", nil)
+	_, err = p.AddRun("word2 ")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
-	r3, err := p.AddRun("word3", nil)
+	r3, err := p.AddRun("word3")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
@@ -189,11 +189,11 @@ func TestAddComment_RoundTrip_MultiRunRange(t *testing.T) {
 
 func TestAddComment_RoundTrip_XMLRangeMarkers(t *testing.T) {
 	doc := mustNewDoc(t)
-	p, err := doc.AddParagraph("", nil)
+	p, err := doc.AddParagraph("")
 	if err != nil {
 		t.Fatalf("AddParagraph: %v", err)
 	}
-	run, err := p.AddRun("annotated", nil)
+	run, err := p.AddRun("annotated")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
@@ -249,11 +249,11 @@ func TestAddComment_RoundTrip_XMLRangeMarkers(t *testing.T) {
 
 func TestAddComment_MultilineText(t *testing.T) {
 	doc := mustNewDoc(t)
-	p, err := doc.AddParagraph("", nil)
+	p, err := doc.AddParagraph("")
 	if err != nil {
 		t.Fatalf("AddParagraph: %v", err)
 	}
-	run, err := p.AddRun("text", nil)
+	run, err := p.AddRun("text")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
@@ -302,11 +302,11 @@ func TestAddComment_EmptyRuns_Error(t *testing.T) {
 
 func TestAddComment_EmptyText(t *testing.T) {
 	doc := mustNewDoc(t)
-	p, err := doc.AddParagraph("", nil)
+	p, err := doc.AddParagraph("")
 	if err != nil {
 		t.Fatalf("AddParagraph: %v", err)
 	}
-	run, err := p.AddRun("content", nil)
+	run, err := p.AddRun("content")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
@@ -322,11 +322,11 @@ func TestAddComment_EmptyText(t *testing.T) {
 
 func TestComment_Get_ByID(t *testing.T) {
 	doc := mustNewDoc(t)
-	p, err := doc.AddParagraph("", nil)
+	p, err := doc.AddParagraph("")
 	if err != nil {
 		t.Fatalf("AddParagraph: %v", err)
 	}
-	run, err := p.AddRun("text", nil)
+	run, err := p.AddRun("text")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}
@@ -360,11 +360,11 @@ func TestComment_Get_ByID(t *testing.T) {
 
 func TestComment_Timestamp_RoundTrip(t *testing.T) {
 	doc := mustNewDoc(t)
-	p, err := doc.AddParagraph("", nil)
+	p, err := doc.AddParagraph("")
 	if err != nil {
 		t.Fatalf("AddParagraph: %v", err)
 	}
-	run, err := p.AddRun("text", nil)
+	run, err := p.AddRun("text")
 	if err != nil {
 		t.Fatalf("AddRun: %v", err)
 	}

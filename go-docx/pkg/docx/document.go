@@ -50,18 +50,18 @@ func (d *Document) AddHeading(text string, level int) (*Paragraph, error) {
 	if level > 0 {
 		style = fmt.Sprintf("Heading %d", level)
 	}
-	return d.AddParagraph(text, style)
+	return d.AddParagraph(text, StyleName(style))
 }
 
 // AddPageBreak appends a new paragraph containing only a page break.
 //
 // Mirrors Python Document.add_page_break.
 func (d *Document) AddPageBreak() (*Paragraph, error) {
-	para, err := d.AddParagraph("", nil)
+	para, err := d.AddParagraph("")
 	if err != nil {
 		return nil, err
 	}
-	run, err := para.AddRun("", nil)
+	run, err := para.AddRun("")
 	if err != nil {
 		return nil, err
 	}
@@ -73,15 +73,15 @@ func (d *Document) AddPageBreak() (*Paragraph, error) {
 
 // AddParagraph appends a new paragraph to the end of the document body.
 // text may contain tab (\t) and newline (\n, \r) characters. style may
-// be a string style name, a *BaseStyle, or nil.
+// be a StyleName or a *BaseStyle. Omit to apply no explicit style.
 //
 // Mirrors Python Document.add_paragraph → self._body.add_paragraph(text, style).
-func (d *Document) AddParagraph(text string, style interface{}) (*Paragraph, error) {
+func (d *Document) AddParagraph(text string, style ...StyleRef) (*Paragraph, error) {
 	b, err := d.getBody()
 	if err != nil {
 		return nil, err
 	}
-	return b.AddParagraph(text, style)
+	return b.AddParagraph(text, style...)
 }
 
 // AddPicture adds an inline picture in its own paragraph at the end of the
@@ -118,10 +118,10 @@ func (d *Document) AddSection(startType enum.WdSectionStart) (*Section, error) {
 }
 
 // AddTable appends a new table with the given row and column counts.
-// style may be a table style name (string), a *BaseStyle, or nil.
+// style may be a StyleName or *BaseStyle. Omit to apply no explicit style.
 //
 // Mirrors Python Document.add_table.
-func (d *Document) AddTable(rows, cols int, style interface{}) (*Table, error) {
+func (d *Document) AddTable(rows, cols int, style ...StyleRef) (*Table, error) {
 	b, err := d.getBody()
 	if err != nil {
 		return nil, err
@@ -131,8 +131,8 @@ func (d *Document) AddTable(rows, cols int, style interface{}) (*Table, error) {
 	if err != nil {
 		return nil, err
 	}
-	if style != nil {
-		if err := table.SetStyle(style); err != nil {
+	if raw := resolveStyleRef(style); raw != nil {
+		if err := table.setStyleRaw(raw); err != nil {
 			return nil, fmt.Errorf("docx: setting table style: %w", err)
 		}
 	}

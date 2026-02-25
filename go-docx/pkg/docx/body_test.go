@@ -6,8 +6,8 @@ import (
 
 func TestBody_ClearContent(t *testing.T) {
 	doc := mustNewDoc(t)
-	doc.AddParagraph("To be cleared", nil)
-	doc.AddTable(1, 1, nil)
+	doc.AddParagraph("To be cleared")
+	doc.AddTable(1, 1)
 
 	body, err := doc.getBody()
 	if err != nil {
@@ -38,7 +38,7 @@ func TestBody_AddParagraphAndTable(t *testing.T) {
 
 	body.ClearContent()
 
-	p, err := body.AddParagraph("Test", nil)
+	p, err := body.AddParagraph("Test")
 	if err != nil {
 		t.Fatalf("AddParagraph error: %v", err)
 	}

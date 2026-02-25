@@ -163,9 +163,14 @@ func (t *Table) Style() (*oxml.CT_Style, error) {
 	return t.part.GetStyle(&styleVal, enum.WdStyleTypeTable)
 }
 
-// SetStyle sets the table style. style can be a string name or nil.
-func (t *Table) SetStyle(style interface{}) error {
-	styleID, err := t.part.GetStyleID(style, enum.WdStyleTypeTable)
+// SetStyle sets the table style.
+func (t *Table) SetStyle(style StyleRef) error {
+	return t.setStyleRaw(resolveStyleRef([]StyleRef{style}))
+}
+
+// setStyleRaw passes the raw style value to the parts layer.
+func (t *Table) setStyleRaw(raw any) error {
+	styleID, err := t.part.GetStyleID(raw, enum.WdStyleTypeTable)
 	if err != nil {
 		return err
 	}

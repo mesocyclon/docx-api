@@ -24,7 +24,7 @@ func TestDocument_AddParagraph(t *testing.T) {
 	doc := mustNewDoc(t)
 	before := len(doc.Paragraphs())
 
-	p, err := doc.AddParagraph("hello", nil)
+	p, err := doc.AddParagraph("hello")
 	if err != nil {
 		t.Fatalf("AddParagraph error: %v", err)
 	}
@@ -45,7 +45,7 @@ func TestDocument_AddParagraph(t *testing.T) {
 func TestDocument_AddParagraph_WithStyle(t *testing.T) {
 	doc := mustNewDoc(t)
 	// "Heading 1" is the UI name; BabelFish translates to internal "heading 1".
-	_, err := doc.AddParagraph("styled", "Heading 1")
+	_, err := doc.AddParagraph("styled", StyleName("Heading 1"))
 	if err != nil {
 		t.Fatalf("AddParagraph with style error: %v", err)
 	}
@@ -112,7 +112,7 @@ func TestDocument_AddPageBreak(t *testing.T) {
 
 func TestDocument_AddTable(t *testing.T) {
 	doc := mustNewDoc(t)
-	table, err := doc.AddTable(2, 3, nil)
+	table, err := doc.AddTable(2, 3)
 	if err != nil {
 		t.Fatalf("AddTable error: %v", err)
 	}
@@ -241,9 +241,9 @@ func TestDocument_InlineShapes(t *testing.T) {
 
 func TestDocument_IterInnerContent(t *testing.T) {
 	doc := mustNewDoc(t)
-	doc.AddParagraph("p1", nil)
-	doc.AddTable(1, 1, nil)
-	doc.AddParagraph("p2", nil)
+	doc.AddParagraph("p1")
+	doc.AddTable(1, 1)
+	doc.AddParagraph("p2")
 
 	items := doc.IterInnerContent()
 	if len(items) < 3 {
@@ -290,7 +290,7 @@ func TestDocument_BlockWidth(t *testing.T) {
 
 func TestDocument_Save_RoundTrip(t *testing.T) {
 	doc := mustNewDoc(t)
-	doc.AddParagraph("Round trip", nil)
+	doc.AddParagraph("Round trip")
 
 	var buf bytes.Buffer
 	if err := doc.Save(&buf); err != nil {
@@ -317,13 +317,13 @@ func TestDocument_Save_RoundTrip(t *testing.T) {
 func TestDocument_Save_PreservesChanges(t *testing.T) {
 	// Create → add content → save → open → add more → save → open → verify all.
 	doc, _ := New()
-	doc.AddParagraph("Original", nil)
+	doc.AddParagraph("Original")
 
 	var buf1 bytes.Buffer
 	doc.Save(&buf1)
 
 	doc2, _ := OpenBytes(buf1.Bytes())
-	doc2.AddParagraph("Added", nil)
+	doc2.AddParagraph("Added")
 
 	var buf2 bytes.Buffer
 	doc2.Save(&buf2)
@@ -348,7 +348,7 @@ func TestDocument_Save_PreservesChanges(t *testing.T) {
 func TestDocument_Save_ByteStability(t *testing.T) {
 	// Save twice without changes → content preserved (paragraph count).
 	doc, _ := New()
-	doc.AddParagraph("Stable content", nil)
+	doc.AddParagraph("Stable content")
 
 	var buf1 bytes.Buffer
 	doc.Save(&buf1)

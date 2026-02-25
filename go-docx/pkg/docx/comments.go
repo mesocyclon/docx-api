@@ -169,14 +169,14 @@ func (c *Comment) SetInitials(v string) error {
 // "CommentText" paragraph style is applied (matching Word UI behavior).
 //
 // Mirrors Python Comment.add_paragraph override.
-func (c *Comment) AddParagraph(text string, style interface{}) (*Paragraph, error) {
-	para, err := c.BlockItemContainer.AddParagraph(text, style)
+func (c *Comment) AddParagraph(text string, style ...StyleRef) (*Paragraph, error) {
+	para, err := c.BlockItemContainer.AddParagraph(text, style...)
 	if err != nil {
 		return nil, err
 	}
 	// When no explicit style provided, apply CommentText directly to element
 	// (same as Python: paragraph._p.style = "CommentText")
-	if style == nil {
+	if len(style) == 0 || style[0] == nil {
 		commentText := "CommentText"
 		_ = para.CT_P().SetStyle(&commentText)
 	}

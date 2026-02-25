@@ -272,7 +272,10 @@ func (f *Font) SetSuperscript(v *bool) error {
 //   - enum.WdUnderline: specific underline style
 //
 // Mirrors Python Font.underline (getter).
-func (f *Font) Underline() interface{} {
+// Underline returns the underline setting, or nil if inherited.
+//
+// Mirrors Python Font.underline (getter).
+func (f *Font) Underline() *UnderlineVal {
 	rPr := f.r.RPr()
 	if rPr == nil {
 		return nil
@@ -283,45 +286,44 @@ func (f *Font) Underline() interface{} {
 	}
 	switch *uVal {
 	case "single":
-		return true
+		v := UnderlineSingle()
+		return &v
 	case "none":
-		return false
+		v := UnderlineNone()
+		return &v
 	default:
-		v, err := enum.WdUnderlineFromXml(*uVal)
+		wdu, err := enum.WdUnderlineFromXml(*uVal)
 		if err != nil {
 			return nil
 		}
-		return v
+		v := UnderlineStyle(wdu)
+		return &v
 	}
 }
 
-// SetUnderline sets the underline value.
-//   - nil: remove (inherit)
-//   - bool(true): SINGLE underline
-//   - bool(false): no underline (explicit NONE)
-//   - enum.WdUnderline: specific style
+// SetUnderline sets the underline value. Pass nil to inherit.
 //
 // Mirrors Python Font.underline (setter).
-func (f *Font) SetUnderline(v interface{}) error {
+func (f *Font) SetUnderline(v *UnderlineVal) error {
 	rPr := f.r.GetOrAddRPr()
-	switch val := v.(type) {
-	case nil:
+	if v == nil {
 		return rPr.SetUVal(nil)
-	case bool:
-		if val {
-			s := "single"
-			return rPr.SetUVal(&s)
-		}
+	}
+	switch {
+	case v.IsSingle():
+		s := "single"
+		return rPr.SetUVal(&s)
+	case v.IsNone():
 		s := "none"
 		return rPr.SetUVal(&s)
-	case enum.WdUnderline:
-		xml, err := val.ToXml()
+	case v.IsStyle():
+		xml, err := v.Style().ToXml()
 		if err != nil {
 			return fmt.Errorf("docx: invalid underline: %w", err)
 		}
 		return rPr.SetUVal(&xml)
 	default:
-		return fmt.Errorf("docx: unsupported underline type %T", v)
+		return rPr.SetUVal(nil)
 	}
 }
 

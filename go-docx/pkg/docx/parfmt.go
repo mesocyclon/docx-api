@@ -151,7 +151,7 @@ func (pf *ParagraphFormat) SetSpaceBefore(v *int) error {
 // or an int (raw twips) for absolute height. Returns nil if inherited.
 //
 // Mirrors Python ParagraphFormat.line_spacing.
-func (pf *ParagraphFormat) LineSpacing() (interface{}, error) {
+func (pf *ParagraphFormat) LineSpacing() (*LineSpacingVal, error) {
 	pPr := pf.provider.PPr()
 	if pPr == nil {
 		return nil, nil
@@ -167,14 +167,14 @@ func (pf *ParagraphFormat) LineSpacing() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return lineSpacing(*line, rule), nil
+	return toLineSpacingVal(*line, rule), nil
 }
 
 // SetLineSpacing sets the line spacing. Pass nil to inherit, a float64 for
 // multiple (e.g. 2.0), or an int for absolute twips.
 //
 // Mirrors Python ParagraphFormat.line_spacing setter.
-func (pf *ParagraphFormat) SetLineSpacing(v interface{}) error {
+func (pf *ParagraphFormat) SetLineSpacing(v *LineSpacingVal) error {
 	pPr := pf.provider.GetOrAddPPr()
 	if v == nil {
 		if err := pPr.SetSpacingLine(nil); err != nil {
@@ -182,27 +182,24 @@ func (pf *ParagraphFormat) SetLineSpacing(v interface{}) error {
 		}
 		return pPr.SetSpacingLineRule(nil) // remove
 	}
-	switch val := v.(type) {
-	case float64:
+	if v.IsMultiple() {
 		// Multiple: val * 240 twips.
-		twips := int(val * 240)
+		twips := int(v.Multiple() * 240)
 		if err := pPr.SetSpacingLine(&twips); err != nil {
 			return err
 		}
 		return pPr.SetSpacingLineRule(wdlsPtr(enum.WdLineSpacingMultiple))
-	case int:
-		// Absolute twips.
-		if err := pPr.SetSpacingLine(&val); err != nil {
-			return err
-		}
-		rule, _ := pPr.SpacingLineRule()
-		if rule != nil && *rule == enum.WdLineSpacingAtLeast {
-			return nil // preserve AT_LEAST
-		}
-		return pPr.SetSpacingLineRule(wdlsPtr(enum.WdLineSpacingExactly))
-	default:
-		return nil
 	}
+	// Absolute twips.
+	tw := v.Twips()
+	if err := pPr.SetSpacingLine(&tw); err != nil {
+		return err
+	}
+	rule, _ := pPr.SpacingLineRule()
+	if rule != nil && *rule == enum.WdLineSpacingAtLeast {
+		return nil // preserve AT_LEAST
+	}
+	return pPr.SetSpacingLineRule(wdlsPtr(enum.WdLineSpacingExactly))
 }
 
 // LineSpacingRule returns the line spacing rule, or nil if inherited.
@@ -295,11 +292,14 @@ func (pf *ParagraphFormat) TabStops() *TabStops {
 //
 // spacingLine is raw twips from OXML. Python works with EMU but the ratio
 // is identical: 240twips / 240twips == 152400EMU / 152400EMU == 1.0.
-func lineSpacing(spacingLine int, spacingLineRule *enum.WdLineSpacing) interface{} {
+// toLineSpacingVal converts raw OXML values to a typed LineSpacingVal.
+func toLineSpacingVal(spacingLine int, spacingLineRule *enum.WdLineSpacing) *LineSpacingVal {
 	if spacingLineRule != nil && *spacingLineRule == enum.WdLineSpacingMultiple {
-		return float64(spacingLine) / 240.0
+		v := LineSpacingMultiple(float64(spacingLine) / 240.0)
+		return &v
 	}
-	return spacingLine
+	v := LineSpacingTwips(spacingLine)
+	return &v
 }
 
 // lineSpacingRule mirrors Python ParagraphFormat._line_spacing_rule static method.

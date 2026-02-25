@@ -46,16 +46,16 @@ func newBlockItemContainer(element *etree.Element, part *parts.StoryPart) BlockI
 // the paragraph style is applied.
 //
 // Mirrors Python BlockItemContainer.add_paragraph.
-func (c *BlockItemContainer) AddParagraph(text string, style interface{}) (*Paragraph, error) {
+func (c *BlockItemContainer) AddParagraph(text string, style ...StyleRef) (*Paragraph, error) {
 	p := c.addP()
 	para := newParagraph(p, c.part)
 	if text != "" {
-		if _, err := para.AddRun(text, nil); err != nil {
+		if _, err := para.AddRun(text); err != nil {
 			return nil, fmt.Errorf("docx: adding run to paragraph: %w", err)
 		}
 	}
-	if style != nil {
-		if err := para.SetStyle(style); err != nil {
+	if raw := resolveStyleRef(style); raw != nil {
+		if err := para.setStyleRaw(raw); err != nil {
 			return nil, fmt.Errorf("docx: setting paragraph style: %w", err)
 		}
 	}

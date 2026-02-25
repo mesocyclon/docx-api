@@ -62,7 +62,7 @@ func TestAddParagraph_InsertsBeforeSectPr(t *testing.T) {
 
 	bic := newBlockItemContainer(body, nil)
 
-	_, err := bic.AddParagraph("hello", nil)
+	_, err := bic.AddParagraph("hello")
 	if err != nil {
 		t.Fatalf("AddParagraph failed: %v", err)
 	}
@@ -117,9 +117,9 @@ func TestMultipleInserts_BeforeSectPr(t *testing.T) {
 
 	bic := newBlockItemContainer(body, nil)
 
-	bic.AddParagraph("first", nil)
+	bic.AddParagraph("first")
 	bic.AddTable(1, 1, 5000)
-	bic.AddParagraph("second", nil)
+	bic.AddParagraph("second")
 
 	children := body.ChildElements()
 	if len(children) != 4 {

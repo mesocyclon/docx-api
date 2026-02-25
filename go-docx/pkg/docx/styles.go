@@ -136,15 +136,19 @@ func (s *Styles) GetByID(styleID *string, styleType enum.WdStyleType) *BaseStyle
 // GetStyleID returns the style ID for the given style or name.
 //
 // Mirrors Python Styles.get_style_id.
-func (s *Styles) GetStyleID(styleOrName interface{}, styleType enum.WdStyleType) (*string, error) {
+// GetStyleID returns the style ID for the given style or name.
+// styleOrName must be a StyleName, *BaseStyle, or nil.
+//
+// Mirrors Python Styles.get_style_id.
+func (s *Styles) GetStyleID(styleOrName StyleRef, styleType enum.WdStyleType) (*string, error) {
 	if styleOrName == nil {
 		return nil, nil
 	}
 	switch v := styleOrName.(type) {
 	case *BaseStyle:
 		return s.getStyleIDFromStyle(v, styleType)
-	case string:
-		return s.getStyleIDFromName(v, styleType)
+	case StyleName:
+		return s.getStyleIDFromName(string(v), styleType)
 	default:
 		return nil, fmt.Errorf("docx: unsupported style type %T", styleOrName)
 	}
@@ -266,6 +270,10 @@ func (s *BaseStyle) Type() enum.WdStyleType {
 	}
 	return st
 }
+
+// isStyleRef implements StyleRef, allowing *BaseStyle to be passed directly
+// as a style argument to AddParagraph, SetStyle, etc.
+func (*BaseStyle) isStyleRef() {}
 
 // UnhideWhenUsed returns true if this style should be unhidden when applied.
 func (s *BaseStyle) UnhideWhenUsed() bool {

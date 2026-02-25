@@ -254,7 +254,7 @@ func TestParagraph_Runs(t *testing.T) {
 func TestParagraph_AddRun(t *testing.T) {
 	p := makeP(t, "")
 	para := newParagraph(p, nil)
-	r, err := para.AddRun("test", nil)
+	r, err := para.AddRun("test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -329,12 +329,11 @@ func TestParagraphFormat_LineSpacing_Multiple(t *testing.T) {
 	if got == nil {
 		t.Fatal("expected non-nil LineSpacing")
 	}
-	f, ok := got.(float64)
-	if !ok {
-		t.Fatalf("expected float64 for MULTIPLE, got %T", got)
+	if !got.IsMultiple() {
+		t.Fatalf("expected IsMultiple for MULTIPLE, got twips=%d", got.Twips())
 	}
-	if f < 1.99 || f > 2.01 {
-		t.Errorf("LineSpacing() = %f, want 2.0", f)
+	if f := got.Multiple(); f < 1.99 || f > 2.01 {
+		t.Errorf("LineSpacing().Multiple() = %f, want 2.0", f)
 	}
 }
 

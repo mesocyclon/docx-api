@@ -176,8 +176,13 @@ func (run *Run) Style() (*oxml.CT_Style, error) {
 // SetStyle sets the character style. style can be a string name or nil.
 //
 // Mirrors Python Run.style (setter).
-func (run *Run) SetStyle(style interface{}) error {
-	styleID, err := run.part.GetStyleID(style, enum.WdStyleTypeCharacter)
+func (run *Run) SetStyle(style StyleRef) error {
+	return run.setStyleRaw(resolveStyleRef([]StyleRef{style}))
+}
+
+// setStyleRaw passes the raw style value to the parts layer.
+func (run *Run) setStyleRaw(raw any) error {
+	styleID, err := run.part.GetStyleID(raw, enum.WdStyleTypeCharacter)
 	if err != nil {
 		return err
 	}
@@ -201,14 +206,15 @@ func (run *Run) SetText(text string) {
 // Underline returns the underline value (delegates to Font).
 //
 // Mirrors Python Run.underline (getter).
-func (run *Run) Underline() interface{} {
+func (run *Run) Underline() *UnderlineVal {
 	return run.Font().Underline()
 }
 
 // SetUnderline sets the underline value (delegates to Font).
+// Pass nil to inherit.
 //
 // Mirrors Python Run.underline (setter).
-func (run *Run) SetUnderline(v interface{}) error {
+func (run *Run) SetUnderline(v *UnderlineVal) error {
 	return run.Font().SetUnderline(v)
 }
 
