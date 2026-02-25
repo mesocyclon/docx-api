@@ -361,26 +361,35 @@ func (sp *CT_SectPr) RemoveFooterRef(hfType enum.WdHeaderFooterIndex) string {
 	return rId
 }
 
-// PrecedingSectPr returns the sectPr immediately preceding this one, or nil.
-// Searches via preceding-sibling within the w:body, accounting for both
-// paragraph-based sectPr (w:p/w:pPr/w:sectPr) and body-based sectPr (w:body/w:sectPr).
-func (sp *CT_SectPr) PrecedingSectPr() *CT_SectPr {
-	// Determine if this is body-based or pPr-based
+// BodyElement returns the w:body element that contains this sectPr.
+//
+// A sectPr can be either:
+//   - paragraph-based: w:body/w:p/w:pPr/w:sectPr → parent is pPr
+//   - body-based:      w:body/w:sectPr            → parent is body
+//
+// Mirrors Python _SectBlockElementIterator navigating parent::w:pPr/parent::w:p
+// vs self::w:sectPr[parent::w:body].
+func (sp *CT_SectPr) BodyElement() *etree.Element {
 	parent := sp.e.Parent()
 	if parent == nil {
 		return nil
 	}
-
-	// Collect all sectPr in the body to find this one's predecessor
-	var body *etree.Element
 	if parent.Space == "w" && parent.Tag == "body" {
-		body = parent
-	} else if parent.Space == "w" && parent.Tag == "pPr" {
-		p := parent.Parent()
-		if p != nil {
-			body = p.Parent()
+		return parent
+	}
+	if parent.Space == "w" && parent.Tag == "pPr" {
+		if p := parent.Parent(); p != nil {
+			return p.Parent()
 		}
 	}
+	return nil
+}
+
+// PrecedingSectPr returns the sectPr immediately preceding this one, or nil.
+// Searches via preceding-sibling within the w:body, accounting for both
+// paragraph-based sectPr (w:p/w:pPr/w:sectPr) and body-based sectPr (w:body/w:sectPr).
+func (sp *CT_SectPr) PrecedingSectPr() *CT_SectPr {
+	body := sp.BodyElement()
 	if body == nil {
 		return nil
 	}

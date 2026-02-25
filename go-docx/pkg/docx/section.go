@@ -133,7 +133,7 @@ func (s *Section) FirstPageFooter() *Footer {
 // _SectBlockElementIterator. Only returns block-items belonging to THIS section,
 // not the entire document body.
 func (s *Section) IterInnerContent() []*InnerContentItem {
-	body := s.sectPr.RawElement().Parent()
+	body := s.sectPr.BodyElement()
 	if body == nil {
 		return nil
 	}
