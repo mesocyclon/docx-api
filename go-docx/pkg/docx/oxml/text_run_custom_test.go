@@ -6,19 +6,19 @@ import (
 
 func TestCT_R_AddTWithText_PreservesSpace(t *testing.T) {
 	rEl := OxmlElement("w:r")
-	r := &CT_R{Element{E: rEl}}
+	r := &CT_R{Element{e: rEl}}
 
 	t1 := r.AddTWithText(" hello ")
 	// Check xml:space="preserve" is set
-	val := t1.E.SelectAttrValue("xml:space", "")
+	val := t1.e.SelectAttrValue("xml:space", "")
 	if val != "preserve" {
 		t.Errorf("expected xml:space=preserve for text with spaces, got %q", val)
 	}
 
 	r2El := OxmlElement("w:r")
-	r2 := &CT_R{Element{E: r2El}}
+	r2 := &CT_R{Element{e: r2El}}
 	t2 := r2.AddTWithText("hello")
-	val2 := t2.E.SelectAttrValue("xml:space", "")
+	val2 := t2.e.SelectAttrValue("xml:space", "")
 	if val2 != "" {
 		t.Errorf("expected no xml:space for trimmed text, got %q", val2)
 	}
@@ -26,7 +26,7 @@ func TestCT_R_AddTWithText_PreservesSpace(t *testing.T) {
 
 func TestCT_R_RunText(t *testing.T) {
 	rEl := OxmlElement("w:r")
-	r := &CT_R{Element{E: rEl}}
+	r := &CT_R{Element{e: rEl}}
 
 	r.AddTWithText("Hello")
 	r.AddTab()
@@ -40,7 +40,7 @@ func TestCT_R_RunText(t *testing.T) {
 
 func TestCT_R_RunTextWithBr(t *testing.T) {
 	rEl := OxmlElement("w:r")
-	r := &CT_R{Element{E: rEl}}
+	r := &CT_R{Element{e: rEl}}
 
 	r.AddTWithText("Line1")
 	r.AddBr() // default type = textWrapping → "\n"
@@ -54,7 +54,7 @@ func TestCT_R_RunTextWithBr(t *testing.T) {
 
 func TestCT_R_ClearContent(t *testing.T) {
 	rEl := OxmlElement("w:r")
-	r := &CT_R{Element{E: rEl}}
+	r := &CT_R{Element{e: rEl}}
 
 	r.GetOrAddRPr()
 	r.AddTWithText("text")
@@ -72,7 +72,7 @@ func TestCT_R_ClearContent(t *testing.T) {
 
 func TestCT_R_Style_RoundTrip(t *testing.T) {
 	rEl := OxmlElement("w:r")
-	r := &CT_R{Element{E: rEl}}
+	r := &CT_R{Element{e: rEl}}
 
 	if s, err := r.Style(); err != nil {
 		t.Fatalf("Style: %v", err)
@@ -104,7 +104,7 @@ func TestCT_R_Style_RoundTrip(t *testing.T) {
 
 func TestCT_R_SetRunText(t *testing.T) {
 	rEl := OxmlElement("w:r")
-	r := &CT_R{Element{E: rEl}}
+	r := &CT_R{Element{e: rEl}}
 
 	r.GetOrAddRPr() // should be preserved
 	r.SetRunText("Hello\tWorld\nNew")
@@ -124,13 +124,13 @@ func TestCT_R_SetRunText(t *testing.T) {
 
 func TestCT_Br_TextEquivalent(t *testing.T) {
 	// Default (textWrapping)
-	br1 := &CT_Br{Element{E: OxmlElement("w:br")}}
+	br1 := &CT_Br{Element{e: OxmlElement("w:br")}}
 	if br1.TextEquivalent() != "\n" {
 		t.Error("expected newline for default break type")
 	}
 
 	// Page break
-	br2 := &CT_Br{Element{E: OxmlElement("w:br")}}
+	br2 := &CT_Br{Element{e: OxmlElement("w:br")}}
 	if err := br2.SetType("page"); err != nil {
 		t.Fatalf("SetType: %v", err)
 	}

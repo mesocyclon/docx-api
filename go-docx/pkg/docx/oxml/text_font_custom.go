@@ -17,7 +17,7 @@ func (rPr *CT_RPr) getBoolVal(tag string) *bool {
 	if child == nil {
 		return nil
 	}
-	onOff := &CT_OnOff{Element{E: child}}
+	onOff := &CT_OnOff{Element{e: child}}
 	v := onOff.Val()
 	return &v
 }

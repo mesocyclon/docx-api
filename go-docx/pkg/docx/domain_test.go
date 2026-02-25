@@ -22,7 +22,7 @@ func mustParseXml(t *testing.T, xml string) *oxml.Element {
 	if err != nil {
 		t.Fatalf("ParseXml: %v", err)
 	}
-	return &oxml.Element{E: el}
+	return oxml.NewElement(el)
 }
 
 func makeP(t *testing.T, innerXml string) *oxml.CT_P {

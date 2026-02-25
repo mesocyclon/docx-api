@@ -275,11 +275,11 @@ func (s *CT_Style) BaseStyle() *CT_Style {
 	if err != nil || basedOn == "" {
 		return nil
 	}
-	parent := s.E.Parent()
+	parent := s.e.Parent()
 	if parent == nil {
 		return nil
 	}
-	styles := &CT_Styles{Element{E: parent}}
+	styles := &CT_Styles{Element{e: parent}}
 	return styles.GetByID(basedOn)
 }
 
@@ -289,19 +289,19 @@ func (s *CT_Style) NextStyle() *CT_Style {
 	if err != nil || nextVal == "" {
 		return nil
 	}
-	parent := s.E.Parent()
+	parent := s.e.Parent()
 	if parent == nil {
 		return nil
 	}
-	styles := &CT_Styles{Element{E: parent}}
+	styles := &CT_Styles{Element{e: parent}}
 	return styles.GetByID(nextVal)
 }
 
 // Delete removes this w:style element from its parent w:styles.
 func (s *CT_Style) Delete() {
-	parent := s.E.Parent()
+	parent := s.e.Parent()
 	if parent != nil {
-		parent.RemoveChild(s.E)
+		parent.RemoveChild(s.e)
 	}
 }
 
@@ -398,9 +398,9 @@ func (ls *CT_LatentStyles) SetBoolProp(attrName string, val bool) error {
 
 // Delete removes this lsdException element from its parent.
 func (exc *CT_LsdException) Delete() {
-	parent := exc.E.Parent()
+	parent := exc.e.Parent()
 	if parent != nil {
-		parent.RemoveChild(exc.E)
+		parent.RemoveChild(exc.e)
 	}
 }
 

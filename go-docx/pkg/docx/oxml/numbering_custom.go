@@ -65,14 +65,14 @@ func (n *CT_Numbering) NextNumId() int {
 // <w:abstractNumId> referencing abstractNumId.
 func NewNum(numId, abstractNumId int) (*CT_Num, error) {
 	el := OxmlElement("w:num")
-	num := &CT_Num{Element{E: el}}
+	num := &CT_Num{Element{e: el}}
 	if err := num.SetNumId(numId); err != nil {
 		return nil, err
 	}
 
 	// Create <w:abstractNumId w:val="N"/>
 	absEl := OxmlElement("w:abstractNumId")
-	absNum := &CT_DecimalNumber{Element{E: absEl}}
+	absNum := &CT_DecimalNumber{Element{e: absEl}}
 	if err := absNum.SetVal(abstractNumId); err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func NewDecimalNumber(nspTagname string, val int) (*CT_DecimalNumber, error) {
 	if err != nil {
 		return nil, fmt.Errorf("NewDecimalNumber: %w", err)
 	}
-	dn := &CT_DecimalNumber{Element{E: el}}
+	dn := &CT_DecimalNumber{Element{e: el}}
 	if err := dn.SetVal(val); err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ func NewCtString(nspTagname, val string) (*CT_String, error) {
 	if err != nil {
 		return nil, fmt.Errorf("NewCtString: %w", err)
 	}
-	s := &CT_String{Element{E: el}}
+	s := &CT_String{Element{e: el}}
 	if err := s.SetVal(val); err != nil {
 		return nil, err
 	}

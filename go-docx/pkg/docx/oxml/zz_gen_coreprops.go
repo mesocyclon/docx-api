@@ -22,7 +22,7 @@ func (e *CT_CoreProperties) Category() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddCategory returns <cp:category>, creating it if not present.
@@ -49,12 +49,12 @@ func (e *CT_CoreProperties) addCategory() *CT_CorePropText {
 // newCategory creates a detached <cp:category> element.
 func (e *CT_CoreProperties) newCategory() *CT_CorePropText {
 	el := OxmlElement("cp:category")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertCategory inserts child before first successor.
 func (e *CT_CoreProperties) insertCategory(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -64,7 +64,7 @@ func (e *CT_CoreProperties) ContentStatus() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddContentStatus returns <cp:contentStatus>, creating it if not present.
@@ -91,12 +91,12 @@ func (e *CT_CoreProperties) addContentStatus() *CT_CorePropText {
 // newContentStatus creates a detached <cp:contentStatus> element.
 func (e *CT_CoreProperties) newContentStatus() *CT_CorePropText {
 	el := OxmlElement("cp:contentStatus")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertContentStatus inserts child before first successor.
 func (e *CT_CoreProperties) insertContentStatus(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -106,7 +106,7 @@ func (e *CT_CoreProperties) Created() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddCreated returns <dcterms:created>, creating it if not present.
@@ -133,12 +133,12 @@ func (e *CT_CoreProperties) addCreated() *CT_CorePropText {
 // newCreated creates a detached <dcterms:created> element.
 func (e *CT_CoreProperties) newCreated() *CT_CorePropText {
 	el := OxmlElement("dcterms:created")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertCreated inserts child before first successor.
 func (e *CT_CoreProperties) insertCreated(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -148,7 +148,7 @@ func (e *CT_CoreProperties) Creator() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddCreator returns <dc:creator>, creating it if not present.
@@ -175,12 +175,12 @@ func (e *CT_CoreProperties) addCreator() *CT_CorePropText {
 // newCreator creates a detached <dc:creator> element.
 func (e *CT_CoreProperties) newCreator() *CT_CorePropText {
 	el := OxmlElement("dc:creator")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertCreator inserts child before first successor.
 func (e *CT_CoreProperties) insertCreator(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -190,7 +190,7 @@ func (e *CT_CoreProperties) Description() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddDescription returns <dc:description>, creating it if not present.
@@ -217,12 +217,12 @@ func (e *CT_CoreProperties) addDescription() *CT_CorePropText {
 // newDescription creates a detached <dc:description> element.
 func (e *CT_CoreProperties) newDescription() *CT_CorePropText {
 	el := OxmlElement("dc:description")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertDescription inserts child before first successor.
 func (e *CT_CoreProperties) insertDescription(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -232,7 +232,7 @@ func (e *CT_CoreProperties) Identifier() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddIdentifier returns <dc:identifier>, creating it if not present.
@@ -259,12 +259,12 @@ func (e *CT_CoreProperties) addIdentifier() *CT_CorePropText {
 // newIdentifier creates a detached <dc:identifier> element.
 func (e *CT_CoreProperties) newIdentifier() *CT_CorePropText {
 	el := OxmlElement("dc:identifier")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertIdentifier inserts child before first successor.
 func (e *CT_CoreProperties) insertIdentifier(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -274,7 +274,7 @@ func (e *CT_CoreProperties) Keywords() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddKeywords returns <cp:keywords>, creating it if not present.
@@ -301,12 +301,12 @@ func (e *CT_CoreProperties) addKeywords() *CT_CorePropText {
 // newKeywords creates a detached <cp:keywords> element.
 func (e *CT_CoreProperties) newKeywords() *CT_CorePropText {
 	el := OxmlElement("cp:keywords")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertKeywords inserts child before first successor.
 func (e *CT_CoreProperties) insertKeywords(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -316,7 +316,7 @@ func (e *CT_CoreProperties) Language() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddLanguage returns <dc:language>, creating it if not present.
@@ -343,12 +343,12 @@ func (e *CT_CoreProperties) addLanguage() *CT_CorePropText {
 // newLanguage creates a detached <dc:language> element.
 func (e *CT_CoreProperties) newLanguage() *CT_CorePropText {
 	el := OxmlElement("dc:language")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertLanguage inserts child before first successor.
 func (e *CT_CoreProperties) insertLanguage(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -358,7 +358,7 @@ func (e *CT_CoreProperties) LastModifiedBy() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddLastModifiedBy returns <cp:lastModifiedBy>, creating it if not present.
@@ -385,12 +385,12 @@ func (e *CT_CoreProperties) addLastModifiedBy() *CT_CorePropText {
 // newLastModifiedBy creates a detached <cp:lastModifiedBy> element.
 func (e *CT_CoreProperties) newLastModifiedBy() *CT_CorePropText {
 	el := OxmlElement("cp:lastModifiedBy")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertLastModifiedBy inserts child before first successor.
 func (e *CT_CoreProperties) insertLastModifiedBy(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -400,7 +400,7 @@ func (e *CT_CoreProperties) LastPrinted() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddLastPrinted returns <cp:lastPrinted>, creating it if not present.
@@ -427,12 +427,12 @@ func (e *CT_CoreProperties) addLastPrinted() *CT_CorePropText {
 // newLastPrinted creates a detached <cp:lastPrinted> element.
 func (e *CT_CoreProperties) newLastPrinted() *CT_CorePropText {
 	el := OxmlElement("cp:lastPrinted")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertLastPrinted inserts child before first successor.
 func (e *CT_CoreProperties) insertLastPrinted(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -442,7 +442,7 @@ func (e *CT_CoreProperties) Modified() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddModified returns <dcterms:modified>, creating it if not present.
@@ -469,12 +469,12 @@ func (e *CT_CoreProperties) addModified() *CT_CorePropText {
 // newModified creates a detached <dcterms:modified> element.
 func (e *CT_CoreProperties) newModified() *CT_CorePropText {
 	el := OxmlElement("dcterms:modified")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertModified inserts child before first successor.
 func (e *CT_CoreProperties) insertModified(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -484,7 +484,7 @@ func (e *CT_CoreProperties) Revision() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddRevision returns <cp:revision>, creating it if not present.
@@ -511,12 +511,12 @@ func (e *CT_CoreProperties) addRevision() *CT_CorePropText {
 // newRevision creates a detached <cp:revision> element.
 func (e *CT_CoreProperties) newRevision() *CT_CorePropText {
 	el := OxmlElement("cp:revision")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertRevision inserts child before first successor.
 func (e *CT_CoreProperties) insertRevision(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -526,7 +526,7 @@ func (e *CT_CoreProperties) Subject() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddSubject returns <dc:subject>, creating it if not present.
@@ -553,12 +553,12 @@ func (e *CT_CoreProperties) addSubject() *CT_CorePropText {
 // newSubject creates a detached <dc:subject> element.
 func (e *CT_CoreProperties) newSubject() *CT_CorePropText {
 	el := OxmlElement("dc:subject")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertSubject inserts child before first successor.
 func (e *CT_CoreProperties) insertSubject(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -568,7 +568,7 @@ func (e *CT_CoreProperties) Title() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddTitle returns <dc:title>, creating it if not present.
@@ -595,12 +595,12 @@ func (e *CT_CoreProperties) addTitle() *CT_CorePropText {
 // newTitle creates a detached <dc:title> element.
 func (e *CT_CoreProperties) newTitle() *CT_CorePropText {
 	el := OxmlElement("dc:title")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertTitle inserts child before first successor.
 func (e *CT_CoreProperties) insertTitle(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -610,7 +610,7 @@ func (e *CT_CoreProperties) Version() *CT_CorePropText {
 	if child == nil {
 		return nil
 	}
-	return &CT_CorePropText{Element{E: child}}
+	return &CT_CorePropText{Element{e: child}}
 }
 
 // GetOrAddVersion returns <cp:version>, creating it if not present.
@@ -637,12 +637,12 @@ func (e *CT_CoreProperties) addVersion() *CT_CorePropText {
 // newVersion creates a detached <cp:version> element.
 func (e *CT_CoreProperties) newVersion() *CT_CorePropText {
 	el := OxmlElement("cp:version")
-	return &CT_CorePropText{Element{E: el}}
+	return &CT_CorePropText{Element{e: el}}
 }
 
 // insertVersion inserts child before first successor.
 func (e *CT_CoreProperties) insertVersion(child *CT_CorePropText) *CT_CorePropText {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 

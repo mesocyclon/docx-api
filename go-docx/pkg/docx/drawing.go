@@ -32,7 +32,7 @@ func NewDrawing(drawing *oxml.CT_Drawing, part *parts.StoryPart) *Drawing {
 //
 // Mirrors Python Drawing.has_picture.
 func (d *Drawing) HasPicture() bool {
-	for _, child := range d.drawing.E.ChildElements() {
+	for _, child := range d.drawing.RawElement().ChildElements() {
 		if child.Tag == "inline" || child.Tag == "anchor" {
 			if findPicInGraphicData(child) {
 				return true
@@ -98,7 +98,7 @@ func (d *Drawing) Image() (*image.Image, error) {
 //
 // Mirrors Python: self._drawing.xpath(".//pic:blipFill/a:blip/@r:embed")
 func (d *Drawing) pictureRId() string {
-	for _, child := range d.drawing.E.ChildElements() {
+	for _, child := range d.drawing.RawElement().ChildElements() {
 		if child.Tag == "inline" || child.Tag == "anchor" {
 			if rId := findBlipRId(child); rId != "" {
 				return rId

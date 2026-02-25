@@ -52,7 +52,7 @@ func (ts *TabStops) Delete(idx int) error {
 	if idx < 0 || idx >= len(lst) {
 		return fmt.Errorf("docx: tab index [%d] out of range", idx)
 	}
-	tabs.E.RemoveChild(lst[idx].E)
+	tabs.RawElement().RemoveChild(lst[idx].RawElement())
 	if len(tabs.TabList()) == 0 {
 		ts.pPr.RemoveTabs()
 	}
@@ -135,7 +135,7 @@ func (t *TabStop) Position() (int, error) {
 //
 // Mirrors Python TabStop.position setter.
 func (t *TabStop) SetPosition(v int) error {
-	tabs := t.tab.E.Parent()
+	tabs := t.tab.RawElement().Parent()
 	if tabs == nil {
 		return fmt.Errorf("docx: tab stop has no parent")
 	}
@@ -147,12 +147,12 @@ func (t *TabStop) SetPosition(v int) error {
 	if err != nil {
 		return err
 	}
-	parent := &oxml.CT_TabStops{Element: oxml.Element{E: tabs}}
+	parent := &oxml.CT_TabStops{Element: oxml.WrapElement(tabs)}
 	newTab, err := parent.InsertTabInOrder(v, align, leader)
 	if err != nil {
 		return err
 	}
-	tabs.RemoveChild(t.tab.E)
+	tabs.RemoveChild(t.tab.RawElement())
 	t.tab = newTab
 	return nil
 }

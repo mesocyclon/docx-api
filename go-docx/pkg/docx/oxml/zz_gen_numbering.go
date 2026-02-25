@@ -21,7 +21,7 @@ func (e *CT_Numbering) NumList() []*CT_Num {
 	children := e.FindAllChildren("w:num")
 	result := make([]*CT_Num, len(children))
 	for i, c := range children {
-		result[i] = &CT_Num{Element{E: c}}
+		result[i] = &CT_Num{Element{e: c}}
 	}
 	return result
 }
@@ -41,12 +41,12 @@ func (e *CT_Numbering) addNum() *CT_Num {
 // newNum creates a detached <w:num> element.
 func (e *CT_Numbering) newNum() *CT_Num {
 	el := OxmlElement("w:num")
-	return &CT_Num{Element{E: el}}
+	return &CT_Num{Element{e: el}}
 }
 
 // insertNum inserts child before first successor.
 func (e *CT_Numbering) insertNum(child *CT_Num) *CT_Num {
-	e.InsertElementBefore(child.E, "w:numIdMacAtCleanup")
+	e.InsertElementBefore(child.e, "w:numIdMacAtCleanup")
 	return child
 }
 
@@ -62,7 +62,7 @@ func (e *CT_Num) LvlOverrideList() []*CT_NumLvl {
 	children := e.FindAllChildren("w:lvlOverride")
 	result := make([]*CT_NumLvl, len(children))
 	for i, c := range children {
-		result[i] = &CT_NumLvl{Element{E: c}}
+		result[i] = &CT_NumLvl{Element{e: c}}
 	}
 	return result
 }
@@ -82,12 +82,12 @@ func (e *CT_Num) addLvlOverride() *CT_NumLvl {
 // newLvlOverride creates a detached <w:lvlOverride> element.
 func (e *CT_Num) newLvlOverride() *CT_NumLvl {
 	el := OxmlElement("w:lvlOverride")
-	return &CT_NumLvl{Element{E: el}}
+	return &CT_NumLvl{Element{e: el}}
 }
 
 // insertLvlOverride inserts child before first successor.
 func (e *CT_Num) insertLvlOverride(child *CT_NumLvl) *CT_NumLvl {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -98,7 +98,7 @@ func (e *CT_Num) AbstractNumId() (*CT_DecimalNumber, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "w:abstractNumId", e.Tag())
 	}
-	return &CT_DecimalNumber{Element{E: child}}, nil
+	return &CT_DecimalNumber{Element{e: child}}, nil
 }
 
 // NumId returns the value of the required "w:numId" attribute.
@@ -137,7 +137,7 @@ func (e *CT_NumLvl) StartOverride() *CT_DecimalNumber {
 	if child == nil {
 		return nil
 	}
-	return &CT_DecimalNumber{Element{E: child}}
+	return &CT_DecimalNumber{Element{e: child}}
 }
 
 // GetOrAddStartOverride returns <w:startOverride>, creating it if not present.
@@ -164,12 +164,12 @@ func (e *CT_NumLvl) addStartOverride() *CT_DecimalNumber {
 // newStartOverride creates a detached <w:startOverride> element.
 func (e *CT_NumLvl) newStartOverride() *CT_DecimalNumber {
 	el := OxmlElement("w:startOverride")
-	return &CT_DecimalNumber{Element{E: el}}
+	return &CT_DecimalNumber{Element{e: el}}
 }
 
 // insertStartOverride inserts child before first successor.
 func (e *CT_NumLvl) insertStartOverride(child *CT_DecimalNumber) *CT_DecimalNumber {
-	e.InsertElementBefore(child.E, "w:lvl")
+	e.InsertElementBefore(child.e, "w:lvl")
 	return child
 }
 

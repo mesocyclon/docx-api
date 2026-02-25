@@ -18,7 +18,7 @@ type Body struct {
 // newBody creates a Body wrapping the given CT_Body.
 func newBody(ctBody *oxml.CT_Body, part *parts.StoryPart) *Body {
 	return &Body{
-		BlockItemContainer: NewBlockItemContainer(ctBody.E, part),
+		BlockItemContainer: NewBlockItemContainer(ctBody.RawElement(), part),
 		ctBody:             ctBody,
 	}
 }

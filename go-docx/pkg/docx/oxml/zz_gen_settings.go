@@ -22,7 +22,7 @@ func (e *CT_Settings) EvenAndOddHeaders() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddEvenAndOddHeaders returns <w:evenAndOddHeaders>, creating it if not present.
@@ -49,11 +49,11 @@ func (e *CT_Settings) addEvenAndOddHeaders() *CT_OnOff {
 // newEvenAndOddHeaders creates a detached <w:evenAndOddHeaders> element.
 func (e *CT_Settings) newEvenAndOddHeaders() *CT_OnOff {
 	el := OxmlElement("w:evenAndOddHeaders")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertEvenAndOddHeaders inserts child before first successor.
 func (e *CT_Settings) insertEvenAndOddHeaders(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:bookFoldRevPrinting", "w:bookFoldPrinting", "w:bookFoldPrintingSheets", "w:drawingGridHorizontalSpacing", "w:drawingGridVerticalSpacing", "w:displayHorizontalDrawingGridEvery", "w:displayVerticalDrawingGridEvery", "w:doNotUseMarginsForDrawingGridOrigin", "w:drawingGridHorizontalOrigin", "w:drawingGridVerticalOrigin", "w:doNotShadeFormData", "w:noPunctuationKerning", "w:characterSpacingControl", "w:printTwoOnOne", "w:strictFirstAndLastChars", "w:noLineBreaksAfter", "w:noLineBreaksBefore", "w:savePreviewPicture", "w:doNotValidateAgainstSchema", "w:saveInvalidXml", "w:ignoreMixedContent", "w:alwaysShowPlaceholderText", "w:doNotDemarcateInvalidXml", "w:saveXmlDataOnly", "w:useXSLTWhenSaving", "w:saveThroughXslt", "w:showXMLTags", "w:alwaysMergeEmptyNamespace", "w:updateFields", "w:hdrShapeDefaults", "w:footnotePr", "w:endnotePr", "w:compat", "w:docVars", "w:rsids")
+	e.InsertElementBefore(child.e, "w:bookFoldRevPrinting", "w:bookFoldPrinting", "w:bookFoldPrintingSheets", "w:drawingGridHorizontalSpacing", "w:drawingGridVerticalSpacing", "w:displayHorizontalDrawingGridEvery", "w:displayVerticalDrawingGridEvery", "w:doNotUseMarginsForDrawingGridOrigin", "w:drawingGridHorizontalOrigin", "w:drawingGridVerticalOrigin", "w:doNotShadeFormData", "w:noPunctuationKerning", "w:characterSpacingControl", "w:printTwoOnOne", "w:strictFirstAndLastChars", "w:noLineBreaksAfter", "w:noLineBreaksBefore", "w:savePreviewPicture", "w:doNotValidateAgainstSchema", "w:saveInvalidXml", "w:ignoreMixedContent", "w:alwaysShowPlaceholderText", "w:doNotDemarcateInvalidXml", "w:saveXmlDataOnly", "w:useXSLTWhenSaving", "w:saveThroughXslt", "w:showXMLTags", "w:alwaysMergeEmptyNamespace", "w:updateFields", "w:hdrShapeDefaults", "w:footnotePr", "w:endnotePr", "w:compat", "w:docVars", "w:rsids")
 	return child
 }

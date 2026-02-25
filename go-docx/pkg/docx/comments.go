@@ -123,7 +123,7 @@ type Comment struct {
 func newComment(elm *oxml.CT_Comment, part *parts.CommentsPart) *Comment {
 	sp := &part.StoryPart
 	return &Comment{
-		BlockItemContainer: NewBlockItemContainer(elm.E, sp),
+		BlockItemContainer: NewBlockItemContainer(elm.RawElement(), sp),
 		commentElm:         elm,
 	}
 }

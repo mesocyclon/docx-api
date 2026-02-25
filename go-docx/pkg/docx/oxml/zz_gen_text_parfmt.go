@@ -23,7 +23,7 @@ func (e *CT_PPr) PStyle() *CT_String {
 	if child == nil {
 		return nil
 	}
-	return &CT_String{Element{E: child}}
+	return &CT_String{Element{e: child}}
 }
 
 // GetOrAddPStyle returns <w:pStyle>, creating it if not present.
@@ -50,12 +50,12 @@ func (e *CT_PPr) addPStyle() *CT_String {
 // newPStyle creates a detached <w:pStyle> element.
 func (e *CT_PPr) newPStyle() *CT_String {
 	el := OxmlElement("w:pStyle")
-	return &CT_String{Element{E: el}}
+	return &CT_String{Element{e: el}}
 }
 
 // insertPStyle inserts child before first successor.
 func (e *CT_PPr) insertPStyle(child *CT_String) *CT_String {
-	e.InsertElementBefore(child.E, "w:keepNext", "w:keepLines", "w:pageBreakBefore", "w:framePr", "w:widowControl", "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:keepNext", "w:keepLines", "w:pageBreakBefore", "w:framePr", "w:widowControl", "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -65,7 +65,7 @@ func (e *CT_PPr) KeepNext() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddKeepNext returns <w:keepNext>, creating it if not present.
@@ -92,12 +92,12 @@ func (e *CT_PPr) addKeepNext() *CT_OnOff {
 // newKeepNext creates a detached <w:keepNext> element.
 func (e *CT_PPr) newKeepNext() *CT_OnOff {
 	el := OxmlElement("w:keepNext")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertKeepNext inserts child before first successor.
 func (e *CT_PPr) insertKeepNext(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:keepLines", "w:pageBreakBefore", "w:framePr", "w:widowControl", "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:keepLines", "w:pageBreakBefore", "w:framePr", "w:widowControl", "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -107,7 +107,7 @@ func (e *CT_PPr) KeepLines() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddKeepLines returns <w:keepLines>, creating it if not present.
@@ -134,12 +134,12 @@ func (e *CT_PPr) addKeepLines() *CT_OnOff {
 // newKeepLines creates a detached <w:keepLines> element.
 func (e *CT_PPr) newKeepLines() *CT_OnOff {
 	el := OxmlElement("w:keepLines")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertKeepLines inserts child before first successor.
 func (e *CT_PPr) insertKeepLines(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:pageBreakBefore", "w:framePr", "w:widowControl", "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:pageBreakBefore", "w:framePr", "w:widowControl", "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -149,7 +149,7 @@ func (e *CT_PPr) PageBreakBefore() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddPageBreakBefore returns <w:pageBreakBefore>, creating it if not present.
@@ -176,12 +176,12 @@ func (e *CT_PPr) addPageBreakBefore() *CT_OnOff {
 // newPageBreakBefore creates a detached <w:pageBreakBefore> element.
 func (e *CT_PPr) newPageBreakBefore() *CT_OnOff {
 	el := OxmlElement("w:pageBreakBefore")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertPageBreakBefore inserts child before first successor.
 func (e *CT_PPr) insertPageBreakBefore(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:framePr", "w:widowControl", "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:framePr", "w:widowControl", "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -191,7 +191,7 @@ func (e *CT_PPr) WidowControl() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddWidowControl returns <w:widowControl>, creating it if not present.
@@ -218,12 +218,12 @@ func (e *CT_PPr) addWidowControl() *CT_OnOff {
 // newWidowControl creates a detached <w:widowControl> element.
 func (e *CT_PPr) newWidowControl() *CT_OnOff {
 	el := OxmlElement("w:widowControl")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertWidowControl inserts child before first successor.
 func (e *CT_PPr) insertWidowControl(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:numPr", "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -233,7 +233,7 @@ func (e *CT_PPr) NumPr() *CT_NumPr {
 	if child == nil {
 		return nil
 	}
-	return &CT_NumPr{Element{E: child}}
+	return &CT_NumPr{Element{e: child}}
 }
 
 // GetOrAddNumPr returns <w:numPr>, creating it if not present.
@@ -260,12 +260,12 @@ func (e *CT_PPr) addNumPr() *CT_NumPr {
 // newNumPr creates a detached <w:numPr> element.
 func (e *CT_PPr) newNumPr() *CT_NumPr {
 	el := OxmlElement("w:numPr")
-	return &CT_NumPr{Element{E: el}}
+	return &CT_NumPr{Element{e: el}}
 }
 
 // insertNumPr inserts child before first successor.
 func (e *CT_PPr) insertNumPr(child *CT_NumPr) *CT_NumPr {
-	e.InsertElementBefore(child.E, "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:suppressLineNumbers", "w:pBdr", "w:shd", "w:tabs", "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -275,7 +275,7 @@ func (e *CT_PPr) Tabs() *CT_TabStops {
 	if child == nil {
 		return nil
 	}
-	return &CT_TabStops{Element{E: child}}
+	return &CT_TabStops{Element{e: child}}
 }
 
 // GetOrAddTabs returns <w:tabs>, creating it if not present.
@@ -302,12 +302,12 @@ func (e *CT_PPr) addTabs() *CT_TabStops {
 // newTabs creates a detached <w:tabs> element.
 func (e *CT_PPr) newTabs() *CT_TabStops {
 	el := OxmlElement("w:tabs")
-	return &CT_TabStops{Element{E: el}}
+	return &CT_TabStops{Element{e: el}}
 }
 
 // insertTabs inserts child before first successor.
 func (e *CT_PPr) insertTabs(child *CT_TabStops) *CT_TabStops {
-	e.InsertElementBefore(child.E, "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:suppressAutoHyphens", "w:kinsoku", "w:wordWrap", "w:overflowPunct", "w:topLinePunct", "w:autoSpaceDE", "w:autoSpaceDN", "w:bidi", "w:adjustRightInd", "w:snapToGrid", "w:spacing", "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -317,7 +317,7 @@ func (e *CT_PPr) Spacing() *CT_Spacing {
 	if child == nil {
 		return nil
 	}
-	return &CT_Spacing{Element{E: child}}
+	return &CT_Spacing{Element{e: child}}
 }
 
 // GetOrAddSpacing returns <w:spacing>, creating it if not present.
@@ -344,12 +344,12 @@ func (e *CT_PPr) addSpacing() *CT_Spacing {
 // newSpacing creates a detached <w:spacing> element.
 func (e *CT_PPr) newSpacing() *CT_Spacing {
 	el := OxmlElement("w:spacing")
-	return &CT_Spacing{Element{E: el}}
+	return &CT_Spacing{Element{e: el}}
 }
 
 // insertSpacing inserts child before first successor.
 func (e *CT_PPr) insertSpacing(child *CT_Spacing) *CT_Spacing {
-	e.InsertElementBefore(child.E, "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:ind", "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -359,7 +359,7 @@ func (e *CT_PPr) Ind() *CT_Ind {
 	if child == nil {
 		return nil
 	}
-	return &CT_Ind{Element{E: child}}
+	return &CT_Ind{Element{e: child}}
 }
 
 // GetOrAddInd returns <w:ind>, creating it if not present.
@@ -386,12 +386,12 @@ func (e *CT_PPr) addInd() *CT_Ind {
 // newInd creates a detached <w:ind> element.
 func (e *CT_PPr) newInd() *CT_Ind {
 	el := OxmlElement("w:ind")
-	return &CT_Ind{Element{E: el}}
+	return &CT_Ind{Element{e: el}}
 }
 
 // insertInd inserts child before first successor.
 func (e *CT_PPr) insertInd(child *CT_Ind) *CT_Ind {
-	e.InsertElementBefore(child.E, "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:contextualSpacing", "w:mirrorIndents", "w:suppressOverlap", "w:jc", "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -401,7 +401,7 @@ func (e *CT_PPr) Jc() *CT_Jc {
 	if child == nil {
 		return nil
 	}
-	return &CT_Jc{Element{E: child}}
+	return &CT_Jc{Element{e: child}}
 }
 
 // GetOrAddJc returns <w:jc>, creating it if not present.
@@ -428,12 +428,12 @@ func (e *CT_PPr) addJc() *CT_Jc {
 // newJc creates a detached <w:jc> element.
 func (e *CT_PPr) newJc() *CT_Jc {
 	el := OxmlElement("w:jc")
-	return &CT_Jc{Element{E: el}}
+	return &CT_Jc{Element{e: el}}
 }
 
 // insertJc inserts child before first successor.
 func (e *CT_PPr) insertJc(child *CT_Jc) *CT_Jc {
-	e.InsertElementBefore(child.E, "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:textDirection", "w:textAlignment", "w:textboxTightWrap", "w:outlineLvl", "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -443,7 +443,7 @@ func (e *CT_PPr) OutlineLvl() *CT_DecimalNumber {
 	if child == nil {
 		return nil
 	}
-	return &CT_DecimalNumber{Element{E: child}}
+	return &CT_DecimalNumber{Element{e: child}}
 }
 
 // GetOrAddOutlineLvl returns <w:outlineLvl>, creating it if not present.
@@ -470,12 +470,12 @@ func (e *CT_PPr) addOutlineLvl() *CT_DecimalNumber {
 // newOutlineLvl creates a detached <w:outlineLvl> element.
 func (e *CT_PPr) newOutlineLvl() *CT_DecimalNumber {
 	el := OxmlElement("w:outlineLvl")
-	return &CT_DecimalNumber{Element{E: el}}
+	return &CT_DecimalNumber{Element{e: el}}
 }
 
 // insertOutlineLvl inserts child before first successor.
 func (e *CT_PPr) insertOutlineLvl(child *CT_DecimalNumber) *CT_DecimalNumber {
-	e.InsertElementBefore(child.E, "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:divId", "w:cnfStyle", "w:rPr", "w:sectPr", "w:pPrChange")
 	return child
 }
 
@@ -485,7 +485,7 @@ func (e *CT_PPr) SectPr() *CT_SectPr {
 	if child == nil {
 		return nil
 	}
-	return &CT_SectPr{Element{E: child}}
+	return &CT_SectPr{Element{e: child}}
 }
 
 // GetOrAddSectPr returns <w:sectPr>, creating it if not present.
@@ -512,12 +512,12 @@ func (e *CT_PPr) addSectPr() *CT_SectPr {
 // newSectPr creates a detached <w:sectPr> element.
 func (e *CT_PPr) newSectPr() *CT_SectPr {
 	el := OxmlElement("w:sectPr")
-	return &CT_SectPr{Element{E: el}}
+	return &CT_SectPr{Element{e: el}}
 }
 
 // insertSectPr inserts child before first successor.
 func (e *CT_PPr) insertSectPr(child *CT_SectPr) *CT_SectPr {
-	e.InsertElementBefore(child.E, "w:pPrChange")
+	e.InsertElementBefore(child.e, "w:pPrChange")
 	return child
 }
 
@@ -887,7 +887,7 @@ func (e *CT_TabStops) TabList() []*CT_TabStop {
 	children := e.FindAllChildren("w:tab")
 	result := make([]*CT_TabStop, len(children))
 	for i, c := range children {
-		result[i] = &CT_TabStop{Element{E: c}}
+		result[i] = &CT_TabStop{Element{e: c}}
 	}
 	return result
 }
@@ -907,12 +907,12 @@ func (e *CT_TabStops) addTab() *CT_TabStop {
 // newTab creates a detached <w:tab> element.
 func (e *CT_TabStops) newTab() *CT_TabStop {
 	el := OxmlElement("w:tab")
-	return &CT_TabStop{Element{E: el}}
+	return &CT_TabStop{Element{e: el}}
 }
 
 // insertTab inserts child before first successor.
 func (e *CT_TabStops) insertTab(child *CT_TabStop) *CT_TabStop {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -929,7 +929,7 @@ func (e *CT_NumPr) Ilvl() *CT_DecimalNumber {
 	if child == nil {
 		return nil
 	}
-	return &CT_DecimalNumber{Element{E: child}}
+	return &CT_DecimalNumber{Element{e: child}}
 }
 
 // GetOrAddIlvl returns <w:ilvl>, creating it if not present.
@@ -956,12 +956,12 @@ func (e *CT_NumPr) addIlvl() *CT_DecimalNumber {
 // newIlvl creates a detached <w:ilvl> element.
 func (e *CT_NumPr) newIlvl() *CT_DecimalNumber {
 	el := OxmlElement("w:ilvl")
-	return &CT_DecimalNumber{Element{E: el}}
+	return &CT_DecimalNumber{Element{e: el}}
 }
 
 // insertIlvl inserts child before first successor.
 func (e *CT_NumPr) insertIlvl(child *CT_DecimalNumber) *CT_DecimalNumber {
-	e.InsertElementBefore(child.E, "w:numId", "w:numberingChange", "w:ins")
+	e.InsertElementBefore(child.e, "w:numId", "w:numberingChange", "w:ins")
 	return child
 }
 
@@ -971,7 +971,7 @@ func (e *CT_NumPr) NumId() *CT_DecimalNumber {
 	if child == nil {
 		return nil
 	}
-	return &CT_DecimalNumber{Element{E: child}}
+	return &CT_DecimalNumber{Element{e: child}}
 }
 
 // GetOrAddNumId returns <w:numId>, creating it if not present.
@@ -998,11 +998,11 @@ func (e *CT_NumPr) addNumId() *CT_DecimalNumber {
 // newNumId creates a detached <w:numId> element.
 func (e *CT_NumPr) newNumId() *CT_DecimalNumber {
 	el := OxmlElement("w:numId")
-	return &CT_DecimalNumber{Element{E: el}}
+	return &CT_DecimalNumber{Element{e: el}}
 }
 
 // insertNumId inserts child before first successor.
 func (e *CT_NumPr) insertNumId(child *CT_DecimalNumber) *CT_DecimalNumber {
-	e.InsertElementBefore(child.E, "w:numberingChange", "w:ins")
+	e.InsertElementBefore(child.e, "w:numberingChange", "w:ins")
 	return child
 }

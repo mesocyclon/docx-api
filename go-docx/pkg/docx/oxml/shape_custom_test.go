@@ -114,7 +114,7 @@ func TestCT_ShapeProperties_CxCy(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	spPr := &CT_ShapeProperties{Element{E: el}}
+	spPr := &CT_ShapeProperties{Element{e: el}}
 
 	cx, err := spPr.Cx()
 	if err != nil {
@@ -157,7 +157,7 @@ func TestCT_ShapeProperties_CxCy(t *testing.T) {
 func TestCT_ShapeProperties_CxCy_NoXfrm(t *testing.T) {
 	xml := `<pic:spPr xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"></pic:spPr>`
 	el, _ := ParseXml([]byte(xml))
-	spPr := &CT_ShapeProperties{Element{E: el}}
+	spPr := &CT_ShapeProperties{Element{e: el}}
 
 	if cx, err := spPr.Cx(); err != nil {
 		t.Fatalf("Cx: %v", err)

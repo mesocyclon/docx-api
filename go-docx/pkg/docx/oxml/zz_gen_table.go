@@ -22,7 +22,7 @@ func (e *CT_Tbl) TrList() []*CT_Row {
 	children := e.FindAllChildren("w:tr")
 	result := make([]*CT_Row, len(children))
 	for i, c := range children {
-		result[i] = &CT_Row{Element{E: c}}
+		result[i] = &CT_Row{Element{e: c}}
 	}
 	return result
 }
@@ -42,12 +42,12 @@ func (e *CT_Tbl) addTr() *CT_Row {
 // newTr creates a detached <w:tr> element.
 func (e *CT_Tbl) newTr() *CT_Row {
 	el := OxmlElement("w:tr")
-	return &CT_Row{Element{E: el}}
+	return &CT_Row{Element{e: el}}
 }
 
 // insertTr inserts child before first successor.
 func (e *CT_Tbl) insertTr(child *CT_Row) *CT_Row {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -58,7 +58,7 @@ func (e *CT_Tbl) TblPr() (*CT_TblPr, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "w:tblPr", e.Tag())
 	}
-	return &CT_TblPr{Element{E: child}}, nil
+	return &CT_TblPr{Element{e: child}}, nil
 }
 
 // TblGrid returns the required <w:tblGrid> child element.
@@ -68,7 +68,7 @@ func (e *CT_Tbl) TblGrid() (*CT_TblGrid, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "w:tblGrid", e.Tag())
 	}
-	return &CT_TblGrid{Element{E: child}}, nil
+	return &CT_TblGrid{Element{e: child}}, nil
 }
 
 // --- CT_Row ---
@@ -84,7 +84,7 @@ func (e *CT_Row) TblPrEx() *CT_TblPrEx {
 	if child == nil {
 		return nil
 	}
-	return &CT_TblPrEx{Element{E: child}}
+	return &CT_TblPrEx{Element{e: child}}
 }
 
 // GetOrAddTblPrEx returns <w:tblPrEx>, creating it if not present.
@@ -111,12 +111,12 @@ func (e *CT_Row) addTblPrEx() *CT_TblPrEx {
 // newTblPrEx creates a detached <w:tblPrEx> element.
 func (e *CT_Row) newTblPrEx() *CT_TblPrEx {
 	el := OxmlElement("w:tblPrEx")
-	return &CT_TblPrEx{Element{E: el}}
+	return &CT_TblPrEx{Element{e: el}}
 }
 
 // insertTblPrEx inserts child before first successor.
 func (e *CT_Row) insertTblPrEx(child *CT_TblPrEx) *CT_TblPrEx {
-	e.InsertElementBefore(child.E, "w:trPr", "w:tc")
+	e.InsertElementBefore(child.e, "w:trPr", "w:tc")
 	return child
 }
 
@@ -126,7 +126,7 @@ func (e *CT_Row) TrPr() *CT_TrPr {
 	if child == nil {
 		return nil
 	}
-	return &CT_TrPr{Element{E: child}}
+	return &CT_TrPr{Element{e: child}}
 }
 
 // GetOrAddTrPr returns <w:trPr>, creating it if not present.
@@ -153,12 +153,12 @@ func (e *CT_Row) addTrPr() *CT_TrPr {
 // newTrPr creates a detached <w:trPr> element.
 func (e *CT_Row) newTrPr() *CT_TrPr {
 	el := OxmlElement("w:trPr")
-	return &CT_TrPr{Element{E: el}}
+	return &CT_TrPr{Element{e: el}}
 }
 
 // insertTrPr inserts child before first successor.
 func (e *CT_Row) insertTrPr(child *CT_TrPr) *CT_TrPr {
-	e.InsertElementBefore(child.E, "w:tc")
+	e.InsertElementBefore(child.e, "w:tc")
 	return child
 }
 
@@ -167,7 +167,7 @@ func (e *CT_Row) TcList() []*CT_Tc {
 	children := e.FindAllChildren("w:tc")
 	result := make([]*CT_Tc, len(children))
 	for i, c := range children {
-		result[i] = &CT_Tc{Element{E: c}}
+		result[i] = &CT_Tc{Element{e: c}}
 	}
 	return result
 }
@@ -187,12 +187,12 @@ func (e *CT_Row) addTc() *CT_Tc {
 // newTc creates a detached <w:tc> element.
 func (e *CT_Row) newTc() *CT_Tc {
 	el := OxmlElement("w:tc")
-	return &CT_Tc{Element{E: el}}
+	return &CT_Tc{Element{e: el}}
 }
 
 // insertTc inserts child before first successor.
 func (e *CT_Row) insertTc(child *CT_Tc) *CT_Tc {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -209,7 +209,7 @@ func (e *CT_Tc) TcPr() *CT_TcPr {
 	if child == nil {
 		return nil
 	}
-	return &CT_TcPr{Element{E: child}}
+	return &CT_TcPr{Element{e: child}}
 }
 
 // GetOrAddTcPr returns <w:tcPr>, creating it if not present.
@@ -236,12 +236,12 @@ func (e *CT_Tc) addTcPr() *CT_TcPr {
 // newTcPr creates a detached <w:tcPr> element.
 func (e *CT_Tc) newTcPr() *CT_TcPr {
 	el := OxmlElement("w:tcPr")
-	return &CT_TcPr{Element{E: el}}
+	return &CT_TcPr{Element{e: el}}
 }
 
 // insertTcPr inserts child before first successor.
 func (e *CT_Tc) insertTcPr(child *CT_TcPr) *CT_TcPr {
-	e.InsertElementBefore(child.E, "w:p", "w:tbl")
+	e.InsertElementBefore(child.e, "w:p", "w:tbl")
 	return child
 }
 
@@ -251,7 +251,7 @@ func (e *CT_Tc) PList() []*CT_P {
 	children := e.FindAllChildren("w:p")
 	result := make([]*CT_P, len(children))
 	for i, c := range children {
-		result[i] = &CT_P{Element{E: c}}
+		result[i] = &CT_P{Element{e: c}}
 	}
 	return result
 }
@@ -271,12 +271,12 @@ func (e *CT_Tc) addP() *CT_P {
 // newP creates a detached <w:p> element.
 func (e *CT_Tc) newP() *CT_P {
 	el := OxmlElement("w:p")
-	return &CT_P{Element{E: el}}
+	return &CT_P{Element{e: el}}
 }
 
 // insertP inserts child before first successor.
 func (e *CT_Tc) insertP(child *CT_P) *CT_P {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -286,7 +286,7 @@ func (e *CT_Tc) TblList() []*CT_Tbl {
 	children := e.FindAllChildren("w:tbl")
 	result := make([]*CT_Tbl, len(children))
 	for i, c := range children {
-		result[i] = &CT_Tbl{Element{E: c}}
+		result[i] = &CT_Tbl{Element{e: c}}
 	}
 	return result
 }
@@ -306,12 +306,12 @@ func (e *CT_Tc) addTbl() *CT_Tbl {
 // newTbl creates a detached <w:tbl> element.
 func (e *CT_Tc) newTbl() *CT_Tbl {
 	el := OxmlElement("w:tbl")
-	return &CT_Tbl{Element{E: el}}
+	return &CT_Tbl{Element{e: el}}
 }
 
 // insertTbl inserts child before first successor.
 func (e *CT_Tc) insertTbl(child *CT_Tbl) *CT_Tbl {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -328,7 +328,7 @@ func (e *CT_TblPr) TblStyle() *CT_String {
 	if child == nil {
 		return nil
 	}
-	return &CT_String{Element{E: child}}
+	return &CT_String{Element{e: child}}
 }
 
 // GetOrAddTblStyle returns <w:tblStyle>, creating it if not present.
@@ -355,12 +355,12 @@ func (e *CT_TblPr) addTblStyle() *CT_String {
 // newTblStyle creates a detached <w:tblStyle> element.
 func (e *CT_TblPr) newTblStyle() *CT_String {
 	el := OxmlElement("w:tblStyle")
-	return &CT_String{Element{E: el}}
+	return &CT_String{Element{e: el}}
 }
 
 // insertTblStyle inserts child before first successor.
 func (e *CT_TblPr) insertTblStyle(child *CT_String) *CT_String {
-	e.InsertElementBefore(child.E, "w:tblpPr", "w:tblOverlap", "w:bidiVisual", "w:tblStyleRowBandSize", "w:tblStyleColBandSize", "w:tblW", "w:jc", "w:tblCellSpacing", "w:tblInd", "w:tblBorders", "w:shd", "w:tblLayout", "w:tblCellMar", "w:tblLook", "w:tblCaption", "w:tblDescription", "w:tblPrChange")
+	e.InsertElementBefore(child.e, "w:tblpPr", "w:tblOverlap", "w:bidiVisual", "w:tblStyleRowBandSize", "w:tblStyleColBandSize", "w:tblW", "w:jc", "w:tblCellSpacing", "w:tblInd", "w:tblBorders", "w:shd", "w:tblLayout", "w:tblCellMar", "w:tblLook", "w:tblCaption", "w:tblDescription", "w:tblPrChange")
 	return child
 }
 
@@ -370,7 +370,7 @@ func (e *CT_TblPr) BidiVisual() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddBidiVisual returns <w:bidiVisual>, creating it if not present.
@@ -397,12 +397,12 @@ func (e *CT_TblPr) addBidiVisual() *CT_OnOff {
 // newBidiVisual creates a detached <w:bidiVisual> element.
 func (e *CT_TblPr) newBidiVisual() *CT_OnOff {
 	el := OxmlElement("w:bidiVisual")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertBidiVisual inserts child before first successor.
 func (e *CT_TblPr) insertBidiVisual(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:tblStyleRowBandSize", "w:tblStyleColBandSize", "w:tblW", "w:jc", "w:tblCellSpacing", "w:tblInd", "w:tblBorders", "w:shd", "w:tblLayout", "w:tblCellMar", "w:tblLook", "w:tblCaption", "w:tblDescription", "w:tblPrChange")
+	e.InsertElementBefore(child.e, "w:tblStyleRowBandSize", "w:tblStyleColBandSize", "w:tblW", "w:jc", "w:tblCellSpacing", "w:tblInd", "w:tblBorders", "w:shd", "w:tblLayout", "w:tblCellMar", "w:tblLook", "w:tblCaption", "w:tblDescription", "w:tblPrChange")
 	return child
 }
 
@@ -412,7 +412,7 @@ func (e *CT_TblPr) Jc() *CT_Jc {
 	if child == nil {
 		return nil
 	}
-	return &CT_Jc{Element{E: child}}
+	return &CT_Jc{Element{e: child}}
 }
 
 // GetOrAddJc returns <w:jc>, creating it if not present.
@@ -439,12 +439,12 @@ func (e *CT_TblPr) addJc() *CT_Jc {
 // newJc creates a detached <w:jc> element.
 func (e *CT_TblPr) newJc() *CT_Jc {
 	el := OxmlElement("w:jc")
-	return &CT_Jc{Element{E: el}}
+	return &CT_Jc{Element{e: el}}
 }
 
 // insertJc inserts child before first successor.
 func (e *CT_TblPr) insertJc(child *CT_Jc) *CT_Jc {
-	e.InsertElementBefore(child.E, "w:tblCellSpacing", "w:tblInd", "w:tblBorders", "w:shd", "w:tblLayout", "w:tblCellMar", "w:tblLook", "w:tblCaption", "w:tblDescription", "w:tblPrChange")
+	e.InsertElementBefore(child.e, "w:tblCellSpacing", "w:tblInd", "w:tblBorders", "w:shd", "w:tblLayout", "w:tblCellMar", "w:tblLook", "w:tblCaption", "w:tblDescription", "w:tblPrChange")
 	return child
 }
 
@@ -454,7 +454,7 @@ func (e *CT_TblPr) TblLayout() *CT_TblLayoutType {
 	if child == nil {
 		return nil
 	}
-	return &CT_TblLayoutType{Element{E: child}}
+	return &CT_TblLayoutType{Element{e: child}}
 }
 
 // GetOrAddTblLayout returns <w:tblLayout>, creating it if not present.
@@ -481,12 +481,12 @@ func (e *CT_TblPr) addTblLayout() *CT_TblLayoutType {
 // newTblLayout creates a detached <w:tblLayout> element.
 func (e *CT_TblPr) newTblLayout() *CT_TblLayoutType {
 	el := OxmlElement("w:tblLayout")
-	return &CT_TblLayoutType{Element{E: el}}
+	return &CT_TblLayoutType{Element{e: el}}
 }
 
 // insertTblLayout inserts child before first successor.
 func (e *CT_TblPr) insertTblLayout(child *CT_TblLayoutType) *CT_TblLayoutType {
-	e.InsertElementBefore(child.E, "w:tblCellMar", "w:tblLook", "w:tblCaption", "w:tblDescription", "w:tblPrChange")
+	e.InsertElementBefore(child.e, "w:tblCellMar", "w:tblLook", "w:tblCaption", "w:tblDescription", "w:tblPrChange")
 	return child
 }
 
@@ -503,7 +503,7 @@ func (e *CT_TcPr) TcW() *CT_TblWidth {
 	if child == nil {
 		return nil
 	}
-	return &CT_TblWidth{Element{E: child}}
+	return &CT_TblWidth{Element{e: child}}
 }
 
 // GetOrAddTcW returns <w:tcW>, creating it if not present.
@@ -530,12 +530,12 @@ func (e *CT_TcPr) addTcW() *CT_TblWidth {
 // newTcW creates a detached <w:tcW> element.
 func (e *CT_TcPr) newTcW() *CT_TblWidth {
 	el := OxmlElement("w:tcW")
-	return &CT_TblWidth{Element{E: el}}
+	return &CT_TblWidth{Element{e: el}}
 }
 
 // insertTcW inserts child before first successor.
 func (e *CT_TcPr) insertTcW(child *CT_TblWidth) *CT_TblWidth {
-	e.InsertElementBefore(child.E, "w:gridSpan", "w:hMerge", "w:vMerge", "w:tcBorders", "w:shd", "w:noWrap", "w:tcMar", "w:textDirection", "w:tcFitText", "w:vAlign", "w:hideMark", "w:headers", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tcPrChange")
+	e.InsertElementBefore(child.e, "w:gridSpan", "w:hMerge", "w:vMerge", "w:tcBorders", "w:shd", "w:noWrap", "w:tcMar", "w:textDirection", "w:tcFitText", "w:vAlign", "w:hideMark", "w:headers", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tcPrChange")
 	return child
 }
 
@@ -545,7 +545,7 @@ func (e *CT_TcPr) GridSpan() *CT_DecimalNumber {
 	if child == nil {
 		return nil
 	}
-	return &CT_DecimalNumber{Element{E: child}}
+	return &CT_DecimalNumber{Element{e: child}}
 }
 
 // GetOrAddGridSpan returns <w:gridSpan>, creating it if not present.
@@ -572,12 +572,12 @@ func (e *CT_TcPr) addGridSpan() *CT_DecimalNumber {
 // newGridSpan creates a detached <w:gridSpan> element.
 func (e *CT_TcPr) newGridSpan() *CT_DecimalNumber {
 	el := OxmlElement("w:gridSpan")
-	return &CT_DecimalNumber{Element{E: el}}
+	return &CT_DecimalNumber{Element{e: el}}
 }
 
 // insertGridSpan inserts child before first successor.
 func (e *CT_TcPr) insertGridSpan(child *CT_DecimalNumber) *CT_DecimalNumber {
-	e.InsertElementBefore(child.E, "w:hMerge", "w:vMerge", "w:tcBorders", "w:shd", "w:noWrap", "w:tcMar", "w:textDirection", "w:tcFitText", "w:vAlign", "w:hideMark", "w:headers", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tcPrChange")
+	e.InsertElementBefore(child.e, "w:hMerge", "w:vMerge", "w:tcBorders", "w:shd", "w:noWrap", "w:tcMar", "w:textDirection", "w:tcFitText", "w:vAlign", "w:hideMark", "w:headers", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tcPrChange")
 	return child
 }
 
@@ -587,7 +587,7 @@ func (e *CT_TcPr) VMerge() *CT_VMerge {
 	if child == nil {
 		return nil
 	}
-	return &CT_VMerge{Element{E: child}}
+	return &CT_VMerge{Element{e: child}}
 }
 
 // GetOrAddVMerge returns <w:vMerge>, creating it if not present.
@@ -614,12 +614,12 @@ func (e *CT_TcPr) addVMerge() *CT_VMerge {
 // newVMerge creates a detached <w:vMerge> element.
 func (e *CT_TcPr) newVMerge() *CT_VMerge {
 	el := OxmlElement("w:vMerge")
-	return &CT_VMerge{Element{E: el}}
+	return &CT_VMerge{Element{e: el}}
 }
 
 // insertVMerge inserts child before first successor.
 func (e *CT_TcPr) insertVMerge(child *CT_VMerge) *CT_VMerge {
-	e.InsertElementBefore(child.E, "w:tcBorders", "w:shd", "w:noWrap", "w:tcMar", "w:textDirection", "w:tcFitText", "w:vAlign", "w:hideMark", "w:headers", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tcPrChange")
+	e.InsertElementBefore(child.e, "w:tcBorders", "w:shd", "w:noWrap", "w:tcMar", "w:textDirection", "w:tcFitText", "w:vAlign", "w:hideMark", "w:headers", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tcPrChange")
 	return child
 }
 
@@ -629,7 +629,7 @@ func (e *CT_TcPr) VAlign() *CT_VerticalJc {
 	if child == nil {
 		return nil
 	}
-	return &CT_VerticalJc{Element{E: child}}
+	return &CT_VerticalJc{Element{e: child}}
 }
 
 // GetOrAddVAlign returns <w:vAlign>, creating it if not present.
@@ -656,12 +656,12 @@ func (e *CT_TcPr) addVAlign() *CT_VerticalJc {
 // newVAlign creates a detached <w:vAlign> element.
 func (e *CT_TcPr) newVAlign() *CT_VerticalJc {
 	el := OxmlElement("w:vAlign")
-	return &CT_VerticalJc{Element{E: el}}
+	return &CT_VerticalJc{Element{e: el}}
 }
 
 // insertVAlign inserts child before first successor.
 func (e *CT_TcPr) insertVAlign(child *CT_VerticalJc) *CT_VerticalJc {
-	e.InsertElementBefore(child.E, "w:hideMark", "w:headers", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tcPrChange")
+	e.InsertElementBefore(child.e, "w:hideMark", "w:headers", "w:cellIns", "w:cellDel", "w:cellMerge", "w:tcPrChange")
 	return child
 }
 
@@ -678,7 +678,7 @@ func (e *CT_TrPr) GridBefore() *CT_DecimalNumber {
 	if child == nil {
 		return nil
 	}
-	return &CT_DecimalNumber{Element{E: child}}
+	return &CT_DecimalNumber{Element{e: child}}
 }
 
 // GetOrAddGridBefore returns <w:gridBefore>, creating it if not present.
@@ -705,12 +705,12 @@ func (e *CT_TrPr) addGridBefore() *CT_DecimalNumber {
 // newGridBefore creates a detached <w:gridBefore> element.
 func (e *CT_TrPr) newGridBefore() *CT_DecimalNumber {
 	el := OxmlElement("w:gridBefore")
-	return &CT_DecimalNumber{Element{E: el}}
+	return &CT_DecimalNumber{Element{e: el}}
 }
 
 // insertGridBefore inserts child before first successor.
 func (e *CT_TrPr) insertGridBefore(child *CT_DecimalNumber) *CT_DecimalNumber {
-	e.InsertElementBefore(child.E, "w:gridAfter", "w:wBefore", "w:wAfter", "w:cantSplit", "w:trHeight", "w:tblHeader", "w:tblCellSpacing", "w:jc", "w:hidden", "w:ins", "w:del", "w:trPrChange")
+	e.InsertElementBefore(child.e, "w:gridAfter", "w:wBefore", "w:wAfter", "w:cantSplit", "w:trHeight", "w:tblHeader", "w:tblCellSpacing", "w:jc", "w:hidden", "w:ins", "w:del", "w:trPrChange")
 	return child
 }
 
@@ -720,7 +720,7 @@ func (e *CT_TrPr) GridAfter() *CT_DecimalNumber {
 	if child == nil {
 		return nil
 	}
-	return &CT_DecimalNumber{Element{E: child}}
+	return &CT_DecimalNumber{Element{e: child}}
 }
 
 // GetOrAddGridAfter returns <w:gridAfter>, creating it if not present.
@@ -747,12 +747,12 @@ func (e *CT_TrPr) addGridAfter() *CT_DecimalNumber {
 // newGridAfter creates a detached <w:gridAfter> element.
 func (e *CT_TrPr) newGridAfter() *CT_DecimalNumber {
 	el := OxmlElement("w:gridAfter")
-	return &CT_DecimalNumber{Element{E: el}}
+	return &CT_DecimalNumber{Element{e: el}}
 }
 
 // insertGridAfter inserts child before first successor.
 func (e *CT_TrPr) insertGridAfter(child *CT_DecimalNumber) *CT_DecimalNumber {
-	e.InsertElementBefore(child.E, "w:wBefore", "w:wAfter", "w:cantSplit", "w:trHeight", "w:tblHeader", "w:tblCellSpacing", "w:jc", "w:hidden", "w:ins", "w:del", "w:trPrChange")
+	e.InsertElementBefore(child.e, "w:wBefore", "w:wAfter", "w:cantSplit", "w:trHeight", "w:tblHeader", "w:tblCellSpacing", "w:jc", "w:hidden", "w:ins", "w:del", "w:trPrChange")
 	return child
 }
 
@@ -762,7 +762,7 @@ func (e *CT_TrPr) TrHeight() *CT_Height {
 	if child == nil {
 		return nil
 	}
-	return &CT_Height{Element{E: child}}
+	return &CT_Height{Element{e: child}}
 }
 
 // GetOrAddTrHeight returns <w:trHeight>, creating it if not present.
@@ -789,12 +789,12 @@ func (e *CT_TrPr) addTrHeight() *CT_Height {
 // newTrHeight creates a detached <w:trHeight> element.
 func (e *CT_TrPr) newTrHeight() *CT_Height {
 	el := OxmlElement("w:trHeight")
-	return &CT_Height{Element{E: el}}
+	return &CT_Height{Element{e: el}}
 }
 
 // insertTrHeight inserts child before first successor.
 func (e *CT_TrPr) insertTrHeight(child *CT_Height) *CT_Height {
-	e.InsertElementBefore(child.E, "w:tblHeader", "w:tblCellSpacing", "w:jc", "w:hidden", "w:ins", "w:del", "w:trPrChange")
+	e.InsertElementBefore(child.e, "w:tblHeader", "w:tblCellSpacing", "w:jc", "w:hidden", "w:ins", "w:del", "w:trPrChange")
 	return child
 }
 
@@ -810,7 +810,7 @@ func (e *CT_TblGrid) GridColList() []*CT_TblGridCol {
 	children := e.FindAllChildren("w:gridCol")
 	result := make([]*CT_TblGridCol, len(children))
 	for i, c := range children {
-		result[i] = &CT_TblGridCol{Element{E: c}}
+		result[i] = &CT_TblGridCol{Element{e: c}}
 	}
 	return result
 }
@@ -830,12 +830,12 @@ func (e *CT_TblGrid) addGridCol() *CT_TblGridCol {
 // newGridCol creates a detached <w:gridCol> element.
 func (e *CT_TblGrid) newGridCol() *CT_TblGridCol {
 	el := OxmlElement("w:gridCol")
-	return &CT_TblGridCol{Element{E: el}}
+	return &CT_TblGridCol{Element{e: el}}
 }
 
 // insertGridCol inserts child before first successor.
 func (e *CT_TblGrid) insertGridCol(child *CT_TblGridCol) *CT_TblGridCol {
-	e.InsertElementBefore(child.E, "w:tblGridChange")
+	e.InsertElementBefore(child.e, "w:tblGridChange")
 	return child
 }
 

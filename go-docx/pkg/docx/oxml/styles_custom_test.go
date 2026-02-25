@@ -25,7 +25,7 @@ func TestStyleIdFromName(t *testing.T) {
 }
 
 func TestCT_Styles_GetByID(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	if err := s.SetStyleId("Heading1"); err != nil {
 		t.Fatalf("SetStyleId: %v", err)
@@ -50,7 +50,7 @@ func TestCT_Styles_GetByID(t *testing.T) {
 }
 
 func TestCT_Styles_GetByName(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	if err := s.SetStyleId("Normal"); err != nil {
 		t.Fatalf("SetStyleId: %v", err)
@@ -69,7 +69,7 @@ func TestCT_Styles_GetByName(t *testing.T) {
 }
 
 func TestCT_Styles_DefaultFor(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	if err := s.SetStyleId("Normal"); err != nil {
 		t.Fatalf("SetStyleId: %v", err)
@@ -100,7 +100,7 @@ func TestCT_Styles_DefaultFor(t *testing.T) {
 }
 
 func TestCT_Styles_AddStyleOfType(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s, err := styles.AddStyleOfType("My Custom Style", enum.WdStyleTypeParagraph, false)
 	if err != nil {
 		t.Fatal(err)
@@ -135,7 +135,7 @@ func TestCT_Styles_AddStyleOfType(t *testing.T) {
 }
 
 func TestCT_Style_NameVal_RoundTrip(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	if nv, err := s.NameVal(); err != nil {
 		t.Fatalf("NameVal: %v", err)
@@ -161,7 +161,7 @@ func TestCT_Style_NameVal_RoundTrip(t *testing.T) {
 }
 
 func TestCT_Style_BasedOnVal_RoundTrip(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	if bv, err := s.BasedOnVal(); err != nil {
 		t.Fatalf("BasedOnVal: %v", err)
@@ -179,7 +179,7 @@ func TestCT_Style_BasedOnVal_RoundTrip(t *testing.T) {
 }
 
 func TestCT_Style_NextVal_RoundTrip(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	if err := s.SetNextVal("Normal"); err != nil {
 		t.Fatalf("SetNextVal: %v", err)
@@ -200,7 +200,7 @@ func TestCT_Style_NextVal_RoundTrip(t *testing.T) {
 }
 
 func TestCT_Style_LockedVal_RoundTrip(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	if s.LockedVal() {
 		t.Error("expected false by default")
@@ -220,7 +220,7 @@ func TestCT_Style_LockedVal_RoundTrip(t *testing.T) {
 }
 
 func TestCT_Style_SemiHiddenVal_RoundTrip(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	if s.SemiHiddenVal() {
 		t.Error("expected false")
@@ -236,7 +236,7 @@ func TestCT_Style_SemiHiddenVal_RoundTrip(t *testing.T) {
 func TestCT_Style_UnhideWhenUsedVal_RoundTrip(t *testing.T) {
 	t.Parallel()
 
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s, err := styles.AddStyleOfType("Custom", enum.WdStyleTypeParagraph, false)
 	if err != nil {
 		t.Fatal(err)
@@ -262,7 +262,7 @@ func TestCT_Style_UnhideWhenUsedVal_RoundTrip(t *testing.T) {
 }
 
 func TestCT_Style_QFormatVal_RoundTrip(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	s.SetQFormatVal(true)
 	if !s.QFormatVal() {
@@ -275,7 +275,7 @@ func TestCT_Style_QFormatVal_RoundTrip(t *testing.T) {
 }
 
 func TestCT_Style_UiPriorityVal_RoundTrip(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	if uv, err := s.UiPriorityVal(); err != nil {
 		t.Fatalf("UiPriorityVal: %v", err)
@@ -304,7 +304,7 @@ func TestCT_Style_UiPriorityVal_RoundTrip(t *testing.T) {
 }
 
 func TestCT_Style_BaseStyle(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	normal := styles.AddStyle()
 	if err := normal.SetStyleId("Normal"); err != nil {
 		t.Fatalf("SetStyleId: %v", err)
@@ -331,7 +331,7 @@ func TestCT_Style_BaseStyle(t *testing.T) {
 }
 
 func TestCT_Style_NextStyle(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	normal := styles.AddStyle()
 	if err := normal.SetStyleId("Normal"); err != nil {
 		t.Fatalf("SetStyleId: %v", err)
@@ -355,7 +355,7 @@ func TestCT_Style_NextStyle(t *testing.T) {
 }
 
 func TestCT_Style_Delete(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s := styles.AddStyle()
 	if err := s.SetStyleId("ToDelete"); err != nil {
 		t.Fatalf("SetStyleId: %v", err)
@@ -370,7 +370,7 @@ func TestCT_Style_Delete(t *testing.T) {
 }
 
 func TestCT_Style_IsBuiltin(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	s, err := styles.AddStyleOfType("Normal", enum.WdStyleTypeParagraph, true)
 	if err != nil {
 		t.Fatal(err)
@@ -388,7 +388,7 @@ func TestCT_Style_IsBuiltin(t *testing.T) {
 }
 
 func TestCT_LatentStyles_GetByName(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	ls := styles.GetOrAddLatentStyles()
 	exc := ls.AddLsdException()
 	if err := exc.SetName("Heading 1"); err != nil {
@@ -416,7 +416,7 @@ func TestCT_LatentStyles_GetByName(t *testing.T) {
 func TestCT_LatentStyles_BoolProp(t *testing.T) {
 	t.Parallel()
 
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	ls := styles.GetOrAddLatentStyles()
 
 	// Initially false (not set)
@@ -440,7 +440,7 @@ func TestCT_LatentStyles_BoolProp(t *testing.T) {
 }
 
 func TestCT_LsdException_Delete(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	ls := styles.GetOrAddLatentStyles()
 	exc := ls.AddLsdException()
 	if err := exc.SetName("ToRemove"); err != nil {
@@ -456,7 +456,7 @@ func TestCT_LsdException_Delete(t *testing.T) {
 }
 
 func TestCT_LsdException_OnOffProp(t *testing.T) {
-	styles := &CT_Styles{Element{E: OxmlElement("w:styles")}}
+	styles := &CT_Styles{Element{e: OxmlElement("w:styles")}}
 	ls := styles.GetOrAddLatentStyles()
 	exc := ls.AddLsdException()
 	if err := exc.SetName("Test"); err != nil {

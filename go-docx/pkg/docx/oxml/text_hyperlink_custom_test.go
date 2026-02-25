@@ -6,7 +6,7 @@ import (
 
 func TestCT_Hyperlink_Text(t *testing.T) {
 	hEl := OxmlElement("w:hyperlink")
-	h := &CT_Hyperlink{Element{E: hEl}}
+	h := &CT_Hyperlink{Element{e: hEl}}
 
 	r := h.AddR()
 	r.AddTWithText("Click here")

@@ -509,8 +509,8 @@ func TestGenerate_NoSuccessors_CallsInsertWithoutArgs(t *testing.T) {
 		},
 	})
 
-	// InsertElementBefore with no successors → just child.E, no extra args
-	assertContains(t, code, "e.InsertElementBefore(child.E)")
+	// InsertElementBefore with no successors → just child.e, no extra args
+	assertContains(t, code, "e.InsertElementBefore(child.e)")
 }
 
 func TestGenerate_SuccessorsPreserveOrder(t *testing.T) {

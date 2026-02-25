@@ -22,7 +22,7 @@ func (e *CT_Styles) LatentStyles() *CT_LatentStyles {
 	if child == nil {
 		return nil
 	}
-	return &CT_LatentStyles{Element{E: child}}
+	return &CT_LatentStyles{Element{e: child}}
 }
 
 // GetOrAddLatentStyles returns <w:latentStyles>, creating it if not present.
@@ -49,12 +49,12 @@ func (e *CT_Styles) addLatentStyles() *CT_LatentStyles {
 // newLatentStyles creates a detached <w:latentStyles> element.
 func (e *CT_Styles) newLatentStyles() *CT_LatentStyles {
 	el := OxmlElement("w:latentStyles")
-	return &CT_LatentStyles{Element{E: el}}
+	return &CT_LatentStyles{Element{e: el}}
 }
 
 // insertLatentStyles inserts child before first successor.
 func (e *CT_Styles) insertLatentStyles(child *CT_LatentStyles) *CT_LatentStyles {
-	e.InsertElementBefore(child.E, "w:style")
+	e.InsertElementBefore(child.e, "w:style")
 	return child
 }
 
@@ -63,7 +63,7 @@ func (e *CT_Styles) StyleList() []*CT_Style {
 	children := e.FindAllChildren("w:style")
 	result := make([]*CT_Style, len(children))
 	for i, c := range children {
-		result[i] = &CT_Style{Element{E: c}}
+		result[i] = &CT_Style{Element{e: c}}
 	}
 	return result
 }
@@ -83,12 +83,12 @@ func (e *CT_Styles) addStyle() *CT_Style {
 // newStyle creates a detached <w:style> element.
 func (e *CT_Styles) newStyle() *CT_Style {
 	el := OxmlElement("w:style")
-	return &CT_Style{Element{E: el}}
+	return &CT_Style{Element{e: el}}
 }
 
 // insertStyle inserts child before first successor.
 func (e *CT_Styles) insertStyle(child *CT_Style) *CT_Style {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -105,7 +105,7 @@ func (e *CT_Style) Name() *CT_String {
 	if child == nil {
 		return nil
 	}
-	return &CT_String{Element{E: child}}
+	return &CT_String{Element{e: child}}
 }
 
 // GetOrAddName returns <w:name>, creating it if not present.
@@ -132,12 +132,12 @@ func (e *CT_Style) addName() *CT_String {
 // newName creates a detached <w:name> element.
 func (e *CT_Style) newName() *CT_String {
 	el := OxmlElement("w:name")
-	return &CT_String{Element{E: el}}
+	return &CT_String{Element{e: el}}
 }
 
 // insertName inserts child before first successor.
 func (e *CT_Style) insertName(child *CT_String) *CT_String {
-	e.InsertElementBefore(child.E, "w:aliases", "w:basedOn", "w:next", "w:link", "w:autoRedefine", "w:hidden", "w:uiPriority", "w:semiHidden", "w:unhideWhenUsed", "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
+	e.InsertElementBefore(child.e, "w:aliases", "w:basedOn", "w:next", "w:link", "w:autoRedefine", "w:hidden", "w:uiPriority", "w:semiHidden", "w:unhideWhenUsed", "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
 	return child
 }
 
@@ -147,7 +147,7 @@ func (e *CT_Style) BasedOn() *CT_String {
 	if child == nil {
 		return nil
 	}
-	return &CT_String{Element{E: child}}
+	return &CT_String{Element{e: child}}
 }
 
 // GetOrAddBasedOn returns <w:basedOn>, creating it if not present.
@@ -174,12 +174,12 @@ func (e *CT_Style) addBasedOn() *CT_String {
 // newBasedOn creates a detached <w:basedOn> element.
 func (e *CT_Style) newBasedOn() *CT_String {
 	el := OxmlElement("w:basedOn")
-	return &CT_String{Element{E: el}}
+	return &CT_String{Element{e: el}}
 }
 
 // insertBasedOn inserts child before first successor.
 func (e *CT_Style) insertBasedOn(child *CT_String) *CT_String {
-	e.InsertElementBefore(child.E, "w:next", "w:link", "w:autoRedefine", "w:hidden", "w:uiPriority", "w:semiHidden", "w:unhideWhenUsed", "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
+	e.InsertElementBefore(child.e, "w:next", "w:link", "w:autoRedefine", "w:hidden", "w:uiPriority", "w:semiHidden", "w:unhideWhenUsed", "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
 	return child
 }
 
@@ -189,7 +189,7 @@ func (e *CT_Style) Next() *CT_String {
 	if child == nil {
 		return nil
 	}
-	return &CT_String{Element{E: child}}
+	return &CT_String{Element{e: child}}
 }
 
 // GetOrAddNext returns <w:next>, creating it if not present.
@@ -216,12 +216,12 @@ func (e *CT_Style) addNext() *CT_String {
 // newNext creates a detached <w:next> element.
 func (e *CT_Style) newNext() *CT_String {
 	el := OxmlElement("w:next")
-	return &CT_String{Element{E: el}}
+	return &CT_String{Element{e: el}}
 }
 
 // insertNext inserts child before first successor.
 func (e *CT_Style) insertNext(child *CT_String) *CT_String {
-	e.InsertElementBefore(child.E, "w:link", "w:autoRedefine", "w:hidden", "w:uiPriority", "w:semiHidden", "w:unhideWhenUsed", "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
+	e.InsertElementBefore(child.e, "w:link", "w:autoRedefine", "w:hidden", "w:uiPriority", "w:semiHidden", "w:unhideWhenUsed", "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
 	return child
 }
 
@@ -231,7 +231,7 @@ func (e *CT_Style) UiPriority() *CT_DecimalNumber {
 	if child == nil {
 		return nil
 	}
-	return &CT_DecimalNumber{Element{E: child}}
+	return &CT_DecimalNumber{Element{e: child}}
 }
 
 // GetOrAddUiPriority returns <w:uiPriority>, creating it if not present.
@@ -258,12 +258,12 @@ func (e *CT_Style) addUiPriority() *CT_DecimalNumber {
 // newUiPriority creates a detached <w:uiPriority> element.
 func (e *CT_Style) newUiPriority() *CT_DecimalNumber {
 	el := OxmlElement("w:uiPriority")
-	return &CT_DecimalNumber{Element{E: el}}
+	return &CT_DecimalNumber{Element{e: el}}
 }
 
 // insertUiPriority inserts child before first successor.
 func (e *CT_Style) insertUiPriority(child *CT_DecimalNumber) *CT_DecimalNumber {
-	e.InsertElementBefore(child.E, "w:semiHidden", "w:unhideWhenUsed", "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
+	e.InsertElementBefore(child.e, "w:semiHidden", "w:unhideWhenUsed", "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
 	return child
 }
 
@@ -273,7 +273,7 @@ func (e *CT_Style) SemiHidden() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddSemiHidden returns <w:semiHidden>, creating it if not present.
@@ -300,12 +300,12 @@ func (e *CT_Style) addSemiHidden() *CT_OnOff {
 // newSemiHidden creates a detached <w:semiHidden> element.
 func (e *CT_Style) newSemiHidden() *CT_OnOff {
 	el := OxmlElement("w:semiHidden")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertSemiHidden inserts child before first successor.
 func (e *CT_Style) insertSemiHidden(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:unhideWhenUsed", "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
+	e.InsertElementBefore(child.e, "w:unhideWhenUsed", "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
 	return child
 }
 
@@ -315,7 +315,7 @@ func (e *CT_Style) UnhideWhenUsed() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddUnhideWhenUsed returns <w:unhideWhenUsed>, creating it if not present.
@@ -342,12 +342,12 @@ func (e *CT_Style) addUnhideWhenUsed() *CT_OnOff {
 // newUnhideWhenUsed creates a detached <w:unhideWhenUsed> element.
 func (e *CT_Style) newUnhideWhenUsed() *CT_OnOff {
 	el := OxmlElement("w:unhideWhenUsed")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertUnhideWhenUsed inserts child before first successor.
 func (e *CT_Style) insertUnhideWhenUsed(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
+	e.InsertElementBefore(child.e, "w:qFormat", "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
 	return child
 }
 
@@ -357,7 +357,7 @@ func (e *CT_Style) QFormat() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddQFormat returns <w:qFormat>, creating it if not present.
@@ -384,12 +384,12 @@ func (e *CT_Style) addQFormat() *CT_OnOff {
 // newQFormat creates a detached <w:qFormat> element.
 func (e *CT_Style) newQFormat() *CT_OnOff {
 	el := OxmlElement("w:qFormat")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertQFormat inserts child before first successor.
 func (e *CT_Style) insertQFormat(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
+	e.InsertElementBefore(child.e, "w:locked", "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
 	return child
 }
 
@@ -399,7 +399,7 @@ func (e *CT_Style) Locked() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddLocked returns <w:locked>, creating it if not present.
@@ -426,12 +426,12 @@ func (e *CT_Style) addLocked() *CT_OnOff {
 // newLocked creates a detached <w:locked> element.
 func (e *CT_Style) newLocked() *CT_OnOff {
 	el := OxmlElement("w:locked")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertLocked inserts child before first successor.
 func (e *CT_Style) insertLocked(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
+	e.InsertElementBefore(child.e, "w:personal", "w:personalCompose", "w:personalReply", "w:rsid", "w:pPr", "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
 	return child
 }
 
@@ -441,7 +441,7 @@ func (e *CT_Style) PPr() *CT_PPr {
 	if child == nil {
 		return nil
 	}
-	return &CT_PPr{Element{E: child}}
+	return &CT_PPr{Element{e: child}}
 }
 
 // GetOrAddPPr returns <w:pPr>, creating it if not present.
@@ -468,12 +468,12 @@ func (e *CT_Style) addPPr() *CT_PPr {
 // newPPr creates a detached <w:pPr> element.
 func (e *CT_Style) newPPr() *CT_PPr {
 	el := OxmlElement("w:pPr")
-	return &CT_PPr{Element{E: el}}
+	return &CT_PPr{Element{e: el}}
 }
 
 // insertPPr inserts child before first successor.
 func (e *CT_Style) insertPPr(child *CT_PPr) *CT_PPr {
-	e.InsertElementBefore(child.E, "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
+	e.InsertElementBefore(child.e, "w:rPr", "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
 	return child
 }
 
@@ -483,7 +483,7 @@ func (e *CT_Style) RPr() *CT_RPr {
 	if child == nil {
 		return nil
 	}
-	return &CT_RPr{Element{E: child}}
+	return &CT_RPr{Element{e: child}}
 }
 
 // GetOrAddRPr returns <w:rPr>, creating it if not present.
@@ -510,12 +510,12 @@ func (e *CT_Style) addRPr() *CT_RPr {
 // newRPr creates a detached <w:rPr> element.
 func (e *CT_Style) newRPr() *CT_RPr {
 	el := OxmlElement("w:rPr")
-	return &CT_RPr{Element{E: el}}
+	return &CT_RPr{Element{e: el}}
 }
 
 // insertRPr inserts child before first successor.
 func (e *CT_Style) insertRPr(child *CT_RPr) *CT_RPr {
-	e.InsertElementBefore(child.E, "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
+	e.InsertElementBefore(child.e, "w:tblPr", "w:trPr", "w:tcPr", "w:tblStylePr")
 	return child
 }
 
@@ -627,7 +627,7 @@ func (e *CT_LatentStyles) LsdExceptionList() []*CT_LsdException {
 	children := e.FindAllChildren("w:lsdException")
 	result := make([]*CT_LsdException, len(children))
 	for i, c := range children {
-		result[i] = &CT_LsdException{Element{E: c}}
+		result[i] = &CT_LsdException{Element{e: c}}
 	}
 	return result
 }
@@ -647,12 +647,12 @@ func (e *CT_LatentStyles) addLsdException() *CT_LsdException {
 // newLsdException creates a detached <w:lsdException> element.
 func (e *CT_LatentStyles) newLsdException() *CT_LsdException {
 	el := OxmlElement("w:lsdException")
-	return &CT_LsdException{Element{E: el}}
+	return &CT_LsdException{Element{e: el}}
 }
 
 // insertLsdException inserts child before first successor.
 func (e *CT_LatentStyles) insertLsdException(child *CT_LsdException) *CT_LsdException {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 

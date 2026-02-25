@@ -22,7 +22,7 @@ func buildTestElement() *Element {
 	r2.Space = "w"
 	r2.CreateAttr("id", "2")
 
-	return &Element{E: p}
+	return &Element{e: p}
 }
 
 func TestElementTag(t *testing.T) {
@@ -135,7 +135,7 @@ func TestInsertElementBefore(t *testing.T) {
 		// Insert before w:r (successor). Should go between pPr and first r.
 		el.InsertElementBefore(newChild, "w:r")
 
-		children := el.E.ChildElements()
+		children := el.e.ChildElements()
 		if len(children) != 4 {
 			t.Fatalf("expected 4 children, got %d", len(children))
 		}
@@ -158,7 +158,7 @@ func TestInsertElementBefore(t *testing.T) {
 
 		el.InsertElementBefore(newChild, "w:nonexistent")
 
-		children := el.E.ChildElements()
+		children := el.e.ChildElements()
 		last := children[len(children)-1]
 		if last.Tag != "sectPr" {
 			t.Errorf("last child = %q, want sectPr", last.Tag)
@@ -173,7 +173,7 @@ func TestInsertElementBefore(t *testing.T) {
 
 		el.InsertElementBefore(newChild) // no successors
 
-		children := el.E.ChildElements()
+		children := el.e.ChildElements()
 		last := children[len(children)-1]
 		if last.Tag != "custom" {
 			t.Errorf("last child = %q, want custom", last.Tag)
@@ -189,7 +189,7 @@ func TestInsertElementBefore(t *testing.T) {
 		// w:foo doesn't exist, but w:r does
 		el.InsertElementBefore(newChild, "w:foo", "w:r")
 
-		children := el.E.ChildElements()
+		children := el.e.ChildElements()
 		// Should be: pPr, rPr, r, r
 		if len(children) != 4 {
 			t.Fatalf("expected 4 children, got %d", len(children))
@@ -206,7 +206,7 @@ func TestRemoveAll(t *testing.T) {
 
 	el.RemoveAll("w:r")
 
-	children := el.E.ChildElements()
+	children := el.e.ChildElements()
 	if len(children) != 1 {
 		t.Fatalf("after RemoveAll('w:r'), expected 1 child, got %d", len(children))
 	}
@@ -221,7 +221,7 @@ func TestRemoveAllMultipleTags(t *testing.T) {
 
 	el.RemoveAll("w:pPr", "w:r")
 
-	children := el.E.ChildElements()
+	children := el.e.ChildElements()
 	if len(children) != 0 {
 		t.Errorf("after RemoveAll('w:pPr', 'w:r'), expected 0 children, got %d", len(children))
 	}
@@ -237,8 +237,8 @@ func TestRemove(t *testing.T) {
 	if el.FindChild("w:pPr") != nil {
 		t.Error("pPr should have been removed")
 	}
-	if len(el.E.ChildElements()) != 2 {
-		t.Errorf("expected 2 children after remove, got %d", len(el.E.ChildElements()))
+	if len(el.e.ChildElements()) != 2 {
+		t.Errorf("expected 2 children after remove, got %d", len(el.e.ChildElements()))
 	}
 }
 
@@ -248,7 +248,7 @@ func TestGetSetAttr(t *testing.T) {
 	e := etree.NewElement("p")
 	e.Space = "w"
 	e.CreateAttr("val", "test123")
-	el := &Element{E: e}
+	el := &Element{e: e}
 
 	t.Run("get existing attribute", func(t *testing.T) {
 		t.Parallel()
@@ -275,7 +275,7 @@ func TestSetAttr(t *testing.T) {
 
 	e := etree.NewElement("p")
 	e.Space = "w"
-	el := &Element{E: e}
+	el := &Element{e: e}
 
 	el.SetAttr("val", "hello")
 
@@ -291,7 +291,7 @@ func TestRemoveAttr(t *testing.T) {
 	e := etree.NewElement("p")
 	e.Space = "w"
 	e.CreateAttr("val", "test")
-	el := &Element{E: e}
+	el := &Element{e: e}
 
 	el.RemoveAttr("val")
 
@@ -307,7 +307,7 @@ func TestTextAndSetText(t *testing.T) {
 	e := etree.NewElement("t")
 	e.Space = "w"
 	e.SetText("Hello World")
-	el := &Element{E: e}
+	el := &Element{e: e}
 
 	if el.Text() != "Hello World" {
 		t.Errorf("Text() = %q, want %q", el.Text(), "Hello World")
@@ -324,7 +324,7 @@ func TestAddSubElement(t *testing.T) {
 
 	e := etree.NewElement("p")
 	e.Space = "w"
-	el := &Element{E: e}
+	el := &Element{e: e}
 
 	child := el.AddSubElement("w:r")
 	if child.Tag != "r" {
@@ -334,7 +334,7 @@ func TestAddSubElement(t *testing.T) {
 		t.Errorf("AddSubElement space = %q, want %q", child.Space, "w")
 	}
 
-	children := el.E.ChildElements()
+	children := el.e.ChildElements()
 	if len(children) != 1 {
 		t.Fatalf("expected 1 child, got %d", len(children))
 	}
@@ -347,7 +347,7 @@ func TestXml(t *testing.T) {
 	e.Space = "w"
 	r := e.CreateElement("r")
 	r.Space = "w"
-	el := &Element{E: e}
+	el := &Element{e: e}
 
 	xml := el.Xml()
 	if xml == "" {
@@ -362,7 +362,7 @@ func TestNewElement(t *testing.T) {
 		t.Parallel()
 		e := etree.NewElement("p")
 		el := NewElement(e)
-		if el == nil || el.E != e {
+		if el == nil || el.e != e {
 			t.Error("NewElement should wrap the etree element")
 		}
 	})

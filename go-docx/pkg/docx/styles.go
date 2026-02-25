@@ -299,7 +299,7 @@ func (s *BaseStyle) Font() *Font {
 	rPr := s.element.GetOrAddRPr()
 	// Create a thin CT_R wrapper for the style's rPr
 	// Font expects a CT_R parent but we can wrap it
-	return &Font{r: &oxml.CT_R{Element: oxml.Element{E: rPr.E.Parent()}}}
+	return &Font{r: &oxml.CT_R{Element: oxml.WrapElement(rPr.RawElement().Parent())}}
 }
 
 // ParagraphFormat returns the ParagraphFormat for this style.
@@ -362,7 +362,7 @@ func (ls *LatentStyles) Len() int {
 // AddLatentStyle adds a new latent style override.
 func (ls *LatentStyles) AddLatentStyle(name string) *LatentStyle {
 	exc := ls.element.AddLsdException()
-	exc.E.CreateAttr("w:name", UI2Internal(name))
+	exc.RawElement().CreateAttr("w:name", UI2Internal(name))
 	return &LatentStyle{element: exc}
 }
 
@@ -464,13 +464,13 @@ func (ls *LatentStyle) SetLocked(v *bool) error {
 
 // Name returns the style name.
 func (ls *LatentStyle) Name() string {
-	name := ls.element.E.SelectAttrValue("w:name", "")
+	name := ls.element.RawElement().SelectAttrValue("w:name", "")
 	return Internal2UI(name)
 }
 
 // Priority returns the sort priority, or nil.
 func (ls *LatentStyle) Priority() (*int, error) {
-	v := ls.element.E.SelectAttrValue("w:uiPriority", "")
+	v := ls.element.RawElement().SelectAttrValue("w:uiPriority", "")
 	if v == "" {
 		return nil, nil
 	}
@@ -485,10 +485,10 @@ func (ls *LatentStyle) Priority() (*int, error) {
 // SetPriority sets the sort priority.
 func (ls *LatentStyle) SetPriority(v *int) error {
 	if v == nil {
-		ls.element.E.RemoveAttr("w:uiPriority")
+		ls.element.RawElement().RemoveAttr("w:uiPriority")
 		return nil
 	}
-	ls.element.E.CreateAttr("w:uiPriority", fmt.Sprintf("%d", *v))
+	ls.element.RawElement().CreateAttr("w:uiPriority", fmt.Sprintf("%d", *v))
 	return nil
 }
 

@@ -17,14 +17,14 @@ func (doc *CT_Document) SectPrList() []*CT_SectPr {
 	}
 
 	var result []*CT_SectPr
-	for _, child := range body.E.ChildElements() {
+	for _, child := range body.e.ChildElements() {
 		// Paragraph-based sectPr: w:p/w:pPr/w:sectPr
 		if child.Space == "w" && child.Tag == "p" {
 			for _, pChild := range child.ChildElements() {
 				if pChild.Space == "w" && pChild.Tag == "pPr" {
 					for _, ppChild := range pChild.ChildElements() {
 						if ppChild.Space == "w" && ppChild.Tag == "sectPr" {
-							result = append(result, &CT_SectPr{Element{E: ppChild}})
+							result = append(result, &CT_SectPr{Element{e: ppChild}})
 						}
 					}
 				}
@@ -32,7 +32,7 @@ func (doc *CT_Document) SectPrList() []*CT_SectPr {
 		}
 		// Body-level sectPr
 		if child.Space == "w" && child.Tag == "sectPr" {
-			result = append(result, &CT_SectPr{Element{E: child}})
+			result = append(result, &CT_SectPr{Element{e: child}})
 		}
 	}
 	return result
@@ -46,11 +46,11 @@ func (doc *CT_Document) SectPrList() []*CT_SectPr {
 // Elements inside wrapper elements (w:ins, w:sdt, etc.) are not included.
 func (b *CT_Body) InnerContentElements() []BlockItem {
 	var result []BlockItem
-	for _, child := range b.E.ChildElements() {
+	for _, child := range b.e.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
-			result = append(result, &CT_P{Element{E: child}})
+			result = append(result, &CT_P{Element{e: child}})
 		} else if child.Space == "w" && child.Tag == "tbl" {
-			result = append(result, &CT_Tbl{Element{E: child}})
+			result = append(result, &CT_Tbl{Element{e: child}})
 		}
 	}
 	return result
@@ -60,13 +60,13 @@ func (b *CT_Body) InnerContentElements() []BlockItem {
 // leaving the <w:sectPr> element if present.
 func (b *CT_Body) ClearContent() {
 	var toRemove []*etree.Element
-	for _, child := range b.E.ChildElements() {
+	for _, child := range b.e.ChildElements() {
 		if !(child.Space == "w" && child.Tag == "sectPr") {
 			toRemove = append(toRemove, child)
 		}
 	}
 	for _, child := range toRemove {
-		b.E.RemoveChild(child)
+		b.e.RemoveChild(child)
 	}
 }
 
@@ -81,19 +81,19 @@ func (b *CT_Body) AddSectionBreak() *CT_SectPr {
 	sentinelSectPr := b.GetOrAddSectPr()
 
 	// Clone it and add to a new paragraph (becomes second-to-last section)
-	clonedSectPr := &CT_SectPr{Element{E: sentinelSectPr.E.Copy()}}
+	clonedSectPr := &CT_SectPr{Element{e: sentinelSectPr.e.Copy()}}
 	newP := b.AddP()
 	newP.SetSectPr(clonedSectPr)
 
 	// Remove header/footer references from the sentinel sectPr
 	var hdrFtrRefs []*etree.Element
-	for _, child := range sentinelSectPr.E.ChildElements() {
+	for _, child := range sentinelSectPr.e.ChildElements() {
 		if child.Space == "w" && (child.Tag == "headerReference" || child.Tag == "footerReference") {
 			hdrFtrRefs = append(hdrFtrRefs, child)
 		}
 	}
 	for _, ref := range hdrFtrRefs {
-		sentinelSectPr.E.RemoveChild(ref)
+		sentinelSectPr.e.RemoveChild(ref)
 	}
 
 	return sentinelSectPr
@@ -102,5 +102,5 @@ func (b *CT_Body) AddSectionBreak() *CT_SectPr {
 // SetSectPr replaces or adds the w:sectPr child element.
 func (b *CT_Body) SetSectPr(sectPr *CT_SectPr) {
 	b.RemoveSectPr()
-	b.E.AddChild(sectPr.E)
+	b.e.AddChild(sectPr.e)
 }

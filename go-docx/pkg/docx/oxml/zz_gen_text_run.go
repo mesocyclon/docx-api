@@ -22,7 +22,7 @@ func (e *CT_R) RPr() *CT_RPr {
 	if child == nil {
 		return nil
 	}
-	return &CT_RPr{Element{E: child}}
+	return &CT_RPr{Element{e: child}}
 }
 
 // GetOrAddRPr returns <w:rPr>, creating it if not present.
@@ -49,12 +49,12 @@ func (e *CT_R) addRPr() *CT_RPr {
 // newRPr creates a detached <w:rPr> element.
 func (e *CT_R) newRPr() *CT_RPr {
 	el := OxmlElement("w:rPr")
-	return &CT_RPr{Element{E: el}}
+	return &CT_RPr{Element{e: el}}
 }
 
 // insertRPr inserts child before first successor.
 func (e *CT_R) insertRPr(child *CT_RPr) *CT_RPr {
-	e.InsertElementBefore(child.E, "w:br", "w:cr", "w:drawing", "w:noBreakHyphen", "w:ptab", "w:t", "w:tab")
+	e.InsertElementBefore(child.e, "w:br", "w:cr", "w:drawing", "w:noBreakHyphen", "w:ptab", "w:t", "w:tab")
 	return child
 }
 
@@ -63,7 +63,7 @@ func (e *CT_R) BrList() []*CT_Br {
 	children := e.FindAllChildren("w:br")
 	result := make([]*CT_Br, len(children))
 	for i, c := range children {
-		result[i] = &CT_Br{Element{E: c}}
+		result[i] = &CT_Br{Element{e: c}}
 	}
 	return result
 }
@@ -83,12 +83,12 @@ func (e *CT_R) addBr() *CT_Br {
 // newBr creates a detached <w:br> element.
 func (e *CT_R) newBr() *CT_Br {
 	el := OxmlElement("w:br")
-	return &CT_Br{Element{E: el}}
+	return &CT_Br{Element{e: el}}
 }
 
 // insertBr inserts child before first successor.
 func (e *CT_R) insertBr(child *CT_Br) *CT_Br {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -97,7 +97,7 @@ func (e *CT_R) CrList() []*CT_Cr {
 	children := e.FindAllChildren("w:cr")
 	result := make([]*CT_Cr, len(children))
 	for i, c := range children {
-		result[i] = &CT_Cr{Element{E: c}}
+		result[i] = &CT_Cr{Element{e: c}}
 	}
 	return result
 }
@@ -117,12 +117,12 @@ func (e *CT_R) addCr() *CT_Cr {
 // newCr creates a detached <w:cr> element.
 func (e *CT_R) newCr() *CT_Cr {
 	el := OxmlElement("w:cr")
-	return &CT_Cr{Element{E: el}}
+	return &CT_Cr{Element{e: el}}
 }
 
 // insertCr inserts child before first successor.
 func (e *CT_R) insertCr(child *CT_Cr) *CT_Cr {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -131,7 +131,7 @@ func (e *CT_R) DrawingList() []*CT_Drawing {
 	children := e.FindAllChildren("w:drawing")
 	result := make([]*CT_Drawing, len(children))
 	for i, c := range children {
-		result[i] = &CT_Drawing{Element{E: c}}
+		result[i] = &CT_Drawing{Element{e: c}}
 	}
 	return result
 }
@@ -151,12 +151,12 @@ func (e *CT_R) addDrawing() *CT_Drawing {
 // newDrawing creates a detached <w:drawing> element.
 func (e *CT_R) newDrawing() *CT_Drawing {
 	el := OxmlElement("w:drawing")
-	return &CT_Drawing{Element{E: el}}
+	return &CT_Drawing{Element{e: el}}
 }
 
 // insertDrawing inserts child before first successor.
 func (e *CT_R) insertDrawing(child *CT_Drawing) *CT_Drawing {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -165,7 +165,7 @@ func (e *CT_R) TList() []*CT_Text {
 	children := e.FindAllChildren("w:t")
 	result := make([]*CT_Text, len(children))
 	for i, c := range children {
-		result[i] = &CT_Text{Element{E: c}}
+		result[i] = &CT_Text{Element{e: c}}
 	}
 	return result
 }
@@ -185,12 +185,12 @@ func (e *CT_R) addT() *CT_Text {
 // newT creates a detached <w:t> element.
 func (e *CT_R) newT() *CT_Text {
 	el := OxmlElement("w:t")
-	return &CT_Text{Element{E: el}}
+	return &CT_Text{Element{e: el}}
 }
 
 // insertT inserts child before first successor.
 func (e *CT_R) insertT(child *CT_Text) *CT_Text {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -199,7 +199,7 @@ func (e *CT_R) TabList() []*CT_TabStop {
 	children := e.FindAllChildren("w:tab")
 	result := make([]*CT_TabStop, len(children))
 	for i, c := range children {
-		result[i] = &CT_TabStop{Element{E: c}}
+		result[i] = &CT_TabStop{Element{e: c}}
 	}
 	return result
 }
@@ -219,12 +219,12 @@ func (e *CT_R) addTab() *CT_TabStop {
 // newTab creates a detached <w:tab> element.
 func (e *CT_R) newTab() *CT_TabStop {
 	el := OxmlElement("w:tab")
-	return &CT_TabStop{Element{E: el}}
+	return &CT_TabStop{Element{e: el}}
 }
 
 // insertTab inserts child before first successor.
 func (e *CT_R) insertTab(child *CT_TabStop) *CT_TabStop {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 

@@ -25,7 +25,7 @@ func (e *{{.ParentType}}) {{.GoName}}() *{{.Type}} {
 	if child == nil {
 		return nil
 	}
-	return &{{.Type}}{Element{E: child}}
+	return &{{.Type}}{Element{e: child}}
 }
 
 // GetOrAdd{{.GoName}} returns <{{.Tag}}>, creating it if not present.
@@ -52,12 +52,12 @@ func (e *{{.ParentType}}) add{{.GoName}}() *{{.Type}} {
 // new{{.GoName}} creates a detached <{{.Tag}}> element.
 func (e *{{.ParentType}}) new{{.GoName}}() *{{.Type}} {
 	el := OxmlElement("{{.Tag}}")
-	return &{{.Type}}{Element{E: el}}
+	return &{{.Type}}{Element{e: el}}
 }
 
 // insert{{.GoName}} inserts child before first successor.
 func (e *{{.ParentType}}) insert{{.GoName}}(child *{{.Type}}) *{{.Type}} {
-	e.InsertElementBefore(child.E{{range .Successors}}, "{{.}}"{{end}})
+	e.InsertElementBefore(child.e{{range .Successors}}, "{{.}}"{{end}})
 	return child
 }
 {{end}}{{range .ZeroOrMoreChildren}}
@@ -66,7 +66,7 @@ func (e *{{.ParentType}}) {{.GoName}}List() []*{{.Type}} {
 	children := e.FindAllChildren("{{.Tag}}")
 	result := make([]*{{.Type}}, len(children))
 	for i, c := range children {
-		result[i] = &{{.Type}}{Element{E: c}}
+		result[i] = &{{.Type}}{Element{e: c}}
 	}
 	return result
 }
@@ -86,12 +86,12 @@ func (e *{{.ParentType}}) add{{.GoName}}() *{{.Type}} {
 // new{{.GoName}} creates a detached <{{.Tag}}> element.
 func (e *{{.ParentType}}) new{{.GoName}}() *{{.Type}} {
 	el := OxmlElement("{{.Tag}}")
-	return &{{.Type}}{Element{E: el}}
+	return &{{.Type}}{Element{e: el}}
 }
 
 // insert{{.GoName}} inserts child before first successor.
 func (e *{{.ParentType}}) insert{{.GoName}}(child *{{.Type}}) *{{.Type}} {
-	e.InsertElementBefore(child.E{{range .Successors}}, "{{.}}"{{end}})
+	e.InsertElementBefore(child.e{{range .Successors}}, "{{.}}"{{end}})
 	return child
 }
 {{end}}{{range .OneAndOnlyOneChildren}}
@@ -102,7 +102,7 @@ func (e *{{.ParentType}}) {{.GoName}}() (*{{.Type}}, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "{{.Tag}}", e.Tag())
 	}
-	return &{{.Type}}{Element{E: child}}, nil
+	return &{{.Type}}{Element{e: child}}, nil
 }
 {{end}}{{range .OneOrMoreChildren}}
 // {{.GoName}}List returns all <{{.Tag}}> child elements.
@@ -111,7 +111,7 @@ func (e *{{.ParentType}}) {{.GoName}}List() []*{{.Type}} {
 	children := e.FindAllChildren("{{.Tag}}")
 	result := make([]*{{.Type}}, len(children))
 	for i, c := range children {
-		result[i] = &{{.Type}}{Element{E: c}}
+		result[i] = &{{.Type}}{Element{e: c}}
 	}
 	return result
 }
@@ -131,12 +131,12 @@ func (e *{{.ParentType}}) add{{.GoName}}() *{{.Type}} {
 // new{{.GoName}} creates a detached <{{.Tag}}> element.
 func (e *{{.ParentType}}) new{{.GoName}}() *{{.Type}} {
 	el := OxmlElement("{{.Tag}}")
-	return &{{.Type}}{Element{E: el}}
+	return &{{.Type}}{Element{e: el}}
 }
 
 // insert{{.GoName}} inserts child before first successor.
 func (e *{{.ParentType}}) insert{{.GoName}}(child *{{.Type}}) *{{.Type}} {
-	e.InsertElementBefore(child.E{{range .Successors}}, "{{.}}"{{end}})
+	e.InsertElementBefore(child.e{{range .Successors}}, "{{.}}"{{end}})
 	return child
 }
 {{end}}{{range .OptionalAttributes}}
@@ -221,7 +221,7 @@ func (e *{{.ParentType}}) {{.GoName}}() *Element {
 	if child == nil {
 		return nil
 	}
-	return &Element{E: child}
+	return &Element{e: child}
 }
 
 // Remove{{.GoName}} removes the current choice group child element if present.
@@ -235,7 +235,7 @@ func (e *{{.ParentType}}) {{.GoName}}() *{{.Type}} {
 	if child == nil {
 		return nil
 	}
-	return &{{.Type}}{Element{E: child}}
+	return &{{.Type}}{Element{e: child}}
 }
 
 // GetOrChangeTo{{.GoName}} returns the <{{.Tag}}> child, replacing any other
@@ -259,12 +259,12 @@ func (e *{{.ParentType}}) add{{.GoName}}() *{{.Type}} {
 // new{{.GoName}} creates a detached <{{.Tag}}> element.
 func (e *{{.ParentType}}) new{{.GoName}}() *{{.Type}} {
 	el := OxmlElement("{{.Tag}}")
-	return &{{.Type}}{Element{E: el}}
+	return &{{.Type}}{Element{e: el}}
 }
 
 // insert{{.GoName}} inserts child before first successor.
 func (e *{{.ParentType}}) insert{{.GoName}}(child *{{.Type}}) *{{.Type}} {
-	e.InsertElementBefore(child.E{{range .Successors}}, "{{.}}"{{end}})
+	e.InsertElementBefore(child.e{{range .Successors}}, "{{.}}"{{end}})
 	return child
 }
 {{end}}{{end}}{{end}}

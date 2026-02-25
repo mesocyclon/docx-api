@@ -31,7 +31,7 @@ func (cp *CommentsPart) CommentsElement() (*oxml.CT_Comments, error) {
 	if el == nil {
 		return nil, fmt.Errorf("parts: comments part element is nil")
 	}
-	return &oxml.CT_Comments{Element: oxml.Element{E: el}}, nil
+	return &oxml.CT_Comments{Element: oxml.WrapElement(el)}, nil
 }
 
 // DefaultCommentsPart creates a new CommentsPart from the default template.

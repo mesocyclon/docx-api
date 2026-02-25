@@ -285,7 +285,7 @@ func (pPr *CT_PPr) pPrBoolVal(tag string) *bool {
 	if child == nil {
 		return nil
 	}
-	onOff := &CT_OnOff{Element{E: child}}
+	onOff := &CT_OnOff{Element{e: child}}
 	v := onOff.Val()
 	return &v
 }
@@ -376,10 +376,10 @@ func (tabs *CT_TabStops) InsertTabInOrder(pos int, align enum.WdTabAlignment, le
 	for _, tab := range tabs.TabList() {
 		tabPos, err := tab.Pos()
 		if err == nil && pos < tabPos {
-			insertBefore(tabs.E, newTab.E, tab.E)
+			insertBefore(tabs.e, newTab.e, tab.e)
 			return newTab, nil
 		}
 	}
-	tabs.E.AddChild(newTab.E)
+	tabs.e.AddChild(newTab.e)
 	return newTab, nil
 }

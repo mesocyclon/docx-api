@@ -29,7 +29,7 @@ func (sp *SettingsPart) SettingsElement() (*oxml.CT_Settings, error) {
 	if el == nil {
 		return nil, fmt.Errorf("parts: settings part element is nil")
 	}
-	return &oxml.CT_Settings{Element: oxml.Element{E: el}}, nil
+	return &oxml.CT_Settings{Element: oxml.WrapElement(el)}, nil
 }
 
 // DefaultSettingsPart creates a new SettingsPart from the default template.

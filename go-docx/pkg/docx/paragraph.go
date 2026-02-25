@@ -73,9 +73,9 @@ func (para *Paragraph) ContainsPageBreak() bool {
 // Mirrors Python Paragraph.hyperlinks.
 func (para *Paragraph) Hyperlinks() []*Hyperlink {
 	var result []*Hyperlink
-	for _, child := range para.p.E.ChildElements() {
+	for _, child := range para.p.RawElement().ChildElements() {
 		if child.Space == "w" && child.Tag == "hyperlink" {
-			hl := &oxml.CT_Hyperlink{Element: oxml.Element{E: child}}
+			hl := &oxml.CT_Hyperlink{Element: oxml.WrapElement(child)}
 			result = append(result, NewHyperlink(hl, para.part))
 		}
 	}

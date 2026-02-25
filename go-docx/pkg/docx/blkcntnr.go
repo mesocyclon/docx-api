@@ -68,7 +68,7 @@ func (c *BlockItemContainer) AddParagraph(text string, style interface{}) (*Para
 // Mirrors Python BlockItemContainer.add_table (_insert_tbl with successor w:sectPr).
 func (c *BlockItemContainer) AddTable(rows, cols int, widthTwips int) (*Table, error) {
 	tbl := oxml.NewTbl(rows, cols, widthTwips)
-	c.insertBeforeSectPr(tbl.E)
+	c.insertBeforeSectPr(tbl.RawElement())
 	return NewTable(tbl, c.part), nil
 }
 
@@ -80,10 +80,10 @@ func (c *BlockItemContainer) IterInnerContent() []*InnerContentItem {
 	var result []*InnerContentItem
 	for _, child := range c.element.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
-			p := &oxml.CT_P{Element: oxml.Element{E: child}}
+			p := &oxml.CT_P{Element: oxml.WrapElement(child)}
 			result = append(result, &InnerContentItem{paragraph: NewParagraph(p, c.part)})
 		} else if child.Space == "w" && child.Tag == "tbl" {
-			tbl := &oxml.CT_Tbl{Element: oxml.Element{E: child}}
+			tbl := &oxml.CT_Tbl{Element: oxml.WrapElement(child)}
 			result = append(result, &InnerContentItem{table: NewTable(tbl, c.part)})
 		}
 	}
@@ -97,7 +97,7 @@ func (c *BlockItemContainer) Paragraphs() []*Paragraph {
 	var result []*Paragraph
 	for _, child := range c.element.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
-			p := &oxml.CT_P{Element: oxml.Element{E: child}}
+			p := &oxml.CT_P{Element: oxml.WrapElement(child)}
 			result = append(result, NewParagraph(p, c.part))
 		}
 	}
@@ -111,7 +111,7 @@ func (c *BlockItemContainer) Tables() []*Table {
 	var result []*Table
 	for _, child := range c.element.ChildElements() {
 		if child.Space == "w" && child.Tag == "tbl" {
-			tbl := &oxml.CT_Tbl{Element: oxml.Element{E: child}}
+			tbl := &oxml.CT_Tbl{Element: oxml.WrapElement(child)}
 			result = append(result, NewTable(tbl, c.part))
 		}
 	}
@@ -129,7 +129,7 @@ func (c *BlockItemContainer) addP() *oxml.CT_P {
 	pE := etree.NewElement("p")
 	pE.Space = "w"
 	c.insertBeforeSectPr(pE)
-	return &oxml.CT_P{Element: oxml.Element{E: pE}}
+	return &oxml.CT_P{Element: oxml.WrapElement(pE)}
 }
 
 // insertBeforeSectPr inserts child into this container, placing it just before

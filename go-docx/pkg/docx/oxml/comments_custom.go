@@ -30,8 +30,8 @@ func (cs *CT_Comments) AddCommentFull() (*CT_Comment, error) {
 	if err != nil {
 		return nil, fmt.Errorf("oxml: failed to parse comment XML: %w", err)
 	}
-	comment := &CT_Comment{Element{E: el}}
-	cs.E.AddChild(comment.E)
+	comment := &CT_Comment{Element{e: el}}
+	cs.e.AddChild(comment.e)
 	return comment, nil
 }
 
@@ -91,11 +91,11 @@ func (cs *CT_Comments) nextAvailableCommentID() int {
 // InnerContentElements returns all <w:p> and <w:tbl> direct children in document order.
 func (c *CT_Comment) InnerContentElements() []BlockItem {
 	var result []BlockItem
-	for _, child := range c.E.ChildElements() {
+	for _, child := range c.e.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
-			result = append(result, &CT_P{Element{E: child}})
+			result = append(result, &CT_P{Element{e: child}})
 		} else if child.Space == "w" && child.Tag == "tbl" {
-			result = append(result, &CT_Tbl{Element{E: child}})
+			result = append(result, &CT_Tbl{Element{e: child}})
 		}
 	}
 	return result

@@ -13,7 +13,7 @@ import (
 
 // Clone returns a deep copy of this sectPr element with all rsid attributes removed.
 func (sp *CT_SectPr) Clone() *CT_SectPr {
-	copied := sp.E.Copy()
+	copied := sp.e.Copy()
 	// Remove rsid* attributes
 	var toRemove []string
 	for _, attr := range copied.Attr {
@@ -31,7 +31,7 @@ func (sp *CT_SectPr) Clone() *CT_SectPr {
 	for _, k := range toRemove {
 		copied.RemoveAttr(k)
 	}
-	return &CT_SectPr{Element{E: copied}}
+	return &CT_SectPr{Element{e: copied}}
 }
 
 // --- Page size ---
@@ -345,7 +345,7 @@ func (sp *CT_SectPr) RemoveHeaderRef(hfType enum.WdHeaderFooterIndex) string {
 		return ""
 	}
 	rId, _ := ref.RId()
-	sp.E.RemoveChild(ref.E)
+	sp.e.RemoveChild(ref.e)
 	return rId
 }
 
@@ -357,7 +357,7 @@ func (sp *CT_SectPr) RemoveFooterRef(hfType enum.WdHeaderFooterIndex) string {
 		return ""
 	}
 	rId, _ := ref.RId()
-	sp.E.RemoveChild(ref.E)
+	sp.e.RemoveChild(ref.e)
 	return rId
 }
 
@@ -366,7 +366,7 @@ func (sp *CT_SectPr) RemoveFooterRef(hfType enum.WdHeaderFooterIndex) string {
 // paragraph-based sectPr (w:p/w:pPr/w:sectPr) and body-based sectPr (w:body/w:sectPr).
 func (sp *CT_SectPr) PrecedingSectPr() *CT_SectPr {
 	// Determine if this is body-based or pPr-based
-	parent := sp.E.Parent()
+	parent := sp.e.Parent()
 	if parent == nil {
 		return nil
 	}
@@ -394,7 +394,7 @@ func (sp *CT_SectPr) PrecedingSectPr() *CT_SectPr {
 				if pChild.Space == "w" && pChild.Tag == "pPr" {
 					for _, ppChild := range pChild.ChildElements() {
 						if ppChild.Space == "w" && ppChild.Tag == "sectPr" {
-							allSectPrs = append(allSectPrs, &CT_SectPr{Element{E: ppChild}})
+							allSectPrs = append(allSectPrs, &CT_SectPr{Element{e: ppChild}})
 						}
 					}
 				}
@@ -402,12 +402,12 @@ func (sp *CT_SectPr) PrecedingSectPr() *CT_SectPr {
 		}
 		// Check body/sectPr
 		if child.Space == "w" && child.Tag == "sectPr" {
-			allSectPrs = append(allSectPrs, &CT_SectPr{Element{E: child}})
+			allSectPrs = append(allSectPrs, &CT_SectPr{Element{e: child}})
 		}
 	}
 
 	for i, s := range allSectPrs {
-		if s.E == sp.E && i > 0 {
+		if s.e == sp.e && i > 0 {
 			return allSectPrs[i-1]
 		}
 	}
@@ -421,11 +421,11 @@ func (sp *CT_SectPr) PrecedingSectPr() *CT_SectPr {
 // InnerContentElements returns all w:p and w:tbl direct children in document order.
 func (hf *CT_HdrFtr) InnerContentElements() []BlockItem {
 	var result []BlockItem
-	for _, child := range hf.E.ChildElements() {
+	for _, child := range hf.e.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
-			result = append(result, &CT_P{Element{E: child}})
+			result = append(result, &CT_P{Element{e: child}})
 		} else if child.Space == "w" && child.Tag == "tbl" {
-			result = append(result, &CT_Tbl{Element{E: child}})
+			result = append(result, &CT_Tbl{Element{e: child}})
 		}
 	}
 	return result

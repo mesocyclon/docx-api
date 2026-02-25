@@ -44,7 +44,7 @@ func (dp *DocumentPart) Body() (*oxml.CT_Body, error) {
 	if el == nil {
 		return nil, fmt.Errorf("parts: document element is nil")
 	}
-	doc := &oxml.CT_Document{Element: oxml.Element{E: el}}
+	doc := &oxml.CT_Document{Element: oxml.WrapElement(el)}
 	body := doc.Body()
 	if body == nil {
 		return nil, fmt.Errorf("parts: document has no body element")
@@ -417,7 +417,7 @@ func (dp *DocumentPart) InlineShapeElements() ([]*etree.Element, error) {
 		return nil, err
 	}
 	var inlines []*etree.Element
-	findInlines(body.E, &inlines)
+	findInlines(body.RawElement(), &inlines)
 	return inlines, nil
 }
 

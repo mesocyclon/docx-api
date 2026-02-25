@@ -8,7 +8,7 @@ import (
 
 func TestCT_RPr_BoldVal_TriState(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
-	rPr := &CT_RPr{Element{E: rPrEl}}
+	rPr := &CT_RPr{Element{e: rPrEl}}
 
 	// Initially nil (not set)
 	if rPr.BoldVal() != nil {
@@ -46,7 +46,7 @@ func TestCT_RPr_BoldVal_TriState(t *testing.T) {
 
 func TestCT_RPr_ItalicVal_TriState(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
-	rPr := &CT_RPr{Element{E: rPrEl}}
+	rPr := &CT_RPr{Element{e: rPrEl}}
 
 	v := true
 	if err := rPr.SetItalicVal(&v); err != nil {
@@ -60,7 +60,7 @@ func TestCT_RPr_ItalicVal_TriState(t *testing.T) {
 
 func TestCT_RPr_ColorVal(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
-	rPr := &CT_RPr{Element{E: rPrEl}}
+	rPr := &CT_RPr{Element{e: rPrEl}}
 
 	if cv, err := rPr.ColorVal(); err != nil {
 		t.Fatalf("ColorVal: %v", err)
@@ -92,7 +92,7 @@ func TestCT_RPr_ColorVal(t *testing.T) {
 
 func TestCT_RPr_SzVal(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
-	rPr := &CT_RPr{Element{E: rPrEl}}
+	rPr := &CT_RPr{Element{e: rPrEl}}
 
 	if sv, err := rPr.SzVal(); err != nil {
 		t.Fatalf("SzVal: %v", err)
@@ -124,7 +124,7 @@ func TestCT_RPr_SzVal(t *testing.T) {
 
 func TestCT_RPr_RFontsAscii(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
-	rPr := &CT_RPr{Element{E: rPrEl}}
+	rPr := &CT_RPr{Element{e: rPrEl}}
 
 	if rPr.RFontsAscii() != nil {
 		t.Error("expected nil font for new rPr")
@@ -149,7 +149,7 @@ func TestCT_RPr_RFontsAscii(t *testing.T) {
 
 func TestCT_RPr_StyleVal(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
-	rPr := &CT_RPr{Element{E: rPrEl}}
+	rPr := &CT_RPr{Element{e: rPrEl}}
 
 	s := "CommentReference"
 	if err := rPr.SetStyleVal(&s); err != nil {
@@ -175,7 +175,7 @@ func TestCT_RPr_StyleVal(t *testing.T) {
 
 func TestCT_RPr_UVal(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
-	rPr := &CT_RPr{Element{E: rPrEl}}
+	rPr := &CT_RPr{Element{e: rPrEl}}
 
 	if rPr.UVal() != nil {
 		t.Error("expected nil underline for new rPr")
@@ -200,7 +200,7 @@ func TestCT_RPr_UVal(t *testing.T) {
 
 func TestCT_RPr_Subscript(t *testing.T) {
 	rPrEl := OxmlElement("w:rPr")
-	rPr := &CT_RPr{Element{E: rPrEl}}
+	rPr := &CT_RPr{Element{e: rPrEl}}
 
 	if sub, err := rPr.Subscript(); err != nil {
 		t.Fatalf("Subscript: %v", err)
@@ -267,7 +267,7 @@ func TestCT_RPr_TriStateBooleans(t *testing.T) {
 		p := p
 		t.Run(p.name, func(t *testing.T) {
 			t.Parallel()
-			rPr := &CT_RPr{Element{E: OxmlElement("w:rPr")}}
+			rPr := &CT_RPr{Element{e: OxmlElement("w:rPr")}}
 
 			// Initially nil
 			if p.get(rPr) != nil {
@@ -312,7 +312,7 @@ func TestCT_RPr_TriStateBooleans(t *testing.T) {
 func TestCT_RPr_ColorTheme_RoundTrip(t *testing.T) {
 	t.Parallel()
 
-	rPr := &CT_RPr{Element{E: OxmlElement("w:rPr")}}
+	rPr := &CT_RPr{Element{e: OxmlElement("w:rPr")}}
 
 	// Initially nil
 	if ct, err := rPr.ColorTheme(); err != nil {
@@ -347,7 +347,7 @@ func TestCT_RPr_ColorTheme_RoundTrip(t *testing.T) {
 func TestCT_RPr_HighlightVal_RoundTrip(t *testing.T) {
 	t.Parallel()
 
-	rPr := &CT_RPr{Element{E: OxmlElement("w:rPr")}}
+	rPr := &CT_RPr{Element{e: OxmlElement("w:rPr")}}
 
 	if hv, err := rPr.HighlightVal(); err != nil {
 		t.Fatalf("HighlightVal: %v", err)
@@ -378,7 +378,7 @@ func TestCT_RPr_HighlightVal_RoundTrip(t *testing.T) {
 func TestCT_RPr_Superscript_RoundTrip(t *testing.T) {
 	t.Parallel()
 
-	rPr := &CT_RPr{Element{E: OxmlElement("w:rPr")}}
+	rPr := &CT_RPr{Element{e: OxmlElement("w:rPr")}}
 
 	// Initially nil
 	if sup, err := rPr.Superscript(); err != nil {
@@ -413,7 +413,7 @@ func TestCT_RPr_Superscript_RoundTrip(t *testing.T) {
 func TestCT_RPr_RFontsHAnsi_RoundTrip(t *testing.T) {
 	t.Parallel()
 
-	rPr := &CT_RPr{Element{E: OxmlElement("w:rPr")}}
+	rPr := &CT_RPr{Element{e: OxmlElement("w:rPr")}}
 
 	if rPr.RFontsHAnsi() != nil {
 		t.Error("expected nil hAnsi initially")

@@ -68,8 +68,8 @@ func TestRoundTrip_DefaultDocx(t *testing.T) {
 	}
 
 	// Verify body XML is preserved — compare child element count as a basic check
-	children1 := body1.E.ChildElements()
-	children2 := body2.E.ChildElements()
+	children1 := body1.RawElement().ChildElements()
+	children2 := body2.RawElement().ChildElements()
 	if len(children1) != len(children2) {
 		t.Errorf("body child count: round1=%d, round2=%d", len(children1), len(children2))
 	}

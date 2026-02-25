@@ -12,7 +12,7 @@ import (
 // Handles both direct run children and runs inside hyperlinks.
 func (pb *CT_LastRenderedPageBreak) EnclosingP() *CT_P {
 	// Walk up: lastRenderedPageBreak → w:r → w:p (or w:r → w:hyperlink → w:p)
-	parent := pb.E.Parent()
+	parent := pb.e.Parent()
 	if parent == nil {
 		return nil
 	}
@@ -27,14 +27,14 @@ func (pb *CT_LastRenderedPageBreak) EnclosingP() *CT_P {
 		if ggp == nil {
 			return nil
 		}
-		return &CT_P{Element{E: ggp}}
+		return &CT_P{Element{e: ggp}}
 	}
-	return &CT_P{Element{E: grandparent}}
+	return &CT_P{Element{e: grandparent}}
 }
 
 // IsInHyperlink returns true when this page-break is embedded in a hyperlink run.
 func (pb *CT_LastRenderedPageBreak) IsInHyperlink() bool {
-	parent := pb.E.Parent() // w:r
+	parent := pb.e.Parent() // w:r
 	if parent == nil {
 		return false
 	}
@@ -59,20 +59,20 @@ func (pb *CT_LastRenderedPageBreak) PrecedesAllContent() bool {
 
 	// Check that this is in the first w:r of the paragraph
 	// and no content-bearing sibling precedes it in that run
-	parent := pb.E.Parent() // enclosing w:r
+	parent := pb.e.Parent() // enclosing w:r
 	if parent == nil {
 		return false
 	}
 
 	// Is this the first run (ignoring w:pPr)?
-	firstRun := firstRunInP(p.E)
+	firstRun := firstRunInP(p.e)
 	if firstRun == nil || firstRun != parent {
 		return false
 	}
 
 	// Check no content-bearing elements precede this lrpb in the run
 	for _, sibling := range parent.ChildElements() {
-		if sibling == pb.E {
+		if sibling == pb.e {
 			return true // reached ourselves without seeing content
 		}
 		if isRunInnerContent(sibling) {
@@ -93,10 +93,10 @@ func (pb *CT_LastRenderedPageBreak) FollowsAllContent() bool {
 		return false
 	}
 
-	parent := pb.E.Parent() // enclosing w:r
+	parent := pb.e.Parent() // enclosing w:r
 
 	// Is this the last run?
-	lastRun := lastRunInP(p.E)
+	lastRun := lastRunInP(p.e)
 	if lastRun == nil || lastRun != parent {
 		return false
 	}
@@ -104,7 +104,7 @@ func (pb *CT_LastRenderedPageBreak) FollowsAllContent() bool {
 	// Check no content-bearing elements follow this lrpb in the run
 	pastBreak := false
 	for _, sibling := range parent.ChildElements() {
-		if sibling == pb.E {
+		if sibling == pb.e {
 			pastBreak = true
 			continue
 		}
@@ -141,11 +141,11 @@ func (pb *CT_LastRenderedPageBreak) precedingFragInRun() (*CT_P, error) {
 	}
 
 	// Deep copy the paragraph
-	cloneP := p.E.Copy()
-	enclosingR := pb.E.Parent()
+	cloneP := p.e.Copy()
+	enclosingR := pb.e.Parent()
 
 	// Find the corresponding run and lrpb in the clone
-	cloneLrpb, cloneRun := findLrpbInClone(cloneP, enclosingR, pb.E)
+	cloneLrpb, cloneRun := findLrpbInClone(cloneP, enclosingR, pb.e)
 	if cloneLrpb == nil || cloneRun == nil {
 		return nil, fmt.Errorf("could not locate page break in clone")
 	}
@@ -157,7 +157,7 @@ func (pb *CT_LastRenderedPageBreak) precedingFragInRun() (*CT_P, error) {
 	removeFollowingSiblings(cloneRun, cloneLrpb)
 	cloneRun.RemoveChild(cloneLrpb)
 
-	return &CT_P{Element{E: cloneP}}, nil
+	return &CT_P{Element{e: cloneP}}, nil
 }
 
 // followingFragInRun creates the following fragment when break is in a plain run.
@@ -167,10 +167,10 @@ func (pb *CT_LastRenderedPageBreak) followingFragInRun() (*CT_P, error) {
 		return nil, fmt.Errorf("no enclosing <w:p> found")
 	}
 
-	cloneP := p.E.Copy()
-	enclosingR := pb.E.Parent()
+	cloneP := p.e.Copy()
+	enclosingR := pb.e.Parent()
 
-	cloneLrpb, cloneRun := findLrpbInClone(cloneP, enclosingR, pb.E)
+	cloneLrpb, cloneRun := findLrpbInClone(cloneP, enclosingR, pb.e)
 	if cloneLrpb == nil || cloneRun == nil {
 		return nil, fmt.Errorf("could not locate page break in clone")
 	}
@@ -182,7 +182,7 @@ func (pb *CT_LastRenderedPageBreak) followingFragInRun() (*CT_P, error) {
 	removePrecedingRunContent(cloneRun, cloneLrpb)
 	cloneRun.RemoveChild(cloneLrpb)
 
-	return &CT_P{Element{E: cloneP}}, nil
+	return &CT_P{Element{e: cloneP}}, nil
 }
 
 // precedingFragInHlink creates the preceding fragment when break is inside a hyperlink.
@@ -192,8 +192,8 @@ func (pb *CT_LastRenderedPageBreak) precedingFragInHlink() (*CT_P, error) {
 		return nil, fmt.Errorf("no enclosing <w:p> found")
 	}
 
-	cloneP := p.E.Copy()
-	enclosingR := pb.E.Parent()
+	cloneP := p.e.Copy()
+	enclosingR := pb.e.Parent()
 	enclosingHlink := enclosingR.Parent()
 
 	// Find the hyperlink in clone by matching position
@@ -215,7 +215,7 @@ func (pb *CT_LastRenderedPageBreak) precedingFragInHlink() (*CT_P, error) {
 	// (entire hyperlink goes into preceding fragment)
 	cloneLrpb.Parent().RemoveChild(cloneLrpb)
 
-	return &CT_P{Element{E: cloneP}}, nil
+	return &CT_P{Element{e: cloneP}}, nil
 }
 
 // followingFragInHlink creates the following fragment when break is inside a hyperlink.
@@ -225,8 +225,8 @@ func (pb *CT_LastRenderedPageBreak) followingFragInHlink() (*CT_P, error) {
 		return nil, fmt.Errorf("no enclosing <w:p> found")
 	}
 
-	cloneP := p.E.Copy()
-	enclosingR := pb.E.Parent()
+	cloneP := p.e.Copy()
+	enclosingR := pb.e.Parent()
 	enclosingHlink := enclosingR.Parent()
 
 	cloneHlink := findMatchingChild(cloneP, enclosingHlink)
@@ -240,7 +240,7 @@ func (pb *CT_LastRenderedPageBreak) followingFragInHlink() (*CT_P, error) {
 	// Remove the entire hyperlink (it belongs to the preceding fragment)
 	cloneP.RemoveChild(cloneHlink)
 
-	return &CT_P{Element{E: cloneP}}, nil
+	return &CT_P{Element{e: cloneP}}, nil
 }
 
 // --- Helper functions ---

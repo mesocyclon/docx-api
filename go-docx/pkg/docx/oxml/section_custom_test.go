@@ -7,7 +7,7 @@ import (
 )
 
 func TestCT_SectPr_PageWidth_RoundTrip(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
+	sp := &CT_SectPr{Element{e: OxmlElement("w:sectPr")}}
 	if v, err := sp.PageWidth(); err != nil {
 		t.Fatalf("PageWidth: %v", err)
 	} else if v != nil {
@@ -35,7 +35,7 @@ func TestCT_SectPr_PageWidth_RoundTrip(t *testing.T) {
 }
 
 func TestCT_SectPr_PageHeight_RoundTrip(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
+	sp := &CT_SectPr{Element{e: OxmlElement("w:sectPr")}}
 	h := 15840
 	if err := sp.SetPageHeight(&h); err != nil {
 		t.Fatalf("SetPageHeight: %v", err)
@@ -50,7 +50,7 @@ func TestCT_SectPr_PageHeight_RoundTrip(t *testing.T) {
 }
 
 func TestCT_SectPr_Orientation_RoundTrip(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
+	sp := &CT_SectPr{Element{e: OxmlElement("w:sectPr")}}
 	// Default portrait
 	if o, err := sp.Orientation(); err != nil {
 		t.Fatalf("Orientation: %v", err)
@@ -79,7 +79,7 @@ func TestCT_SectPr_Orientation_RoundTrip(t *testing.T) {
 }
 
 func TestCT_SectPr_StartType_RoundTrip(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
+	sp := &CT_SectPr{Element{e: OxmlElement("w:sectPr")}}
 	if st, err := sp.StartType(); err != nil {
 		t.Fatalf("StartType: %v", err)
 	} else if st != enum.WdSectionStartNewPage {
@@ -102,7 +102,7 @@ func TestCT_SectPr_StartType_RoundTrip(t *testing.T) {
 }
 
 func TestCT_SectPr_TitlePg_RoundTrip(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
+	sp := &CT_SectPr{Element{e: OxmlElement("w:sectPr")}}
 	if sp.TitlePgVal() {
 		t.Error("expected false by default")
 	}
@@ -121,7 +121,7 @@ func TestCT_SectPr_TitlePg_RoundTrip(t *testing.T) {
 }
 
 func TestCT_SectPr_Margins_RoundTrip(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
+	sp := &CT_SectPr{Element{e: OxmlElement("w:sectPr")}}
 
 	top := 1440
 	if err := sp.SetTopMargin(&top); err != nil {
@@ -192,12 +192,12 @@ func TestCT_SectPr_Margins_RoundTrip(t *testing.T) {
 }
 
 func TestCT_SectPr_Clone(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
+	sp := &CT_SectPr{Element{e: OxmlElement("w:sectPr")}}
 	w := 12240
 	if err := sp.SetPageWidth(&w); err != nil {
 		t.Fatalf("SetPageWidth: %v", err)
 	}
-	sp.E.CreateAttr("w:rsidR", "00A12345")
+	sp.e.CreateAttr("w:rsidR", "00A12345")
 
 	cloned := sp.Clone()
 	// Width should be preserved
@@ -223,7 +223,7 @@ func TestCT_SectPr_Clone(t *testing.T) {
 }
 
 func TestCT_SectPr_HeaderFooterRef(t *testing.T) {
-	sp := &CT_SectPr{Element{E: OxmlElement("w:sectPr")}}
+	sp := &CT_SectPr{Element{e: OxmlElement("w:sectPr")}}
 
 	// Add header ref
 	_, err := sp.AddHeaderRef(enum.WdHeaderFooterIndexPrimary, "rId1")
@@ -275,7 +275,7 @@ func TestCT_SectPr_HeaderFooterRef(t *testing.T) {
 }
 
 func TestCT_HdrFtr_InnerContentElements(t *testing.T) {
-	hf := &CT_HdrFtr{Element{E: OxmlElement("w:hdr")}}
+	hf := &CT_HdrFtr{Element{e: OxmlElement("w:hdr")}}
 	hf.AddP()
 	hf.AddTbl()
 	elems := hf.InnerContentElements()

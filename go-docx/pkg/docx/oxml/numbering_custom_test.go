@@ -7,7 +7,7 @@ import (
 func TestCT_Numbering_NextNumId(t *testing.T) {
 	xml := `<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"></w:numbering>`
 	el, _ := ParseXml([]byte(xml))
-	n := &CT_Numbering{Element{E: el}}
+	n := &CT_Numbering{Element{e: el}}
 
 	if got := n.NextNumId(); got != 1 {
 		t.Errorf("expected next numId=1 on empty, got %d", got)
@@ -17,7 +17,7 @@ func TestCT_Numbering_NextNumId(t *testing.T) {
 func TestCT_Numbering_AddNumWithAbstractNumId(t *testing.T) {
 	xml := `<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"></w:numbering>`
 	el, _ := ParseXml([]byte(xml))
-	n := &CT_Numbering{Element{E: el}}
+	n := &CT_Numbering{Element{e: el}}
 
 	num, err := n.AddNumWithAbstractNumId(0)
 	if err != nil {
@@ -64,7 +64,7 @@ func TestCT_Numbering_NumHavingNumId(t *testing.T) {
 		`<w:num w:numId="7"><w:abstractNumId w:val="1"/></w:num>` +
 		`</w:numbering>`
 	el, _ := ParseXml([]byte(xml))
-	n := &CT_Numbering{Element{E: el}}
+	n := &CT_Numbering{Element{e: el}}
 
 	num := n.NumHavingNumId(7)
 	if num == nil {
@@ -82,7 +82,7 @@ func TestCT_Numbering_NextNumId_GapFilling(t *testing.T) {
 		`<w:num w:numId="3"><w:abstractNumId w:val="0"/></w:num>` +
 		`</w:numbering>`
 	el, _ := ParseXml([]byte(xml))
-	n := &CT_Numbering{Element{E: el}}
+	n := &CT_Numbering{Element{e: el}}
 
 	// Should find gap at 2
 	if got := n.NextNumId(); got != 2 {
@@ -121,7 +121,7 @@ func TestCT_NumPr_ValAccessors(t *testing.T) {
 		`<w:numId w:val="5"/>` +
 		`</w:numPr>`
 	el, _ := ParseXml([]byte(xml))
-	np := &CT_NumPr{Element{E: el}}
+	np := &CT_NumPr{Element{e: el}}
 
 	ilvl, err := np.IlvlVal()
 	if err != nil {
@@ -142,7 +142,7 @@ func TestCT_NumPr_ValAccessors(t *testing.T) {
 func TestCT_NumPr_ValAccessors_Empty(t *testing.T) {
 	xml := `<w:numPr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`
 	el, _ := ParseXml([]byte(xml))
-	np := &CT_NumPr{Element{E: el}}
+	np := &CT_NumPr{Element{e: el}}
 
 	if iv, err := np.IlvlVal(); err != nil {
 		t.Fatalf("IlvlVal: %v", err)

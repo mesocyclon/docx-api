@@ -28,7 +28,7 @@ func (sp *StylesPart) Styles() (*oxml.CT_Styles, error) {
 	if el == nil {
 		return nil, fmt.Errorf("parts: styles part element is nil")
 	}
-	return &oxml.CT_Styles{Element: oxml.Element{E: el}}, nil
+	return &oxml.CT_Styles{Element: oxml.WrapElement(el)}, nil
 }
 
 // DefaultStylesPart creates a new StylesPart with the default styles template.

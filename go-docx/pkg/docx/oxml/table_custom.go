@@ -16,7 +16,7 @@ import (
 // Width (in twips) is distributed evenly among columns.
 func NewTbl(rows, cols int, widthTwips int) *CT_Tbl {
 	tblE := OxmlElement("w:tbl")
-	tbl := &CT_Tbl{Element{E: tblE}}
+	tbl := &CT_Tbl{Element{e: tblE}}
 
 	// tblPr
 	tblPrE := tblE.CreateElement("tblPr")
@@ -326,14 +326,14 @@ func (pr *CT_TblPr) SetStyleVal(v string) error {
 // TrIdx returns the index of this w:tr within its parent w:tbl.
 // Returns -1 if parent is not found.
 func (r *CT_Row) TrIdx() int {
-	parent := r.E.Parent()
+	parent := r.e.Parent()
 	if parent == nil {
 		return -1
 	}
 	idx := 0
 	for _, child := range parent.ChildElements() {
 		if child.Space == "w" && child.Tag == "tr" {
-			if child == r.E {
+			if child == r.e {
 				return idx
 			}
 			idx++
@@ -518,7 +518,7 @@ func NewTc() *CT_Tc {
 	tcE := OxmlElement("w:tc")
 	pE := tcE.CreateElement("p")
 	pE.Space = "w"
-	return &CT_Tc{Element{E: tcE}}
+	return &CT_Tc{Element{e: tcE}}
 }
 
 // GridSpanVal returns the number of grid columns this cell spans (default 1).
@@ -595,11 +595,11 @@ func (tc *CT_Tc) SetVAlignVal(v *enum.WdCellVerticalAlignment) error {
 // InnerContentElements returns all w:p and w:tbl direct children in document order.
 func (tc *CT_Tc) InnerContentElements() []BlockItem {
 	var result []BlockItem
-	for _, child := range tc.E.ChildElements() {
+	for _, child := range tc.e.ChildElements() {
 		if child.Space == "w" && child.Tag == "p" {
-			result = append(result, &CT_P{Element{E: child}})
+			result = append(result, &CT_P{Element{e: child}})
 		} else if child.Space == "w" && child.Tag == "tbl" {
-			result = append(result, &CT_Tbl{Element{E: child}})
+			result = append(result, &CT_Tbl{Element{e: child}})
 		}
 	}
 	return result
@@ -608,7 +608,7 @@ func (tc *CT_Tc) InnerContentElements() []BlockItem {
 // IterBlockItems generates all block-level content elements: w:p, w:tbl, w:sdt.
 func (tc *CT_Tc) IterBlockItems() []*etree.Element {
 	var result []*etree.Element
-	for _, child := range tc.E.ChildElements() {
+	for _, child := range tc.e.ChildElements() {
 		if child.Space == "w" {
 			switch child.Tag {
 			case "p", "tbl", "sdt":
@@ -624,13 +624,13 @@ func (tc *CT_Tc) IterBlockItems() []*etree.Element {
 // Caller must add a w:p afterwards.
 func (tc *CT_Tc) ClearContent() {
 	var toRemove []*etree.Element
-	for _, child := range tc.E.ChildElements() {
+	for _, child := range tc.e.ChildElements() {
 		if !(child.Space == "w" && child.Tag == "tcPr") {
 			toRemove = append(toRemove, child)
 		}
 	}
 	for _, child := range toRemove {
-		tc.E.RemoveChild(child)
+		tc.e.RemoveChild(child)
 	}
 }
 
@@ -644,12 +644,12 @@ func (tc *CT_Tc) GridOffset() (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	for _, child := range tr.E.ChildElements() {
+	for _, child := range tr.e.ChildElements() {
 		if child.Space == "w" && child.Tag == "tc" {
-			if child == tc.E {
+			if child == tc.e {
 				return offset, nil
 			}
-			sibling := &CT_Tc{Element{E: child}}
+			sibling := &CT_Tc{Element{e: child}}
 			span, err := sibling.GridSpanVal()
 			if err != nil {
 				return 0, err
@@ -722,7 +722,7 @@ func (tc *CT_Tc) IsEmpty() bool {
 	if !(b.Space == "w" && b.Tag == "p") {
 		return false
 	}
-	p := &CT_P{Element{E: b}}
+	p := &CT_P{Element{e: b}}
 	return len(p.RList()) == 0
 }
 
@@ -733,11 +733,11 @@ func (tc *CT_Tc) NextTc() *CT_Tc {
 	if tr == nil {
 		return nil
 	}
-	for _, child := range tr.E.ChildElements() {
+	for _, child := range tr.e.ChildElements() {
 		if found && child.Space == "w" && child.Tag == "tc" {
-			return &CT_Tc{Element{E: child}}
+			return &CT_Tc{Element{e: child}}
 		}
-		if child == tc.E {
+		if child == tc.e {
 			found = true
 		}
 	}
@@ -766,7 +766,7 @@ func (tc *CT_Tc) AddWidthOf(other *CT_Tc) error {
 // MoveContentTo appends the block-level content of this cell to other.
 // Leaves this cell with a single empty w:p.
 func (tc *CT_Tc) MoveContentTo(other *CT_Tc) {
-	if other.E == tc.E {
+	if other.e == tc.e {
 		return
 	}
 	if tc.IsEmpty() {
@@ -776,19 +776,19 @@ func (tc *CT_Tc) MoveContentTo(other *CT_Tc) {
 	other.removeTrailingEmptyP()
 	// Move all block items
 	for _, block := range tc.IterBlockItems() {
-		tc.E.RemoveChild(block)
-		other.E.AddChild(block)
+		tc.e.RemoveChild(block)
+		other.e.AddChild(block)
 	}
 	// Restore minimum required p
-	pE := tc.E.CreateElement("p")
+	pE := tc.e.CreateElement("p")
 	pE.Space = "w"
 }
 
 // RemoveElement removes this tc from its parent row.
 func (tc *CT_Tc) RemoveElement() {
-	parent := tc.E.Parent()
+	parent := tc.e.Parent()
 	if parent != nil {
-		parent.RemoveChild(tc.E)
+		parent.RemoveChild(tc.e)
 	}
 }
 
@@ -821,11 +821,11 @@ func (tc *CT_Tc) Merge(other *CT_Tc) (*CT_Tc, error) {
 // --- private helpers ---
 
 func (tc *CT_Tc) parentTr() *CT_Row {
-	p := tc.E.Parent()
+	p := tc.e.Parent()
 	if p == nil || !(p.Space == "w" && p.Tag == "tr") {
 		return nil
 	}
-	return &CT_Row{Element{E: p}}
+	return &CT_Row{Element{e: p}}
 }
 
 func (tc *CT_Tc) parentTbl() *CT_Tbl {
@@ -833,11 +833,11 @@ func (tc *CT_Tc) parentTbl() *CT_Tbl {
 	if tr == nil {
 		return nil
 	}
-	p := tr.E.Parent()
+	p := tr.e.Parent()
 	if p == nil || !(p.Space == "w" && p.Tag == "tbl") {
 		return nil
 	}
-	return &CT_Tbl{Element{E: p}}
+	return &CT_Tbl{Element{e: p}}
 }
 
 func (tc *CT_Tc) trIdx() int {
@@ -899,11 +899,11 @@ func (tc *CT_Tc) removeTrailingEmptyP() {
 	if !(last.Space == "w" && last.Tag == "p") {
 		return
 	}
-	p := &CT_P{Element{E: last}}
+	p := &CT_P{Element{e: last}}
 	if len(p.RList()) > 0 {
 		return
 	}
-	tc.E.RemoveChild(last)
+	tc.e.RemoveChild(last)
 }
 
 func (tc *CT_Tc) spanDimensions(other *CT_Tc) (top, left, height, width int, err error) {
@@ -990,7 +990,7 @@ func (tc *CT_Tc) spanDimensions(other *CT_Tc) (top, left, height, width int, err
 
 func (tc *CT_Tc) growTo(width, height int, topTc *CT_Tc) error {
 	vMerge := ""
-	if topTc.E != tc.E {
+	if topTc.e != tc.e {
 		vMerge = "continue"
 	} else if height > 1 {
 		vMerge = "restart"
@@ -1194,14 +1194,14 @@ func (tw *CT_TblWidth) SetWidthDxa(twips int) error {
 
 // GridColIdx returns the index of this gridCol among its siblings.
 func (gc *CT_TblGridCol) GridColIdx() int {
-	parent := gc.E.Parent()
+	parent := gc.e.Parent()
 	if parent == nil {
 		return -1
 	}
 	idx := 0
 	for _, child := range parent.ChildElements() {
 		if child.Space == "w" && child.Tag == "gridCol" {
-			if child == gc.E {
+			if child == gc.e {
 				return idx
 			}
 			idx++

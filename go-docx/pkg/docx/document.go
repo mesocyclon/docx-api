@@ -26,7 +26,7 @@ func newDocument(docPart *parts.DocumentPart, wmlPkg *parts.WmlPackage) (*Docume
 	if el == nil {
 		return nil, fmt.Errorf("docx: document part element is nil")
 	}
-	ctDoc := &oxml.CT_Document{Element: oxml.Element{E: el}}
+	ctDoc := &oxml.CT_Document{Element: oxml.WrapElement(el)}
 	return &Document{
 		element: ctDoc,
 		part:    docPart,
@@ -209,10 +209,10 @@ func (d *Document) CoreProperties() (*CoreProperties, error) {
 // Mirrors Python Document.inline_shapes → self._part.inline_shapes.
 func (d *Document) InlineShapes() *InlineShapes {
 	body := d.element.Body()
-	if body == nil || body.E == nil {
+	if body == nil || body.RawElement() == nil {
 		return NewInlineShapes(etree.NewElement("body"))
 	}
-	return NewInlineShapes(body.E)
+	return NewInlineShapes(body.RawElement())
 }
 
 // IterInnerContent returns all paragraphs and tables in document order.

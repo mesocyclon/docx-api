@@ -30,7 +30,7 @@ func (cp *CorePropertiesPart) CT() (*oxml.CT_CoreProperties, error) {
 	if el == nil {
 		return nil, fmt.Errorf("parts: core properties part element is nil")
 	}
-	return &oxml.CT_CoreProperties{Element: oxml.Element{E: el}}, nil
+	return &oxml.CT_CoreProperties{Element: oxml.WrapElement(el)}, nil
 }
 
 // DefaultCorePropertiesPart creates a new CorePropertiesPart initialized with
@@ -48,7 +48,7 @@ func DefaultCorePropertiesPart(pkg *opc.OpcPackage) (*CorePropertiesPart, error)
 	}
 
 	pn := opc.PackURI("/docProps/core.xml")
-	xp := opc.NewXmlPartFromElement(pn, opc.CTOpcCoreProperties, ct.E, pkg)
+	xp := opc.NewXmlPartFromElement(pn, opc.CTOpcCoreProperties, ct.RawElement(), pkg)
 	part := NewCorePropertiesPart(xp)
 
 	// Set default values — mirrors Python CorePropertiesPart.default

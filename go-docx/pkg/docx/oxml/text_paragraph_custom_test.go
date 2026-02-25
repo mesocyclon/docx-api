@@ -9,7 +9,7 @@ import (
 func TestCT_P_ParagraphText(t *testing.T) {
 	// Build <w:p><w:r><w:t>Hello </w:t></w:r><w:r><w:t>World</w:t></w:r></w:p>
 	pEl := OxmlElement("w:p")
-	p := &CT_P{Element{E: pEl}}
+	p := &CT_P{Element{e: pEl}}
 
 	r1 := p.AddR()
 	r1.AddTWithText("Hello ")
@@ -25,7 +25,7 @@ func TestCT_P_ParagraphText(t *testing.T) {
 
 func TestCT_P_ParagraphTextWithHyperlink(t *testing.T) {
 	pEl := OxmlElement("w:p")
-	p := &CT_P{Element{E: pEl}}
+	p := &CT_P{Element{e: pEl}}
 
 	r1 := p.AddR()
 	r1.AddTWithText("Click ")
@@ -45,7 +45,7 @@ func TestCT_P_ParagraphTextWithHyperlink(t *testing.T) {
 
 func TestCT_P_Alignment_RoundTrip(t *testing.T) {
 	pEl := OxmlElement("w:p")
-	p := &CT_P{Element{E: pEl}}
+	p := &CT_P{Element{e: pEl}}
 
 	// Initially nil
 	if a, err := p.Alignment(); err != nil {
@@ -80,7 +80,7 @@ func TestCT_P_Alignment_RoundTrip(t *testing.T) {
 
 func TestCT_P_Style_RoundTrip(t *testing.T) {
 	pEl := OxmlElement("w:p")
-	p := &CT_P{Element{E: pEl}}
+	p := &CT_P{Element{e: pEl}}
 
 	if s, err := p.Style(); err != nil {
 		t.Fatalf("Style: %v", err)
@@ -112,7 +112,7 @@ func TestCT_P_Style_RoundTrip(t *testing.T) {
 
 func TestCT_P_ClearContent(t *testing.T) {
 	pEl := OxmlElement("w:p")
-	p := &CT_P{Element{E: pEl}}
+	p := &CT_P{Element{e: pEl}}
 
 	p.GetOrAddPPr() // adds pPr
 	p.AddR()
@@ -139,7 +139,7 @@ func TestCT_P_AddPBefore(t *testing.T) {
 	body := OxmlElement("w:body")
 	pEl := OxmlElement("w:p")
 	body.AddChild(pEl)
-	p := &CT_P{Element{E: pEl}}
+	p := &CT_P{Element{e: pEl}}
 
 	newP := p.AddPBefore()
 	if newP == nil {
@@ -151,17 +151,17 @@ func TestCT_P_AddPBefore(t *testing.T) {
 	if len(children) != 2 {
 		t.Fatalf("expected 2 children, got %d", len(children))
 	}
-	if children[0] != newP.E {
+	if children[0] != newP.e {
 		t.Error("new paragraph should be first child")
 	}
-	if children[1] != p.E {
+	if children[1] != p.e {
 		t.Error("original paragraph should be second child")
 	}
 }
 
 func TestCT_P_InnerContentElements(t *testing.T) {
 	pEl := OxmlElement("w:p")
-	p := &CT_P{Element{E: pEl}}
+	p := &CT_P{Element{e: pEl}}
 
 	p.GetOrAddPPr()
 	p.AddR()

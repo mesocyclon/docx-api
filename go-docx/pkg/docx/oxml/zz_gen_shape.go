@@ -23,7 +23,7 @@ func (e *CT_Inline) Extent() (*CT_PositiveSize2D, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "wp:extent", e.Tag())
 	}
-	return &CT_PositiveSize2D{Element{E: child}}, nil
+	return &CT_PositiveSize2D{Element{e: child}}, nil
 }
 
 // DocPr returns the required <wp:docPr> child element.
@@ -33,7 +33,7 @@ func (e *CT_Inline) DocPr() (*CT_NonVisualDrawingProps, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "wp:docPr", e.Tag())
 	}
-	return &CT_NonVisualDrawingProps{Element{E: child}}, nil
+	return &CT_NonVisualDrawingProps{Element{e: child}}, nil
 }
 
 // Graphic returns the required <a:graphic> child element.
@@ -43,7 +43,7 @@ func (e *CT_Inline) Graphic() (*CT_GraphicalObject, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "a:graphic", e.Tag())
 	}
-	return &CT_GraphicalObject{Element{E: child}}, nil
+	return &CT_GraphicalObject{Element{e: child}}, nil
 }
 
 // --- CT_Anchor ---
@@ -67,7 +67,7 @@ func (e *CT_Picture) NvPicPr() (*CT_PictureNonVisual, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "pic:nvPicPr", e.Tag())
 	}
-	return &CT_PictureNonVisual{Element{E: child}}, nil
+	return &CT_PictureNonVisual{Element{e: child}}, nil
 }
 
 // BlipFill returns the required <pic:blipFill> child element.
@@ -77,7 +77,7 @@ func (e *CT_Picture) BlipFill() (*CT_BlipFillProperties, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "pic:blipFill", e.Tag())
 	}
-	return &CT_BlipFillProperties{Element{E: child}}, nil
+	return &CT_BlipFillProperties{Element{e: child}}, nil
 }
 
 // SpPr returns the required <pic:spPr> child element.
@@ -87,7 +87,7 @@ func (e *CT_Picture) SpPr() (*CT_ShapeProperties, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "pic:spPr", e.Tag())
 	}
-	return &CT_ShapeProperties{Element{E: child}}, nil
+	return &CT_ShapeProperties{Element{e: child}}, nil
 }
 
 // --- CT_PictureNonVisual ---
@@ -104,7 +104,7 @@ func (e *CT_PictureNonVisual) CNvPr() (*CT_NonVisualDrawingProps, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "pic:cNvPr", e.Tag())
 	}
-	return &CT_NonVisualDrawingProps{Element{E: child}}, nil
+	return &CT_NonVisualDrawingProps{Element{e: child}}, nil
 }
 
 // --- CT_NonVisualDrawingProps ---
@@ -177,7 +177,7 @@ func (e *CT_GraphicalObject) GraphicData() (*CT_GraphicalObjectData, error) {
 	if child == nil {
 		return nil, fmt.Errorf("required <%s> child not present in <%s>", "a:graphicData", e.Tag())
 	}
-	return &CT_GraphicalObjectData{Element{E: child}}, nil
+	return &CT_GraphicalObjectData{Element{e: child}}, nil
 }
 
 // --- CT_GraphicalObjectData ---
@@ -193,7 +193,7 @@ func (e *CT_GraphicalObjectData) Pic() *CT_Picture {
 	if child == nil {
 		return nil
 	}
-	return &CT_Picture{Element{E: child}}
+	return &CT_Picture{Element{e: child}}
 }
 
 // GetOrAddPic returns <pic:pic>, creating it if not present.
@@ -220,12 +220,12 @@ func (e *CT_GraphicalObjectData) addPic() *CT_Picture {
 // newPic creates a detached <pic:pic> element.
 func (e *CT_GraphicalObjectData) newPic() *CT_Picture {
 	el := OxmlElement("pic:pic")
-	return &CT_Picture{Element{E: el}}
+	return &CT_Picture{Element{e: el}}
 }
 
 // insertPic inserts child before first successor.
 func (e *CT_GraphicalObjectData) insertPic(child *CT_Picture) *CT_Picture {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -261,7 +261,7 @@ func (e *CT_BlipFillProperties) Blip() *CT_Blip {
 	if child == nil {
 		return nil
 	}
-	return &CT_Blip{Element{E: child}}
+	return &CT_Blip{Element{e: child}}
 }
 
 // GetOrAddBlip returns <a:blip>, creating it if not present.
@@ -288,12 +288,12 @@ func (e *CT_BlipFillProperties) addBlip() *CT_Blip {
 // newBlip creates a detached <a:blip> element.
 func (e *CT_BlipFillProperties) newBlip() *CT_Blip {
 	el := OxmlElement("a:blip")
-	return &CT_Blip{Element{E: el}}
+	return &CT_Blip{Element{e: el}}
 }
 
 // insertBlip inserts child before first successor.
 func (e *CT_BlipFillProperties) insertBlip(child *CT_Blip) *CT_Blip {
-	e.InsertElementBefore(child.E, "a:srcRect", "a:tile", "a:stretch")
+	e.InsertElementBefore(child.e, "a:srcRect", "a:tile", "a:stretch")
 	return child
 }
 
@@ -365,7 +365,7 @@ func (e *CT_ShapeProperties) Xfrm() *CT_Transform2D {
 	if child == nil {
 		return nil
 	}
-	return &CT_Transform2D{Element{E: child}}
+	return &CT_Transform2D{Element{e: child}}
 }
 
 // GetOrAddXfrm returns <a:xfrm>, creating it if not present.
@@ -392,12 +392,12 @@ func (e *CT_ShapeProperties) addXfrm() *CT_Transform2D {
 // newXfrm creates a detached <a:xfrm> element.
 func (e *CT_ShapeProperties) newXfrm() *CT_Transform2D {
 	el := OxmlElement("a:xfrm")
-	return &CT_Transform2D{Element{E: el}}
+	return &CT_Transform2D{Element{e: el}}
 }
 
 // insertXfrm inserts child before first successor.
 func (e *CT_ShapeProperties) insertXfrm(child *CT_Transform2D) *CT_Transform2D {
-	e.InsertElementBefore(child.E, "a:custGeom", "a:prstGeom", "a:ln", "a:effectLst", "a:effectDag", "a:scene3d", "a:sp3d", "a:extLst")
+	e.InsertElementBefore(child.e, "a:custGeom", "a:prstGeom", "a:ln", "a:effectLst", "a:effectDag", "a:scene3d", "a:sp3d", "a:extLst")
 	return child
 }
 
@@ -414,7 +414,7 @@ func (e *CT_Transform2D) Off() *CT_Point2D {
 	if child == nil {
 		return nil
 	}
-	return &CT_Point2D{Element{E: child}}
+	return &CT_Point2D{Element{e: child}}
 }
 
 // GetOrAddOff returns <a:off>, creating it if not present.
@@ -441,12 +441,12 @@ func (e *CT_Transform2D) addOff() *CT_Point2D {
 // newOff creates a detached <a:off> element.
 func (e *CT_Transform2D) newOff() *CT_Point2D {
 	el := OxmlElement("a:off")
-	return &CT_Point2D{Element{E: el}}
+	return &CT_Point2D{Element{e: el}}
 }
 
 // insertOff inserts child before first successor.
 func (e *CT_Transform2D) insertOff(child *CT_Point2D) *CT_Point2D {
-	e.InsertElementBefore(child.E, "a:ext")
+	e.InsertElementBefore(child.e, "a:ext")
 	return child
 }
 
@@ -456,7 +456,7 @@ func (e *CT_Transform2D) Ext() *CT_PositiveSize2D {
 	if child == nil {
 		return nil
 	}
-	return &CT_PositiveSize2D{Element{E: child}}
+	return &CT_PositiveSize2D{Element{e: child}}
 }
 
 // GetOrAddExt returns <a:ext>, creating it if not present.
@@ -483,12 +483,12 @@ func (e *CT_Transform2D) addExt() *CT_PositiveSize2D {
 // newExt creates a detached <a:ext> element.
 func (e *CT_Transform2D) newExt() *CT_PositiveSize2D {
 	el := OxmlElement("a:ext")
-	return &CT_PositiveSize2D{Element{E: el}}
+	return &CT_PositiveSize2D{Element{e: el}}
 }
 
 // insertExt inserts child before first successor.
 func (e *CT_Transform2D) insertExt(child *CT_PositiveSize2D) *CT_PositiveSize2D {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 

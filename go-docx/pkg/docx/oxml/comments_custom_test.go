@@ -7,7 +7,7 @@ import (
 func TestCT_Comments_AddCommentFull(t *testing.T) {
 	xml := `<w:comments xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"></w:comments>`
 	el, _ := ParseXml([]byte(xml))
-	cs := &CT_Comments{Element{E: el}}
+	cs := &CT_Comments{Element{e: el}}
 
 	c, err := cs.AddCommentFull()
 	if err != nil {
@@ -46,7 +46,7 @@ func TestCT_Comments_GetCommentByID(t *testing.T) {
 		`<w:comment w:id="10" w:author="Bob"/>` +
 		`</w:comments>`
 	el, _ := ParseXml([]byte(xml))
-	cs := &CT_Comments{Element{E: el}}
+	cs := &CT_Comments{Element{e: el}}
 
 	c := cs.GetCommentByID(10)
 	if c == nil {
@@ -67,7 +67,7 @@ func TestCT_Comment_InnerContentElements(t *testing.T) {
 		`<w:p/><w:tbl/><w:p/>` +
 		`</w:comment>`
 	el, _ := ParseXml([]byte(xml))
-	c := &CT_Comment{Element{E: el}}
+	c := &CT_Comment{Element{e: el}}
 
 	elems := c.InnerContentElements()
 	if len(elems) != 3 {

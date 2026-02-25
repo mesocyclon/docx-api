@@ -67,7 +67,7 @@ func (iss *InlineShapes) inlineList() []*oxml.CT_Inline {
 				}
 				for _, inline := range drawing.ChildElements() {
 					if inline.Space == "wp" && inline.Tag == "inline" {
-						result = append(result, &oxml.CT_Inline{Element: oxml.Element{E: inline}})
+						result = append(result, &oxml.CT_Inline{Element: oxml.WrapElement(inline)})
 					}
 				}
 			}

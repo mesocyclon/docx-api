@@ -14,7 +14,7 @@ func TestNewCoreProperties(t *testing.T) {
 		t.Fatal("expected coreProperties, got nil")
 	}
 	// Check that it has the cp namespace
-	_, ok := HasNsDecl(cp.E, "cp")
+	_, ok := HasNsDecl(cp.e, "cp")
 	if !ok {
 		t.Error("expected xmlns:cp declaration")
 	}
@@ -209,7 +209,7 @@ func TestCT_CoreProperties_RevisionFromXml(t *testing.T) {
 		`<cp:revision>42</cp:revision>` +
 		`</cp:coreProperties>`
 	el, _ := ParseXml([]byte(xml))
-	cp := &CT_CoreProperties{Element{E: el}}
+	cp := &CT_CoreProperties{Element{e: el}}
 
 	if got := cp.RevisionNumber(); got != 42 {
 		t.Errorf("expected revision 42, got %d", got)
@@ -223,7 +223,7 @@ func TestCT_CoreProperties_RevisionFromXml(t *testing.T) {
 		`<cp:revision>abc</cp:revision>` +
 		`</cp:coreProperties>`
 	el2, _ := ParseXml([]byte(xml2))
-	cp2 := &CT_CoreProperties{Element{E: el2}}
+	cp2 := &CT_CoreProperties{Element{e: el2}}
 	if got := cp2.RevisionNumber(); got != 0 {
 		t.Errorf("expected 0 for non-integer revision, got %d", got)
 	}

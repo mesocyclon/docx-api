@@ -40,7 +40,7 @@ func newInline(cx, cy int64, shapeId int, pic *CT_Picture) (*CT_Inline, error) {
 	if err != nil {
 		return nil, fmt.Errorf("oxml: failed to parse inline XML: %w", err)
 	}
-	inline := &CT_Inline{Element{E: el}}
+	inline := &CT_Inline{Element{e: el}}
 
 	// Set extent dimensions
 	extent, err := inline.Extent()
@@ -79,7 +79,7 @@ func newInline(cx, cy int64, shapeId int, pic *CT_Picture) (*CT_Inline, error) {
 		return nil, err
 	}
 	// Insert pic:pic into graphicData
-	gd.E.AddChild(pic.E)
+	gd.e.AddChild(pic.e)
 
 	return inline, nil
 }
@@ -114,7 +114,7 @@ func newPicture(picId int, filename, rId string, cx, cy int64) (*CT_Picture, err
 	if err != nil {
 		return nil, fmt.Errorf("oxml: failed to parse pic XML: %w", err)
 	}
-	pic := &CT_Picture{Element{E: el}}
+	pic := &CT_Picture{Element{e: el}}
 
 	// Set picture properties
 	nvPicPr, err := pic.NvPicPr()

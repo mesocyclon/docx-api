@@ -21,7 +21,7 @@ func (e *CT_Comments) CommentList() []*CT_Comment {
 	children := e.FindAllChildren("w:comment")
 	result := make([]*CT_Comment, len(children))
 	for i, c := range children {
-		result[i] = &CT_Comment{Element{E: c}}
+		result[i] = &CT_Comment{Element{e: c}}
 	}
 	return result
 }
@@ -41,12 +41,12 @@ func (e *CT_Comments) addComment() *CT_Comment {
 // newComment creates a detached <w:comment> element.
 func (e *CT_Comments) newComment() *CT_Comment {
 	el := OxmlElement("w:comment")
-	return &CT_Comment{Element{E: el}}
+	return &CT_Comment{Element{e: el}}
 }
 
 // insertComment inserts child before first successor.
 func (e *CT_Comments) insertComment(child *CT_Comment) *CT_Comment {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -62,7 +62,7 @@ func (e *CT_Comment) PList() []*CT_P {
 	children := e.FindAllChildren("w:p")
 	result := make([]*CT_P, len(children))
 	for i, c := range children {
-		result[i] = &CT_P{Element{E: c}}
+		result[i] = &CT_P{Element{e: c}}
 	}
 	return result
 }
@@ -82,12 +82,12 @@ func (e *CT_Comment) addP() *CT_P {
 // newP creates a detached <w:p> element.
 func (e *CT_Comment) newP() *CT_P {
 	el := OxmlElement("w:p")
-	return &CT_P{Element{E: el}}
+	return &CT_P{Element{e: el}}
 }
 
 // insertP inserts child before first successor.
 func (e *CT_Comment) insertP(child *CT_P) *CT_P {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -96,7 +96,7 @@ func (e *CT_Comment) TblList() []*CT_Tbl {
 	children := e.FindAllChildren("w:tbl")
 	result := make([]*CT_Tbl, len(children))
 	for i, c := range children {
-		result[i] = &CT_Tbl{Element{E: c}}
+		result[i] = &CT_Tbl{Element{e: c}}
 	}
 	return result
 }
@@ -116,12 +116,12 @@ func (e *CT_Comment) addTbl() *CT_Tbl {
 // newTbl creates a detached <w:tbl> element.
 func (e *CT_Comment) newTbl() *CT_Tbl {
 	el := OxmlElement("w:tbl")
-	return &CT_Tbl{Element{E: el}}
+	return &CT_Tbl{Element{e: el}}
 }
 
 // insertTbl inserts child before first successor.
 func (e *CT_Comment) insertTbl(child *CT_Tbl) *CT_Tbl {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 

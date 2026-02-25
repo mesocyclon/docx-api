@@ -9,7 +9,7 @@ func TestCT_Body_InnerContentElements(t *testing.T) {
 		`<w:p/><w:tbl/><w:p/><w:sectPr/>` +
 		`</w:body>`
 	el, _ := ParseXml([]byte(xml))
-	body := &CT_Body{Element{E: el}}
+	body := &CT_Body{Element{e: el}}
 
 	elems := body.InnerContentElements()
 	if len(elems) != 3 {
@@ -31,12 +31,12 @@ func TestCT_Body_ClearContent(t *testing.T) {
 		`<w:p/><w:tbl/><w:p/><w:sectPr/>` +
 		`</w:body>`
 	el, _ := ParseXml([]byte(xml))
-	body := &CT_Body{Element{E: el}}
+	body := &CT_Body{Element{e: el}}
 
 	body.ClearContent()
 
 	// Only sectPr should remain
-	children := body.E.ChildElements()
+	children := body.e.ChildElements()
 	if len(children) != 1 {
 		t.Fatalf("expected 1 child (sectPr), got %d", len(children))
 	}
@@ -50,11 +50,11 @@ func TestCT_Body_ClearContent_NoSectPr(t *testing.T) {
 		`<w:p/><w:tbl/>` +
 		`</w:body>`
 	el, _ := ParseXml([]byte(xml))
-	body := &CT_Body{Element{E: el}}
+	body := &CT_Body{Element{e: el}}
 
 	body.ClearContent()
-	if len(body.E.ChildElements()) != 0 {
-		t.Errorf("expected 0 children, got %d", len(body.E.ChildElements()))
+	if len(body.e.ChildElements()) != 0 {
+		t.Errorf("expected 0 children, got %d", len(body.e.ChildElements()))
 	}
 }
 
@@ -68,7 +68,7 @@ func TestCT_Document_SectPrList(t *testing.T) {
 		`</w:body>` +
 		`</w:document>`
 	el, _ := ParseXml([]byte(xml))
-	doc := &CT_Document{Element{E: el}}
+	doc := &CT_Document{Element{e: el}}
 
 	sectPrs := doc.SectPrList()
 	if len(sectPrs) != 3 {
@@ -82,7 +82,7 @@ func TestCT_Body_AddSectionBreak(t *testing.T) {
 		`<w:sectPr><w:headerReference w:type="default" r:id="rId1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/></w:sectPr>` +
 		`</w:body>`
 	el, _ := ParseXml([]byte(xml))
-	body := &CT_Body{Element{E: el}}
+	body := &CT_Body{Element{e: el}}
 
 	sentinelSectPr := body.AddSectionBreak()
 	if sentinelSectPr == nil {

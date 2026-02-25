@@ -22,7 +22,7 @@ func (e *CT_RPr) RStyle() *CT_String {
 	if child == nil {
 		return nil
 	}
-	return &CT_String{Element{E: child}}
+	return &CT_String{Element{e: child}}
 }
 
 // GetOrAddRStyle returns <w:rStyle>, creating it if not present.
@@ -49,12 +49,12 @@ func (e *CT_RPr) addRStyle() *CT_String {
 // newRStyle creates a detached <w:rStyle> element.
 func (e *CT_RPr) newRStyle() *CT_String {
 	el := OxmlElement("w:rStyle")
-	return &CT_String{Element{E: el}}
+	return &CT_String{Element{e: el}}
 }
 
 // insertRStyle inserts child before first successor.
 func (e *CT_RPr) insertRStyle(child *CT_String) *CT_String {
-	e.InsertElementBefore(child.E, "w:rFonts", "w:b", "w:bCs", "w:i", "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:rFonts", "w:b", "w:bCs", "w:i", "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -64,7 +64,7 @@ func (e *CT_RPr) RFonts() *CT_Fonts {
 	if child == nil {
 		return nil
 	}
-	return &CT_Fonts{Element{E: child}}
+	return &CT_Fonts{Element{e: child}}
 }
 
 // GetOrAddRFonts returns <w:rFonts>, creating it if not present.
@@ -91,12 +91,12 @@ func (e *CT_RPr) addRFonts() *CT_Fonts {
 // newRFonts creates a detached <w:rFonts> element.
 func (e *CT_RPr) newRFonts() *CT_Fonts {
 	el := OxmlElement("w:rFonts")
-	return &CT_Fonts{Element{E: el}}
+	return &CT_Fonts{Element{e: el}}
 }
 
 // insertRFonts inserts child before first successor.
 func (e *CT_RPr) insertRFonts(child *CT_Fonts) *CT_Fonts {
-	e.InsertElementBefore(child.E, "w:b", "w:bCs", "w:i", "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:b", "w:bCs", "w:i", "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -106,7 +106,7 @@ func (e *CT_RPr) B() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddB returns <w:b>, creating it if not present.
@@ -133,12 +133,12 @@ func (e *CT_RPr) addB() *CT_OnOff {
 // newB creates a detached <w:b> element.
 func (e *CT_RPr) newB() *CT_OnOff {
 	el := OxmlElement("w:b")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertB inserts child before first successor.
 func (e *CT_RPr) insertB(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:bCs", "w:i", "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:bCs", "w:i", "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -148,7 +148,7 @@ func (e *CT_RPr) BCs() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddBCs returns <w:bCs>, creating it if not present.
@@ -175,12 +175,12 @@ func (e *CT_RPr) addBCs() *CT_OnOff {
 // newBCs creates a detached <w:bCs> element.
 func (e *CT_RPr) newBCs() *CT_OnOff {
 	el := OxmlElement("w:bCs")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertBCs inserts child before first successor.
 func (e *CT_RPr) insertBCs(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:i", "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:i", "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -190,7 +190,7 @@ func (e *CT_RPr) I() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddI returns <w:i>, creating it if not present.
@@ -217,12 +217,12 @@ func (e *CT_RPr) addI() *CT_OnOff {
 // newI creates a detached <w:i> element.
 func (e *CT_RPr) newI() *CT_OnOff {
 	el := OxmlElement("w:i")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertI inserts child before first successor.
 func (e *CT_RPr) insertI(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:iCs", "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -232,7 +232,7 @@ func (e *CT_RPr) ICs() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddICs returns <w:iCs>, creating it if not present.
@@ -259,12 +259,12 @@ func (e *CT_RPr) addICs() *CT_OnOff {
 // newICs creates a detached <w:iCs> element.
 func (e *CT_RPr) newICs() *CT_OnOff {
 	el := OxmlElement("w:iCs")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertICs inserts child before first successor.
 func (e *CT_RPr) insertICs(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:caps", "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -274,7 +274,7 @@ func (e *CT_RPr) Caps() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddCaps returns <w:caps>, creating it if not present.
@@ -301,12 +301,12 @@ func (e *CT_RPr) addCaps() *CT_OnOff {
 // newCaps creates a detached <w:caps> element.
 func (e *CT_RPr) newCaps() *CT_OnOff {
 	el := OxmlElement("w:caps")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertCaps inserts child before first successor.
 func (e *CT_RPr) insertCaps(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:smallCaps", "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -316,7 +316,7 @@ func (e *CT_RPr) SmallCaps() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddSmallCaps returns <w:smallCaps>, creating it if not present.
@@ -343,12 +343,12 @@ func (e *CT_RPr) addSmallCaps() *CT_OnOff {
 // newSmallCaps creates a detached <w:smallCaps> element.
 func (e *CT_RPr) newSmallCaps() *CT_OnOff {
 	el := OxmlElement("w:smallCaps")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertSmallCaps inserts child before first successor.
 func (e *CT_RPr) insertSmallCaps(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:strike", "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -358,7 +358,7 @@ func (e *CT_RPr) Strike() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddStrike returns <w:strike>, creating it if not present.
@@ -385,12 +385,12 @@ func (e *CT_RPr) addStrike() *CT_OnOff {
 // newStrike creates a detached <w:strike> element.
 func (e *CT_RPr) newStrike() *CT_OnOff {
 	el := OxmlElement("w:strike")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertStrike inserts child before first successor.
 func (e *CT_RPr) insertStrike(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:dstrike", "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -400,7 +400,7 @@ func (e *CT_RPr) Dstrike() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddDstrike returns <w:dstrike>, creating it if not present.
@@ -427,12 +427,12 @@ func (e *CT_RPr) addDstrike() *CT_OnOff {
 // newDstrike creates a detached <w:dstrike> element.
 func (e *CT_RPr) newDstrike() *CT_OnOff {
 	el := OxmlElement("w:dstrike")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertDstrike inserts child before first successor.
 func (e *CT_RPr) insertDstrike(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:outline", "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -442,7 +442,7 @@ func (e *CT_RPr) Outline() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddOutline returns <w:outline>, creating it if not present.
@@ -469,12 +469,12 @@ func (e *CT_RPr) addOutline() *CT_OnOff {
 // newOutline creates a detached <w:outline> element.
 func (e *CT_RPr) newOutline() *CT_OnOff {
 	el := OxmlElement("w:outline")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertOutline inserts child before first successor.
 func (e *CT_RPr) insertOutline(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:shadow", "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -484,7 +484,7 @@ func (e *CT_RPr) Shadow() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddShadow returns <w:shadow>, creating it if not present.
@@ -511,12 +511,12 @@ func (e *CT_RPr) addShadow() *CT_OnOff {
 // newShadow creates a detached <w:shadow> element.
 func (e *CT_RPr) newShadow() *CT_OnOff {
 	el := OxmlElement("w:shadow")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertShadow inserts child before first successor.
 func (e *CT_RPr) insertShadow(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:emboss", "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -526,7 +526,7 @@ func (e *CT_RPr) Emboss() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddEmboss returns <w:emboss>, creating it if not present.
@@ -553,12 +553,12 @@ func (e *CT_RPr) addEmboss() *CT_OnOff {
 // newEmboss creates a detached <w:emboss> element.
 func (e *CT_RPr) newEmboss() *CT_OnOff {
 	el := OxmlElement("w:emboss")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertEmboss inserts child before first successor.
 func (e *CT_RPr) insertEmboss(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:imprint", "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -568,7 +568,7 @@ func (e *CT_RPr) Imprint() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddImprint returns <w:imprint>, creating it if not present.
@@ -595,12 +595,12 @@ func (e *CT_RPr) addImprint() *CT_OnOff {
 // newImprint creates a detached <w:imprint> element.
 func (e *CT_RPr) newImprint() *CT_OnOff {
 	el := OxmlElement("w:imprint")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertImprint inserts child before first successor.
 func (e *CT_RPr) insertImprint(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:noProof", "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -610,7 +610,7 @@ func (e *CT_RPr) NoProof() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddNoProof returns <w:noProof>, creating it if not present.
@@ -637,12 +637,12 @@ func (e *CT_RPr) addNoProof() *CT_OnOff {
 // newNoProof creates a detached <w:noProof> element.
 func (e *CT_RPr) newNoProof() *CT_OnOff {
 	el := OxmlElement("w:noProof")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertNoProof inserts child before first successor.
 func (e *CT_RPr) insertNoProof(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:snapToGrid", "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -652,7 +652,7 @@ func (e *CT_RPr) SnapToGrid() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddSnapToGrid returns <w:snapToGrid>, creating it if not present.
@@ -679,12 +679,12 @@ func (e *CT_RPr) addSnapToGrid() *CT_OnOff {
 // newSnapToGrid creates a detached <w:snapToGrid> element.
 func (e *CT_RPr) newSnapToGrid() *CT_OnOff {
 	el := OxmlElement("w:snapToGrid")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertSnapToGrid inserts child before first successor.
 func (e *CT_RPr) insertSnapToGrid(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:vanish", "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -694,7 +694,7 @@ func (e *CT_RPr) Vanish() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddVanish returns <w:vanish>, creating it if not present.
@@ -721,12 +721,12 @@ func (e *CT_RPr) addVanish() *CT_OnOff {
 // newVanish creates a detached <w:vanish> element.
 func (e *CT_RPr) newVanish() *CT_OnOff {
 	el := OxmlElement("w:vanish")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertVanish inserts child before first successor.
 func (e *CT_RPr) insertVanish(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:webHidden", "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -736,7 +736,7 @@ func (e *CT_RPr) WebHidden() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddWebHidden returns <w:webHidden>, creating it if not present.
@@ -763,12 +763,12 @@ func (e *CT_RPr) addWebHidden() *CT_OnOff {
 // newWebHidden creates a detached <w:webHidden> element.
 func (e *CT_RPr) newWebHidden() *CT_OnOff {
 	el := OxmlElement("w:webHidden")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertWebHidden inserts child before first successor.
 func (e *CT_RPr) insertWebHidden(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:color", "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -778,7 +778,7 @@ func (e *CT_RPr) Color() *CT_Color {
 	if child == nil {
 		return nil
 	}
-	return &CT_Color{Element{E: child}}
+	return &CT_Color{Element{e: child}}
 }
 
 // GetOrAddColor returns <w:color>, creating it if not present.
@@ -805,12 +805,12 @@ func (e *CT_RPr) addColor() *CT_Color {
 // newColor creates a detached <w:color> element.
 func (e *CT_RPr) newColor() *CT_Color {
 	el := OxmlElement("w:color")
-	return &CT_Color{Element{E: el}}
+	return &CT_Color{Element{e: el}}
 }
 
 // insertColor inserts child before first successor.
 func (e *CT_RPr) insertColor(child *CT_Color) *CT_Color {
-	e.InsertElementBefore(child.E, "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:spacing", "w:w", "w:kern", "w:position", "w:sz", "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -820,7 +820,7 @@ func (e *CT_RPr) Sz() *CT_HpsMeasure {
 	if child == nil {
 		return nil
 	}
-	return &CT_HpsMeasure{Element{E: child}}
+	return &CT_HpsMeasure{Element{e: child}}
 }
 
 // GetOrAddSz returns <w:sz>, creating it if not present.
@@ -847,12 +847,12 @@ func (e *CT_RPr) addSz() *CT_HpsMeasure {
 // newSz creates a detached <w:sz> element.
 func (e *CT_RPr) newSz() *CT_HpsMeasure {
 	el := OxmlElement("w:sz")
-	return &CT_HpsMeasure{Element{E: el}}
+	return &CT_HpsMeasure{Element{e: el}}
 }
 
 // insertSz inserts child before first successor.
 func (e *CT_RPr) insertSz(child *CT_HpsMeasure) *CT_HpsMeasure {
-	e.InsertElementBefore(child.E, "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:szCs", "w:highlight", "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -862,7 +862,7 @@ func (e *CT_RPr) Highlight() *CT_Highlight {
 	if child == nil {
 		return nil
 	}
-	return &CT_Highlight{Element{E: child}}
+	return &CT_Highlight{Element{e: child}}
 }
 
 // GetOrAddHighlight returns <w:highlight>, creating it if not present.
@@ -889,12 +889,12 @@ func (e *CT_RPr) addHighlight() *CT_Highlight {
 // newHighlight creates a detached <w:highlight> element.
 func (e *CT_RPr) newHighlight() *CT_Highlight {
 	el := OxmlElement("w:highlight")
-	return &CT_Highlight{Element{E: el}}
+	return &CT_Highlight{Element{e: el}}
 }
 
 // insertHighlight inserts child before first successor.
 func (e *CT_RPr) insertHighlight(child *CT_Highlight) *CT_Highlight {
-	e.InsertElementBefore(child.E, "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:u", "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -904,7 +904,7 @@ func (e *CT_RPr) U() *CT_Underline {
 	if child == nil {
 		return nil
 	}
-	return &CT_Underline{Element{E: child}}
+	return &CT_Underline{Element{e: child}}
 }
 
 // GetOrAddU returns <w:u>, creating it if not present.
@@ -931,12 +931,12 @@ func (e *CT_RPr) addU() *CT_Underline {
 // newU creates a detached <w:u> element.
 func (e *CT_RPr) newU() *CT_Underline {
 	el := OxmlElement("w:u")
-	return &CT_Underline{Element{E: el}}
+	return &CT_Underline{Element{e: el}}
 }
 
 // insertU inserts child before first successor.
 func (e *CT_RPr) insertU(child *CT_Underline) *CT_Underline {
-	e.InsertElementBefore(child.E, "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:effect", "w:bdr", "w:shd", "w:fitText", "w:vertAlign", "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -946,7 +946,7 @@ func (e *CT_RPr) VertAlign() *CT_VerticalAlignRun {
 	if child == nil {
 		return nil
 	}
-	return &CT_VerticalAlignRun{Element{E: child}}
+	return &CT_VerticalAlignRun{Element{e: child}}
 }
 
 // GetOrAddVertAlign returns <w:vertAlign>, creating it if not present.
@@ -973,12 +973,12 @@ func (e *CT_RPr) addVertAlign() *CT_VerticalAlignRun {
 // newVertAlign creates a detached <w:vertAlign> element.
 func (e *CT_RPr) newVertAlign() *CT_VerticalAlignRun {
 	el := OxmlElement("w:vertAlign")
-	return &CT_VerticalAlignRun{Element{E: el}}
+	return &CT_VerticalAlignRun{Element{e: el}}
 }
 
 // insertVertAlign inserts child before first successor.
 func (e *CT_RPr) insertVertAlign(child *CT_VerticalAlignRun) *CT_VerticalAlignRun {
-	e.InsertElementBefore(child.E, "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:rtl", "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -988,7 +988,7 @@ func (e *CT_RPr) Rtl() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddRtl returns <w:rtl>, creating it if not present.
@@ -1015,12 +1015,12 @@ func (e *CT_RPr) addRtl() *CT_OnOff {
 // newRtl creates a detached <w:rtl> element.
 func (e *CT_RPr) newRtl() *CT_OnOff {
 	el := OxmlElement("w:rtl")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertRtl inserts child before first successor.
 func (e *CT_RPr) insertRtl(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:cs", "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -1030,7 +1030,7 @@ func (e *CT_RPr) Cs() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddCs returns <w:cs>, creating it if not present.
@@ -1057,12 +1057,12 @@ func (e *CT_RPr) addCs() *CT_OnOff {
 // newCs creates a detached <w:cs> element.
 func (e *CT_RPr) newCs() *CT_OnOff {
 	el := OxmlElement("w:cs")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertCs inserts child before first successor.
 func (e *CT_RPr) insertCs(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
+	e.InsertElementBefore(child.e, "w:em", "w:lang", "w:eastAsianLayout", "w:specVanish", "w:oMath")
 	return child
 }
 
@@ -1072,7 +1072,7 @@ func (e *CT_RPr) SpecVanish() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddSpecVanish returns <w:specVanish>, creating it if not present.
@@ -1099,12 +1099,12 @@ func (e *CT_RPr) addSpecVanish() *CT_OnOff {
 // newSpecVanish creates a detached <w:specVanish> element.
 func (e *CT_RPr) newSpecVanish() *CT_OnOff {
 	el := OxmlElement("w:specVanish")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertSpecVanish inserts child before first successor.
 func (e *CT_RPr) insertSpecVanish(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:oMath")
+	e.InsertElementBefore(child.e, "w:oMath")
 	return child
 }
 
@@ -1114,7 +1114,7 @@ func (e *CT_RPr) OMath() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddOMath returns <w:oMath>, creating it if not present.
@@ -1141,12 +1141,12 @@ func (e *CT_RPr) addOMath() *CT_OnOff {
 // newOMath creates a detached <w:oMath> element.
 func (e *CT_RPr) newOMath() *CT_OnOff {
 	el := OxmlElement("w:oMath")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertOMath inserts child before first successor.
 func (e *CT_RPr) insertOMath(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 

@@ -10,22 +10,36 @@ import (
 // Element is a base wrapper over *etree.Element that provides namespace-aware
 // navigation, insertion, and attribute operations. All CT_* structures embed Element.
 type Element struct {
-	E *etree.Element
+	e *etree.Element
 }
 
-// NewElement wraps an existing *etree.Element.
+// RawElement returns the underlying *etree.Element.
+//
+// This accessor is provided for interoperability with code that needs direct
+// access to the etree node (e.g. cross-package construction of CT_* wrappers).
+// Prefer using Element methods (FindChild, GetAttr, etc.) when possible.
+func (el *Element) RawElement() *etree.Element { return el.e }
+
+// WrapElement creates an Element value wrapping the given *etree.Element.
+// This is the cross-package equivalent of Element{e: e} for constructing
+// CT_* types that embed Element.
+func WrapElement(e *etree.Element) Element {
+	return Element{e: e}
+}
+
+// NewElement wraps an existing *etree.Element (returns a pointer).
 func NewElement(e *etree.Element) *Element {
 	if e == nil {
 		return nil
 	}
-	return &Element{E: e}
+	return &Element{e: e}
 }
 
 // --- Tag ---
 
 // Tag returns the Clark-name of the element's tag, e.g. "{http://...}p".
 func (el *Element) Tag() string {
-	return clarkFromEtree(el.E)
+	return clarkFromEtree(el.e)
 }
 
 // --- Child navigation ---
@@ -34,7 +48,7 @@ func (el *Element) Tag() string {
 // Returns nil if not found.
 func (el *Element) FindChild(nspTag string) *etree.Element {
 	space, local := resolveNspTag(nspTag)
-	for _, child := range el.E.ChildElements() {
+	for _, child := range el.e.ChildElements() {
 		if child.Space == space && child.Tag == local {
 			return child
 		}
@@ -46,7 +60,7 @@ func (el *Element) FindChild(nspTag string) *etree.Element {
 func (el *Element) FindAllChildren(nspTag string) []*etree.Element {
 	space, local := resolveNspTag(nspTag)
 	var result []*etree.Element
-	for _, child := range el.E.ChildElements() {
+	for _, child := range el.e.ChildElements() {
 		if child.Space == space && child.Tag == local {
 			result = append(result, child)
 		}
@@ -73,11 +87,11 @@ func (el *Element) FirstChildIn(tags ...string) *etree.Element {
 func (el *Element) InsertElementBefore(child *etree.Element, successors ...string) {
 	for _, succ := range successors {
 		if found := el.FindChild(succ); found != nil {
-			insertBefore(el.E, child, found)
+			insertBefore(el.e, child, found)
 			return
 		}
 	}
-	el.E.AddChild(child)
+	el.e.AddChild(child)
 }
 
 // RemoveAll removes all child elements with the specified namespace-prefixed tags.
@@ -85,14 +99,14 @@ func (el *Element) RemoveAll(tags ...string) {
 	for _, tag := range tags {
 		matches := el.FindAllChildren(tag)
 		for _, m := range matches {
-			el.E.RemoveChild(m)
+			el.e.RemoveChild(m)
 		}
 	}
 }
 
 // Remove removes a specific child element.
 func (el *Element) Remove(child *etree.Element) {
-	el.E.RemoveChild(child)
+	el.e.RemoveChild(child)
 }
 
 // --- Attributes ---
@@ -101,14 +115,14 @@ func (el *Element) Remove(child *etree.Element) {
 // or a namespace-prefixed name like "w:val" or a Clark-name like "{http://...}val".
 func (el *Element) GetAttr(name string) (string, bool) {
 	space, local := resolveAttrName(name)
-	attr := el.E.SelectAttr(local)
+	attr := el.e.SelectAttr(local)
 	if attr == nil {
 		return "", false
 	}
 	// If a namespace was requested, verify it matches.
 	if space != "" && attr.Space != space {
 		// Try to find among all attrs
-		for _, a := range el.E.Attr {
+		for _, a := range el.e.Attr {
 			if a.Key == local && a.Space == space {
 				return a.Value, true
 			}
@@ -122,19 +136,19 @@ func (el *Element) GetAttr(name string) (string, bool) {
 func (el *Element) SetAttr(name, value string) {
 	space, local := resolveAttrName(name)
 	if space != "" {
-		el.E.CreateAttr(space+":"+local, value)
+		el.e.CreateAttr(space+":"+local, value)
 	} else {
-		el.E.CreateAttr(local, value)
+		el.e.CreateAttr(local, value)
 	}
 }
 
 // RemoveAttr removes an attribute by name.
 func (el *Element) RemoveAttr(name string) {
 	space, local := resolveAttrName(name)
-	el.E.RemoveAttr(local)
+	el.e.RemoveAttr(local)
 	if space != "" {
 		// Also try removing with qualified name
-		el.E.RemoveAttr(space + ":" + local)
+		el.e.RemoveAttr(space + ":" + local)
 	}
 }
 
@@ -142,12 +156,12 @@ func (el *Element) RemoveAttr(name string) {
 
 // Text returns the direct text content of the element.
 func (el *Element) Text() string {
-	return el.E.Text()
+	return el.e.Text()
 }
 
 // SetText sets the text content of the element.
 func (el *Element) SetText(text string) {
-	el.E.SetText(text)
+	el.e.SetText(text)
 }
 
 // --- XPath ---
@@ -156,7 +170,7 @@ func (el *Element) SetText(text string) {
 // Note: etree XPath uses local paths; for namespace-aware lookups, prefer
 // FindChild/FindAllChildren.
 func (el *Element) XPath(expr string) []*etree.Element {
-	return el.E.FindElements(expr)
+	return el.e.FindElements(expr)
 }
 
 // --- Utilities ---
@@ -165,7 +179,7 @@ func (el *Element) XPath(expr string) []*etree.Element {
 // and appends it.
 func (el *Element) AddSubElement(nspTag string) *etree.Element {
 	nspt := NewNSPTag(nspTag)
-	child := el.E.CreateElement(nspt.LocalPart())
+	child := el.e.CreateElement(nspt.LocalPart())
 	child.Space = nspt.Prefix()
 	return child
 }
@@ -173,7 +187,7 @@ func (el *Element) AddSubElement(nspTag string) *etree.Element {
 // Xml returns an XML string representation for debugging.
 func (el *Element) Xml() string {
 	doc := etree.NewDocument()
-	doc.SetRoot(el.E.Copy())
+	doc.SetRoot(el.e.Copy())
 	doc.Indent(2)
 	var buf bytes.Buffer
 	_, _ = doc.WriteTo(&buf)

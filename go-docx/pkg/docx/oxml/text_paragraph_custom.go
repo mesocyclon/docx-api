@@ -12,13 +12,13 @@ import (
 // AddPBefore creates a new <w:p> element inserted directly prior to this one.
 // Returns nil if this paragraph has no parent element.
 func (p *CT_P) AddPBefore() *CT_P {
-	parent := p.E.Parent()
+	parent := p.e.Parent()
 	if parent == nil {
 		return nil
 	}
 	newP := OxmlElement("w:p")
-	insertBefore(parent, newP, p.E)
-	return &CT_P{Element{E: newP}}
+	insertBefore(parent, newP, p.e)
+	return &CT_P{Element{e: newP}}
 }
 
 // Alignment returns the paragraph alignment from pPr/jc, or nil if not set.
@@ -39,13 +39,13 @@ func (p *CT_P) SetAlignment(val *enum.WdParagraphAlignment) error {
 // ClearContent removes all child elements except <w:pPr>.
 func (p *CT_P) ClearContent() {
 	var toRemove []*etree.Element
-	for _, child := range p.E.ChildElements() {
+	for _, child := range p.e.ChildElements() {
 		if !(child.Space == "w" && child.Tag == "pPr") {
 			toRemove = append(toRemove, child)
 		}
 	}
 	for _, child := range toRemove {
-		p.E.RemoveChild(child)
+		p.e.RemoveChild(child)
 	}
 }
 
@@ -53,11 +53,11 @@ func (p *CT_P) ClearContent() {
 // in document order.
 func (p *CT_P) InnerContentElements() []InlineItem {
 	var result []InlineItem
-	for _, child := range p.E.ChildElements() {
+	for _, child := range p.e.ChildElements() {
 		if child.Space == "w" && child.Tag == "r" {
-			result = append(result, &CT_R{Element{E: child}})
+			result = append(result, &CT_R{Element{e: child}})
 		} else if child.Space == "w" && child.Tag == "hyperlink" {
-			result = append(result, &CT_Hyperlink{Element{E: child}})
+			result = append(result, &CT_Hyperlink{Element{e: child}})
 		}
 	}
 	return result
@@ -67,11 +67,11 @@ func (p *CT_P) InnerContentElements() []InlineItem {
 // Searches both direct runs and runs inside hyperlinks.
 func (p *CT_P) LastRenderedPageBreaks() []*CT_LastRenderedPageBreak {
 	var result []*CT_LastRenderedPageBreak
-	for _, child := range p.E.ChildElements() {
+	for _, child := range p.e.ChildElements() {
 		if child.Space == "w" && child.Tag == "r" {
 			for _, gc := range child.ChildElements() {
 				if gc.Space == "w" && gc.Tag == "lastRenderedPageBreak" {
-					result = append(result, &CT_LastRenderedPageBreak{Element{E: gc}})
+					result = append(result, &CT_LastRenderedPageBreak{Element{e: gc}})
 				}
 			}
 		} else if child.Space == "w" && child.Tag == "hyperlink" {
@@ -79,7 +79,7 @@ func (p *CT_P) LastRenderedPageBreaks() []*CT_LastRenderedPageBreak {
 				if run.Space == "w" && run.Tag == "r" {
 					for _, gc := range run.ChildElements() {
 						if gc.Space == "w" && gc.Tag == "lastRenderedPageBreak" {
-							result = append(result, &CT_LastRenderedPageBreak{Element{E: gc}})
+							result = append(result, &CT_LastRenderedPageBreak{Element{e: gc}})
 						}
 					}
 				}
@@ -119,12 +119,12 @@ func (p *CT_P) SetStyle(styleID *string) error {
 // embedded Element.Text().
 func (p *CT_P) ParagraphText() string {
 	var sb strings.Builder
-	for _, child := range p.E.ChildElements() {
+	for _, child := range p.e.ChildElements() {
 		if child.Space == "w" && child.Tag == "r" {
-			r := &CT_R{Element{E: child}}
+			r := &CT_R{Element{e: child}}
 			sb.WriteString(r.RunText())
 		} else if child.Space == "w" && child.Tag == "hyperlink" {
-			h := &CT_Hyperlink{Element{E: child}}
+			h := &CT_Hyperlink{Element{e: child}}
 			sb.WriteString(h.HyperlinkText())
 		}
 	}

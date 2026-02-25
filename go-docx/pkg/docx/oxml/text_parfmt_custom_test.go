@@ -8,7 +8,7 @@ import (
 
 func TestCT_PPr_SpacingBefore_RoundTrip(t *testing.T) {
 	pPrEl := OxmlElement("w:pPr")
-	pPr := &CT_PPr{Element{E: pPrEl}}
+	pPr := &CT_PPr{Element{e: pPrEl}}
 
 	if sb, err := pPr.SpacingBefore(); err != nil {
 		t.Fatalf("SpacingBefore: %v", err)
@@ -31,7 +31,7 @@ func TestCT_PPr_SpacingBefore_RoundTrip(t *testing.T) {
 
 func TestCT_PPr_SpacingAfter_RoundTrip(t *testing.T) {
 	pPrEl := OxmlElement("w:pPr")
-	pPr := &CT_PPr{Element{E: pPrEl}}
+	pPr := &CT_PPr{Element{e: pPrEl}}
 
 	v := 120
 	if err := pPr.SetSpacingAfter(&v); err != nil {
@@ -48,7 +48,7 @@ func TestCT_PPr_SpacingAfter_RoundTrip(t *testing.T) {
 
 func TestCT_PPr_SpacingLineRule(t *testing.T) {
 	pPrEl := OxmlElement("w:pPr")
-	pPr := &CT_PPr{Element{E: pPrEl}}
+	pPr := &CT_PPr{Element{e: pPrEl}}
 
 	// Set line without lineRule → default to MULTIPLE
 	line := 480
@@ -66,7 +66,7 @@ func TestCT_PPr_SpacingLineRule(t *testing.T) {
 
 func TestCT_PPr_IndLeft_RoundTrip(t *testing.T) {
 	pPrEl := OxmlElement("w:pPr")
-	pPr := &CT_PPr{Element{E: pPrEl}}
+	pPr := &CT_PPr{Element{e: pPrEl}}
 
 	if il, err := pPr.IndLeft(); err != nil {
 		t.Fatalf("IndLeft: %v", err)
@@ -89,7 +89,7 @@ func TestCT_PPr_IndLeft_RoundTrip(t *testing.T) {
 
 func TestCT_PPr_FirstLineIndent(t *testing.T) {
 	pPrEl := OxmlElement("w:pPr")
-	pPr := &CT_PPr{Element{E: pPrEl}}
+	pPr := &CT_PPr{Element{e: pPrEl}}
 
 	// Positive first-line indent
 	v := 360
@@ -132,7 +132,7 @@ func TestCT_PPr_FirstLineIndent(t *testing.T) {
 
 func TestCT_PPr_KeepLines_TriState(t *testing.T) {
 	pPrEl := OxmlElement("w:pPr")
-	pPr := &CT_PPr{Element{E: pPrEl}}
+	pPr := &CT_PPr{Element{e: pPrEl}}
 
 	if pPr.KeepLinesVal() != nil {
 		t.Error("expected nil keepLines for new pPr")
@@ -157,7 +157,7 @@ func TestCT_PPr_KeepLines_TriState(t *testing.T) {
 
 func TestCT_PPr_PageBreakBefore(t *testing.T) {
 	pPrEl := OxmlElement("w:pPr")
-	pPr := &CT_PPr{Element{E: pPrEl}}
+	pPr := &CT_PPr{Element{e: pPrEl}}
 
 	v := true
 	if err := pPr.SetPageBreakBeforeVal(&v); err != nil {
@@ -173,7 +173,7 @@ func TestCT_PPr_PageBreakBefore(t *testing.T) {
 
 func TestCT_TabStops_InsertTabInOrder(t *testing.T) {
 	tabsEl := OxmlElement("w:tabs")
-	tabs := &CT_TabStops{Element{E: tabsEl}}
+	tabs := &CT_TabStops{Element{e: tabsEl}}
 
 	if _, err := tabs.InsertTabInOrder(2880, enum.WdTabAlignmentCenter, enum.WdTabLeaderDots); err != nil {
 		t.Fatalf("InsertTabInOrder: %v", err)

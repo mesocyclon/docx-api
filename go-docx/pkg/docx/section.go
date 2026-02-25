@@ -133,7 +133,7 @@ func (s *Section) FirstPageFooter() *Footer {
 // _SectBlockElementIterator. Only returns block-items belonging to THIS section,
 // not the entire document body.
 func (s *Section) IterInnerContent() []*InnerContentItem {
-	body := s.sectPr.E.Parent()
+	body := s.sectPr.RawElement().Parent()
 	if body == nil {
 		return nil
 	}
@@ -178,7 +178,7 @@ func (s *Section) IterInnerContent() []*InnerContentItem {
 
 	// Find which range matches our sectPr
 	for _, sr := range ranges {
-		if sr.sectPrEl == s.sectPr.E {
+		if sr.sectPrEl == s.sectPr.RawElement() {
 			return collectBlockItems(children[sr.startIdx:sr.endIdx], s.docPart)
 		}
 	}
@@ -211,10 +211,10 @@ func collectBlockItems(elems []*etree.Element, docPart *parts.DocumentPart) []*I
 	for _, child := range elems {
 		switch {
 		case child.Space == "w" && child.Tag == "p":
-			p := &oxml.CT_P{Element: oxml.Element{E: child}}
+			p := &oxml.CT_P{Element: oxml.WrapElement(child)}
 			result = append(result, &InnerContentItem{paragraph: NewParagraph(p, sp)})
 		case child.Space == "w" && child.Tag == "tbl":
-			tbl := &oxml.CT_Tbl{Element: oxml.Element{E: child}}
+			tbl := &oxml.CT_Tbl{Element: oxml.WrapElement(child)}
 			result = append(result, &InnerContentItem{table: NewTable(tbl, sp)})
 		}
 	}

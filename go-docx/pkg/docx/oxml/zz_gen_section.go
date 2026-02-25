@@ -23,7 +23,7 @@ func (e *CT_SectPr) Type() *CT_SectType {
 	if child == nil {
 		return nil
 	}
-	return &CT_SectType{Element{E: child}}
+	return &CT_SectType{Element{e: child}}
 }
 
 // GetOrAddType returns <w:type>, creating it if not present.
@@ -50,12 +50,12 @@ func (e *CT_SectPr) addType() *CT_SectType {
 // newType creates a detached <w:type> element.
 func (e *CT_SectPr) newType() *CT_SectType {
 	el := OxmlElement("w:type")
-	return &CT_SectType{Element{E: el}}
+	return &CT_SectType{Element{e: el}}
 }
 
 // insertType inserts child before first successor.
 func (e *CT_SectPr) insertType(child *CT_SectType) *CT_SectType {
-	e.InsertElementBefore(child.E, "w:pgSz", "w:pgMar", "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt", "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
+	e.InsertElementBefore(child.e, "w:pgSz", "w:pgMar", "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt", "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
 	return child
 }
 
@@ -65,7 +65,7 @@ func (e *CT_SectPr) PgSz() *CT_PageSz {
 	if child == nil {
 		return nil
 	}
-	return &CT_PageSz{Element{E: child}}
+	return &CT_PageSz{Element{e: child}}
 }
 
 // GetOrAddPgSz returns <w:pgSz>, creating it if not present.
@@ -92,12 +92,12 @@ func (e *CT_SectPr) addPgSz() *CT_PageSz {
 // newPgSz creates a detached <w:pgSz> element.
 func (e *CT_SectPr) newPgSz() *CT_PageSz {
 	el := OxmlElement("w:pgSz")
-	return &CT_PageSz{Element{E: el}}
+	return &CT_PageSz{Element{e: el}}
 }
 
 // insertPgSz inserts child before first successor.
 func (e *CT_SectPr) insertPgSz(child *CT_PageSz) *CT_PageSz {
-	e.InsertElementBefore(child.E, "w:pgMar", "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt", "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
+	e.InsertElementBefore(child.e, "w:pgMar", "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt", "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
 	return child
 }
 
@@ -107,7 +107,7 @@ func (e *CT_SectPr) PgMar() *CT_PageMar {
 	if child == nil {
 		return nil
 	}
-	return &CT_PageMar{Element{E: child}}
+	return &CT_PageMar{Element{e: child}}
 }
 
 // GetOrAddPgMar returns <w:pgMar>, creating it if not present.
@@ -134,12 +134,12 @@ func (e *CT_SectPr) addPgMar() *CT_PageMar {
 // newPgMar creates a detached <w:pgMar> element.
 func (e *CT_SectPr) newPgMar() *CT_PageMar {
 	el := OxmlElement("w:pgMar")
-	return &CT_PageMar{Element{E: el}}
+	return &CT_PageMar{Element{e: el}}
 }
 
 // insertPgMar inserts child before first successor.
 func (e *CT_SectPr) insertPgMar(child *CT_PageMar) *CT_PageMar {
-	e.InsertElementBefore(child.E, "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt", "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
+	e.InsertElementBefore(child.e, "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt", "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
 	return child
 }
 
@@ -149,7 +149,7 @@ func (e *CT_SectPr) TitlePg() *CT_OnOff {
 	if child == nil {
 		return nil
 	}
-	return &CT_OnOff{Element{E: child}}
+	return &CT_OnOff{Element{e: child}}
 }
 
 // GetOrAddTitlePg returns <w:titlePg>, creating it if not present.
@@ -176,12 +176,12 @@ func (e *CT_SectPr) addTitlePg() *CT_OnOff {
 // newTitlePg creates a detached <w:titlePg> element.
 func (e *CT_SectPr) newTitlePg() *CT_OnOff {
 	el := OxmlElement("w:titlePg")
-	return &CT_OnOff{Element{E: el}}
+	return &CT_OnOff{Element{e: el}}
 }
 
 // insertTitlePg inserts child before first successor.
 func (e *CT_SectPr) insertTitlePg(child *CT_OnOff) *CT_OnOff {
-	e.InsertElementBefore(child.E, "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
+	e.InsertElementBefore(child.e, "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
 	return child
 }
 
@@ -190,7 +190,7 @@ func (e *CT_SectPr) HeaderReferenceList() []*CT_HdrFtrRef {
 	children := e.FindAllChildren("w:headerReference")
 	result := make([]*CT_HdrFtrRef, len(children))
 	for i, c := range children {
-		result[i] = &CT_HdrFtrRef{Element{E: c}}
+		result[i] = &CT_HdrFtrRef{Element{e: c}}
 	}
 	return result
 }
@@ -210,12 +210,12 @@ func (e *CT_SectPr) addHeaderReference() *CT_HdrFtrRef {
 // newHeaderReference creates a detached <w:headerReference> element.
 func (e *CT_SectPr) newHeaderReference() *CT_HdrFtrRef {
 	el := OxmlElement("w:headerReference")
-	return &CT_HdrFtrRef{Element{E: el}}
+	return &CT_HdrFtrRef{Element{e: el}}
 }
 
 // insertHeaderReference inserts child before first successor.
 func (e *CT_SectPr) insertHeaderReference(child *CT_HdrFtrRef) *CT_HdrFtrRef {
-	e.InsertElementBefore(child.E, "w:footnotePr", "w:endnotePr", "w:type", "w:pgSz", "w:pgMar", "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt", "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
+	e.InsertElementBefore(child.e, "w:footnotePr", "w:endnotePr", "w:type", "w:pgSz", "w:pgMar", "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt", "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
 	return child
 }
 
@@ -224,7 +224,7 @@ func (e *CT_SectPr) FooterReferenceList() []*CT_HdrFtrRef {
 	children := e.FindAllChildren("w:footerReference")
 	result := make([]*CT_HdrFtrRef, len(children))
 	for i, c := range children {
-		result[i] = &CT_HdrFtrRef{Element{E: c}}
+		result[i] = &CT_HdrFtrRef{Element{e: c}}
 	}
 	return result
 }
@@ -244,12 +244,12 @@ func (e *CT_SectPr) addFooterReference() *CT_HdrFtrRef {
 // newFooterReference creates a detached <w:footerReference> element.
 func (e *CT_SectPr) newFooterReference() *CT_HdrFtrRef {
 	el := OxmlElement("w:footerReference")
-	return &CT_HdrFtrRef{Element{E: el}}
+	return &CT_HdrFtrRef{Element{e: el}}
 }
 
 // insertFooterReference inserts child before first successor.
 func (e *CT_SectPr) insertFooterReference(child *CT_HdrFtrRef) *CT_HdrFtrRef {
-	e.InsertElementBefore(child.E, "w:footnotePr", "w:endnotePr", "w:type", "w:pgSz", "w:pgMar", "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt", "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
+	e.InsertElementBefore(child.e, "w:footnotePr", "w:endnotePr", "w:type", "w:pgSz", "w:pgMar", "w:paperSrc", "w:pgBorders", "w:lnNumType", "w:pgNumType", "w:cols", "w:formProt", "w:vAlign", "w:noEndnote", "w:titlePg", "w:textDirection", "w:bidi", "w:rtlGutter", "w:docGrid", "w:printerSettings", "w:sectPrChange")
 	return child
 }
 
@@ -265,7 +265,7 @@ func (e *CT_HdrFtr) PList() []*CT_P {
 	children := e.FindAllChildren("w:p")
 	result := make([]*CT_P, len(children))
 	for i, c := range children {
-		result[i] = &CT_P{Element{E: c}}
+		result[i] = &CT_P{Element{e: c}}
 	}
 	return result
 }
@@ -285,12 +285,12 @@ func (e *CT_HdrFtr) addP() *CT_P {
 // newP creates a detached <w:p> element.
 func (e *CT_HdrFtr) newP() *CT_P {
 	el := OxmlElement("w:p")
-	return &CT_P{Element{E: el}}
+	return &CT_P{Element{e: el}}
 }
 
 // insertP inserts child before first successor.
 func (e *CT_HdrFtr) insertP(child *CT_P) *CT_P {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -299,7 +299,7 @@ func (e *CT_HdrFtr) TblList() []*CT_Tbl {
 	children := e.FindAllChildren("w:tbl")
 	result := make([]*CT_Tbl, len(children))
 	for i, c := range children {
-		result[i] = &CT_Tbl{Element{E: c}}
+		result[i] = &CT_Tbl{Element{e: c}}
 	}
 	return result
 }
@@ -319,12 +319,12 @@ func (e *CT_HdrFtr) addTbl() *CT_Tbl {
 // newTbl creates a detached <w:tbl> element.
 func (e *CT_HdrFtr) newTbl() *CT_Tbl {
 	el := OxmlElement("w:tbl")
-	return &CT_Tbl{Element{E: el}}
+	return &CT_Tbl{Element{e: el}}
 }
 
 // insertTbl inserts child before first successor.
 func (e *CT_HdrFtr) insertTbl(child *CT_Tbl) *CT_Tbl {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 

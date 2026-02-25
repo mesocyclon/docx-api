@@ -22,7 +22,7 @@ func (e *CT_Document) Body() *CT_Body {
 	if child == nil {
 		return nil
 	}
-	return &CT_Body{Element{E: child}}
+	return &CT_Body{Element{e: child}}
 }
 
 // GetOrAddBody returns <w:body>, creating it if not present.
@@ -49,12 +49,12 @@ func (e *CT_Document) addBody() *CT_Body {
 // newBody creates a detached <w:body> element.
 func (e *CT_Document) newBody() *CT_Body {
 	el := OxmlElement("w:body")
-	return &CT_Body{Element{E: el}}
+	return &CT_Body{Element{e: el}}
 }
 
 // insertBody inserts child before first successor.
 func (e *CT_Document) insertBody(child *CT_Body) *CT_Body {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -71,7 +71,7 @@ func (e *CT_Body) SectPr() *CT_SectPr {
 	if child == nil {
 		return nil
 	}
-	return &CT_SectPr{Element{E: child}}
+	return &CT_SectPr{Element{e: child}}
 }
 
 // GetOrAddSectPr returns <w:sectPr>, creating it if not present.
@@ -98,12 +98,12 @@ func (e *CT_Body) addSectPr() *CT_SectPr {
 // newSectPr creates a detached <w:sectPr> element.
 func (e *CT_Body) newSectPr() *CT_SectPr {
 	el := OxmlElement("w:sectPr")
-	return &CT_SectPr{Element{E: el}}
+	return &CT_SectPr{Element{e: el}}
 }
 
 // insertSectPr inserts child before first successor.
 func (e *CT_Body) insertSectPr(child *CT_SectPr) *CT_SectPr {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -112,7 +112,7 @@ func (e *CT_Body) PList() []*CT_P {
 	children := e.FindAllChildren("w:p")
 	result := make([]*CT_P, len(children))
 	for i, c := range children {
-		result[i] = &CT_P{Element{E: c}}
+		result[i] = &CT_P{Element{e: c}}
 	}
 	return result
 }
@@ -132,12 +132,12 @@ func (e *CT_Body) addP() *CT_P {
 // newP creates a detached <w:p> element.
 func (e *CT_Body) newP() *CT_P {
 	el := OxmlElement("w:p")
-	return &CT_P{Element{E: el}}
+	return &CT_P{Element{e: el}}
 }
 
 // insertP inserts child before first successor.
 func (e *CT_Body) insertP(child *CT_P) *CT_P {
-	e.InsertElementBefore(child.E, "w:sectPr")
+	e.InsertElementBefore(child.e, "w:sectPr")
 	return child
 }
 
@@ -146,7 +146,7 @@ func (e *CT_Body) TblList() []*CT_Tbl {
 	children := e.FindAllChildren("w:tbl")
 	result := make([]*CT_Tbl, len(children))
 	for i, c := range children {
-		result[i] = &CT_Tbl{Element{E: c}}
+		result[i] = &CT_Tbl{Element{e: c}}
 	}
 	return result
 }
@@ -166,11 +166,11 @@ func (e *CT_Body) addTbl() *CT_Tbl {
 // newTbl creates a detached <w:tbl> element.
 func (e *CT_Body) newTbl() *CT_Tbl {
 	el := OxmlElement("w:tbl")
-	return &CT_Tbl{Element{E: el}}
+	return &CT_Tbl{Element{e: el}}
 }
 
 // insertTbl inserts child before first successor.
 func (e *CT_Body) insertTbl(child *CT_Tbl) *CT_Tbl {
-	e.InsertElementBefore(child.E, "w:sectPr")
+	e.InsertElementBefore(child.e, "w:sectPr")
 	return child
 }

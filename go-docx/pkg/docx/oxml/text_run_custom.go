@@ -15,7 +15,7 @@ func (r *CT_R) AddTWithText(text string) *CT_Text {
 	t := r.addT()
 	t.SetText(text)
 	if len(strings.TrimSpace(text)) < len(text) {
-		t.E.CreateAttr("xml:space", "preserve")
+		t.e.CreateAttr("xml:space", "preserve")
 	}
 	return t
 }
@@ -23,20 +23,20 @@ func (r *CT_R) AddTWithText(text string) *CT_Text {
 // AddDrawingWithInline adds a <w:drawing> element containing the given inline element.
 func (r *CT_R) AddDrawingWithInline(inline *CT_Inline) *CT_Drawing {
 	drawing := r.addDrawing()
-	drawing.E.AddChild(inline.E)
+	drawing.e.AddChild(inline.e)
 	return drawing
 }
 
 // ClearContent removes all child elements except <w:rPr>.
 func (r *CT_R) ClearContent() {
 	var toRemove []*etree.Element
-	for _, child := range r.E.ChildElements() {
+	for _, child := range r.e.ChildElements() {
 		if !(child.Space == "w" && child.Tag == "rPr") {
 			toRemove = append(toRemove, child)
 		}
 	}
 	for _, child := range toRemove {
-		r.E.RemoveChild(child)
+		r.e.RemoveChild(child)
 	}
 }
 
@@ -62,7 +62,7 @@ func (r *CT_R) SetStyle(styleID *string) error {
 // of all inner-content elements (w:t, w:br, w:cr, w:tab, w:noBreakHyphen, w:ptab).
 func (r *CT_R) RunText() string {
 	var sb strings.Builder
-	for _, child := range r.E.ChildElements() {
+	for _, child := range r.e.ChildElements() {
 		if child.Space != "w" {
 			continue
 		}
@@ -70,7 +70,7 @@ func (r *CT_R) RunText() string {
 		case "t":
 			sb.WriteString(child.Text())
 		case "br":
-			br := &CT_Br{Element{E: child}}
+			br := &CT_Br{Element{e: child}}
 			sb.WriteString(br.TextEquivalent())
 		case "cr":
 			sb.WriteString("\n")
@@ -96,9 +96,9 @@ func (r *CT_R) SetRunText(text string) {
 // LastRenderedPageBreaks returns all <w:lastRenderedPageBreak> descendants of this run.
 func (r *CT_R) LastRenderedPageBreaks() []*CT_LastRenderedPageBreak {
 	var result []*CT_LastRenderedPageBreak
-	for _, child := range r.E.ChildElements() {
+	for _, child := range r.e.ChildElements() {
 		if child.Space == "w" && child.Tag == "lastRenderedPageBreak" {
-			result = append(result, &CT_LastRenderedPageBreak{Element{E: child}})
+			result = append(result, &CT_LastRenderedPageBreak{Element{e: child}})
 		}
 	}
 	return result
@@ -140,12 +140,12 @@ func (pt *CT_PTab) TextEquivalent() string {
 
 // ContentText returns the text content of this <w:t> element, or empty string if none.
 func (t *CT_Text) ContentText() string {
-	return t.E.Text()
+	return t.e.Text()
 }
 
 // SetPreserveSpace sets xml:space="preserve" on this <w:t> element.
 func (t *CT_Text) SetPreserveSpace() {
-	t.E.CreateAttr("xml:space", "preserve")
+	t.e.CreateAttr("xml:space", "preserve")
 }
 
 // --- Run content appender utility ---
@@ -171,21 +171,21 @@ func (r *CT_R) InnerContentItems() []RunInnerContentItem {
 		}
 	}
 
-	for _, child := range r.E.ChildElements() {
+	for _, child := range r.e.ChildElements() {
 		if child.Space != "w" {
 			continue
 		}
 		switch child.Tag {
 		case "drawing":
 			flushText()
-			result = append(result, &CT_Drawing{Element{E: child}})
+			result = append(result, &CT_Drawing{Element{e: child}})
 		case "lastRenderedPageBreak":
 			flushText()
-			result = append(result, &CT_LastRenderedPageBreak{Element{E: child}})
+			result = append(result, &CT_LastRenderedPageBreak{Element{e: child}})
 		case "t":
 			textBuf.WriteString(child.Text())
 		case "br":
-			br := &CT_Br{Element{E: child}}
+			br := &CT_Br{Element{e: child}}
 			textBuf.WriteString(br.TextEquivalent())
 		case "cr":
 			textBuf.WriteString("\n")
@@ -231,7 +231,7 @@ func appendRunContentFromText(r *CT_R, text string) {
 //
 // Mirrors Python CT_R.insert_comment_range_start_above.
 func (r *CT_R) InsertCommentRangeStartAbove(commentID int) {
-	parent := r.E.Parent()
+	parent := r.e.Parent()
 	if parent == nil {
 		return
 	}
@@ -240,7 +240,7 @@ func (r *CT_R) InsertCommentRangeStartAbove(commentID int) {
 	crs.Tag = "commentRangeStart"
 	crs.CreateAttr("w:id", strconv.Itoa(commentID))
 	// Move before this run: find run index, remove crs from end, insert at run index
-	idx := childIndex(parent, r.E)
+	idx := childIndex(parent, r.e)
 	parent.RemoveChild(crs)
 	parent.InsertChildAt(idx, crs)
 }
@@ -258,12 +258,12 @@ func (r *CT_R) InsertCommentRangeStartAbove(commentID int) {
 //
 // Mirrors Python CT_R.insert_comment_range_end_and_reference_below.
 func (r *CT_R) InsertCommentRangeEndAndReferenceBelow(commentID int) {
-	parent := r.E.Parent()
+	parent := r.e.Parent()
 	if parent == nil {
 		return
 	}
 	idStr := strconv.Itoa(commentID)
-	idx := childIndex(parent, r.E)
+	idx := childIndex(parent, r.e)
 
 	// Build commentRangeEnd
 	cre := parent.CreateElement("w:commentRangeEnd")

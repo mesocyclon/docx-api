@@ -208,7 +208,7 @@ func TestAddComment_RoundTrip_XMLRangeMarkers(t *testing.T) {
 	}
 	idStr := fmt.Sprintf("%d", commentID)
 
-	pEl := p.CT_P().E
+	pEl := p.CT_P().RawElement()
 	var foundStart, foundEnd, foundRef bool
 	for _, child := range pEl.ChildElements() {
 		switch child.Tag {

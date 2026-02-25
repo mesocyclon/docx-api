@@ -15,7 +15,7 @@ func TestCT_LastRenderedPageBreak_PrecedesAllContent(t *testing.T) {
 	tEl.SetText("text")
 	rEl.AddChild(tEl)
 
-	lrpb := &CT_LastRenderedPageBreak{Element{E: lrpbEl}}
+	lrpb := &CT_LastRenderedPageBreak{Element{e: lrpbEl}}
 
 	if !lrpb.PrecedesAllContent() {
 		t.Error("expected PrecedesAllContent to be true when lrpb is first in first run")
@@ -33,7 +33,7 @@ func TestCT_LastRenderedPageBreak_FollowsAllContent(t *testing.T) {
 	lrpbEl := OxmlElement("w:lastRenderedPageBreak")
 	rEl.AddChild(lrpbEl)
 
-	lrpb := &CT_LastRenderedPageBreak{Element{E: lrpbEl}}
+	lrpb := &CT_LastRenderedPageBreak{Element{e: lrpbEl}}
 
 	if !lrpb.FollowsAllContent() {
 		t.Error("expected FollowsAllContent to be true when lrpb is last in last run")
@@ -50,7 +50,7 @@ func TestCT_LastRenderedPageBreak_IsInHyperlink(t *testing.T) {
 	lrpbEl := OxmlElement("w:lastRenderedPageBreak")
 	rEl.AddChild(lrpbEl)
 
-	lrpb := &CT_LastRenderedPageBreak{Element{E: lrpbEl}}
+	lrpb := &CT_LastRenderedPageBreak{Element{e: lrpbEl}}
 
 	if !lrpb.IsInHyperlink() {
 		t.Error("expected IsInHyperlink to be true")
@@ -64,9 +64,9 @@ func TestCT_LastRenderedPageBreak_EnclosingP(t *testing.T) {
 	lrpbEl := OxmlElement("w:lastRenderedPageBreak")
 	rEl.AddChild(lrpbEl)
 
-	lrpb := &CT_LastRenderedPageBreak{Element{E: lrpbEl}}
+	lrpb := &CT_LastRenderedPageBreak{Element{e: lrpbEl}}
 	p := lrpb.EnclosingP()
-	if p == nil || p.E != pEl {
+	if p == nil || p.e != pEl {
 		t.Error("EnclosingP should return the parent w:p")
 	}
 }
@@ -96,7 +96,7 @@ func buildParagraphWithBreakInRun() (*CT_P, *CT_LastRenderedPageBreak) {
 	t2.SetText("after")
 	rEl.AddChild(t2)
 
-	return &CT_P{Element{E: pEl}}, &CT_LastRenderedPageBreak{Element{E: lrpbEl}}
+	return &CT_P{Element{e: pEl}}, &CT_LastRenderedPageBreak{Element{e: lrpbEl}}
 }
 
 func TestCT_LastRenderedPageBreak_PrecedingFragment_InRun(t *testing.T) {
@@ -163,7 +163,7 @@ func buildParagraphWithBreakInHyperlink() (*CT_P, *CT_LastRenderedPageBreak) {
 	r2.AddChild(t2)
 	pEl.AddChild(r2)
 
-	return &CT_P{Element{E: pEl}}, &CT_LastRenderedPageBreak{Element{E: lrpbEl}}
+	return &CT_P{Element{e: pEl}}, &CT_LastRenderedPageBreak{Element{e: lrpbEl}}
 }
 
 func TestCT_LastRenderedPageBreak_PrecedingFragment_InHyperlink(t *testing.T) {
@@ -211,7 +211,7 @@ func TestCT_LastRenderedPageBreak_Fragment_PreservesProperties(t *testing.T) {
 	if err != nil {
 		t.Fatalf("PrecedingFragmentP: %v", err)
 	}
-	if preceding.E.FindElement("w:pPr") == nil {
+	if preceding.e.FindElement("w:pPr") == nil {
 		t.Error("pPr should be preserved in preceding fragment")
 	}
 
@@ -220,7 +220,7 @@ func TestCT_LastRenderedPageBreak_Fragment_PreservesProperties(t *testing.T) {
 	if err != nil {
 		t.Fatalf("FollowingFragmentP: %v", err)
 	}
-	if following.E.FindElement("w:pPr") == nil {
+	if following.e.FindElement("w:pPr") == nil {
 		t.Error("pPr should be preserved in following fragment")
 	}
 }
@@ -253,7 +253,7 @@ func buildMultiRunParagraphWithBreak() (*CT_P, *CT_LastRenderedPageBreak) {
 	r3.AddChild(t4)
 	pEl.AddChild(r3)
 
-	return &CT_P{Element{E: pEl}}, &CT_LastRenderedPageBreak{Element{E: lrpbEl}}
+	return &CT_P{Element{e: pEl}}, &CT_LastRenderedPageBreak{Element{e: lrpbEl}}
 }
 
 func TestCT_LastRenderedPageBreak_PrecedingFragment_MultiRun(t *testing.T) {

@@ -170,7 +170,7 @@ func makeCorePropsPartForTest(blob []byte) *parts.CorePropertiesPart {
 // Mirrors Python CorePropertiesPart.core_properties → CoreProperties(self.element).
 func ctFromPart(cpp *parts.CorePropertiesPart) *oxml.CT_CoreProperties {
 	el := cpp.Element()
-	return &oxml.CT_CoreProperties{Element: oxml.Element{E: el}}
+	return &oxml.CT_CoreProperties{Element: oxml.WrapElement(el)}
 }
 
 func TestCoreProperties_ReadFromPart(t *testing.T) {

@@ -478,7 +478,7 @@ func TestCT_Tc_NextTc(t *testing.T) {
 	if next == nil {
 		t.Fatal("expected next tc")
 	}
-	if next.E != tcs[1].E {
+	if next.e != tcs[1].e {
 		t.Error("next tc should be second cell")
 	}
 	if last := tcs[2].NextTc(); last != nil {

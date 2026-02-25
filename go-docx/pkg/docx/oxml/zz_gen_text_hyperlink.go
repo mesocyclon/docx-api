@@ -21,7 +21,7 @@ func (e *CT_Hyperlink) RList() []*CT_R {
 	children := e.FindAllChildren("w:r")
 	result := make([]*CT_R, len(children))
 	for i, c := range children {
-		result[i] = &CT_R{Element{E: c}}
+		result[i] = &CT_R{Element{e: c}}
 	}
 	return result
 }
@@ -41,12 +41,12 @@ func (e *CT_Hyperlink) addR() *CT_R {
 // newR creates a detached <w:r> element.
 func (e *CT_Hyperlink) newR() *CT_R {
 	el := OxmlElement("w:r")
-	return &CT_R{Element{E: el}}
+	return &CT_R{Element{e: el}}
 }
 
 // insertR inserts child before first successor.
 func (e *CT_Hyperlink) insertR(child *CT_R) *CT_R {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 

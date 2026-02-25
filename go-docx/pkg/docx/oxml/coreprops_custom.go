@@ -21,7 +21,7 @@ func NewCoreProperties() (*CT_CoreProperties, error) {
 	if err != nil {
 		return nil, fmt.Errorf("oxml: failed to parse coreProperties XML: %w", err)
 	}
-	return &CT_CoreProperties{Element{E: el}}, nil
+	return &CT_CoreProperties{Element{e: el}}, nil
 }
 
 // --- Text property helpers ---
@@ -32,7 +32,7 @@ func (cp *CT_CoreProperties) textOfElement(el *CT_CorePropText) string {
 	if el == nil {
 		return ""
 	}
-	t := el.E.Text()
+	t := el.e.Text()
 	if t == "" {
 		return ""
 	}
@@ -45,7 +45,7 @@ func (cp *CT_CoreProperties) setElementText(getOrAdd func() *CT_CorePropText, va
 		return fmt.Errorf("exceeded 255 char limit for core property, got %d chars", len(value))
 	}
 	el := getOrAdd()
-	el.E.SetText(value)
+	el.e.SetText(value)
 	return nil
 }
 
@@ -230,7 +230,7 @@ func (cp *CT_CoreProperties) datetimeOfElement(el *CT_CorePropText) *time.Time {
 	if el == nil {
 		return nil
 	}
-	text := el.E.Text()
+	text := el.e.Text()
 	if text == "" {
 		return nil
 	}
@@ -246,12 +246,12 @@ func (cp *CT_CoreProperties) datetimeOfElement(el *CT_CorePropText) *time.Time {
 func (cp *CT_CoreProperties) setElementDatetime(getOrAdd func() *CT_CorePropText, t time.Time, isDateTerms bool) {
 	el := getOrAdd()
 	dtStr := t.UTC().Format("2006-01-02T15:04:05Z")
-	el.E.SetText(dtStr)
+	el.e.SetText(dtStr)
 
 	if isDateTerms {
 		// dcterms:created and dcterms:modified require xsi:type="dcterms:W3CDTF"
 		cp.ensureXsiNamespace()
-		el.E.CreateAttr("xsi:type", "dcterms:W3CDTF")
+		el.e.CreateAttr("xsi:type", "dcterms:W3CDTF")
 	}
 }
 
@@ -261,8 +261,8 @@ func (cp *CT_CoreProperties) setElementDatetime(getOrAdd func() *CT_CorePropText
 func (cp *CT_CoreProperties) ensureXsiNamespace() {
 	const xsiURI = "http://www.w3.org/2001/XMLSchema-instance"
 	// Check if xmlns:xsi is already declared
-	if _, ok := HasNsDecl(cp.E, "xsi"); !ok {
-		cp.E.CreateAttr("xmlns:xsi", xsiURI)
+	if _, ok := HasNsDecl(cp.e, "xsi"); !ok {
+		cp.e.CreateAttr("xmlns:xsi", xsiURI)
 	}
 }
 
@@ -305,7 +305,7 @@ func (cp *CT_CoreProperties) RevisionNumber() int {
 	if rev == nil {
 		return 0
 	}
-	text := rev.E.Text()
+	text := rev.e.Text()
 	if text == "" {
 		return 0
 	}
@@ -323,6 +323,6 @@ func (cp *CT_CoreProperties) SetRevisionNumber(v int) error {
 		return fmt.Errorf("revision property requires positive int, got %d", v)
 	}
 	rev := cp.GetOrAddRevision()
-	rev.E.SetText(strconv.Itoa(v))
+	rev.e.SetText(strconv.Itoa(v))
 	return nil
 }

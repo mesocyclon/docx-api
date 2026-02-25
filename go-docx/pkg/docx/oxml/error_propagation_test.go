@@ -20,7 +20,7 @@ import (
 func corruptGridSpan(tc *CT_Tc) {
 	tcPr := tc.GetOrAddTcPr()
 	gs := tcPr.GetOrAddGridSpan()
-	gs.E.CreateAttr("w:val", "CORRUPT")
+	gs.e.CreateAttr("w:val", "CORRUPT")
 }
 
 // requireParseAttrError asserts that err wraps a *ParseAttrError.
@@ -300,7 +300,7 @@ func TestTcAbove_ReturnsCell(t *testing.T) {
 	if above == nil {
 		t.Fatal("expected non-nil cell above")
 	}
-	if above.E != trs[0].TcList()[0].E {
+	if above.e != trs[0].TcList()[0].e {
 		t.Error("tcAbove returned wrong cell")
 	}
 }
@@ -317,7 +317,7 @@ func TestTcBelow_ReturnsCell(t *testing.T) {
 	if below == nil {
 		t.Fatal("expected non-nil cell below")
 	}
-	if below.E != trs[2].TcList()[0].E {
+	if below.e != trs[2].TcList()[0].e {
 		t.Error("tcBelow returned wrong cell")
 	}
 }

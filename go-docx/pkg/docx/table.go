@@ -242,7 +242,7 @@ type Cell struct {
 // NewCell creates a new Cell proxy.
 func NewCell(tc *oxml.CT_Tc, table *Table) *Cell {
 	return &Cell{
-		BlockItemContainer: NewBlockItemContainer(tc.E, table.part),
+		BlockItemContainer: NewBlockItemContainer(tc.RawElement(), table.part),
 		tc:                 tc,
 		table:              table,
 	}
@@ -300,9 +300,9 @@ func (c *Cell) Text() string {
 // Mirrors Python _Cell.text setter.
 func (c *Cell) SetText(text string) {
 	c.tc.ClearContent()
-	pE := c.tc.E.CreateElement("p")
+	pE := c.tc.RawElement().CreateElement("p")
 	pE.Space = "w"
-	p := &oxml.CT_P{Element: oxml.Element{E: pE}}
+	p := &oxml.CT_P{Element: oxml.WrapElement(pE)}
 	r := p.AddR()
 	r.SetRunText(text)
 }
@@ -383,7 +383,7 @@ func (r *Row) tcAbove(tc *oxml.CT_Tc) *oxml.CT_Tc {
 	// Find the grid offset of tc in this row
 	offset := 0
 	for _, c := range r.tr.TcList() {
-		if c.E == tc.E {
+		if c.RawElement() == tc.RawElement() {
 			break
 		}
 		gs, err := c.GridSpanVal()
@@ -483,7 +483,7 @@ func (c *Column) index() int {
 		return 0
 	}
 	for i, gc := range grid.GridColList() {
-		if gc.E == c.gridCol.E {
+		if gc.RawElement() == c.gridCol.RawElement() {
 			return i
 		}
 	}

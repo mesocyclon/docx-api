@@ -7,7 +7,7 @@ import (
 func TestCT_Settings_EvenAndOddHeadersVal(t *testing.T) {
 	xml := `<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>`
 	el, _ := ParseXml([]byte(xml))
-	s := &CT_Settings{Element{E: el}}
+	s := &CT_Settings{Element{e: el}}
 
 	// Default should be false
 	if s.EvenAndOddHeadersVal() {

@@ -22,7 +22,7 @@ func (e *CT_P) PPr() *CT_PPr {
 	if child == nil {
 		return nil
 	}
-	return &CT_PPr{Element{E: child}}
+	return &CT_PPr{Element{e: child}}
 }
 
 // GetOrAddPPr returns <w:pPr>, creating it if not present.
@@ -49,12 +49,12 @@ func (e *CT_P) addPPr() *CT_PPr {
 // newPPr creates a detached <w:pPr> element.
 func (e *CT_P) newPPr() *CT_PPr {
 	el := OxmlElement("w:pPr")
-	return &CT_PPr{Element{E: el}}
+	return &CT_PPr{Element{e: el}}
 }
 
 // insertPPr inserts child before first successor.
 func (e *CT_P) insertPPr(child *CT_PPr) *CT_PPr {
-	e.InsertElementBefore(child.E, "w:hyperlink", "w:r")
+	e.InsertElementBefore(child.e, "w:hyperlink", "w:r")
 	return child
 }
 
@@ -63,7 +63,7 @@ func (e *CT_P) HyperlinkList() []*CT_Hyperlink {
 	children := e.FindAllChildren("w:hyperlink")
 	result := make([]*CT_Hyperlink, len(children))
 	for i, c := range children {
-		result[i] = &CT_Hyperlink{Element{E: c}}
+		result[i] = &CT_Hyperlink{Element{e: c}}
 	}
 	return result
 }
@@ -83,12 +83,12 @@ func (e *CT_P) addHyperlink() *CT_Hyperlink {
 // newHyperlink creates a detached <w:hyperlink> element.
 func (e *CT_P) newHyperlink() *CT_Hyperlink {
 	el := OxmlElement("w:hyperlink")
-	return &CT_Hyperlink{Element{E: el}}
+	return &CT_Hyperlink{Element{e: el}}
 }
 
 // insertHyperlink inserts child before first successor.
 func (e *CT_P) insertHyperlink(child *CT_Hyperlink) *CT_Hyperlink {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
 
@@ -97,7 +97,7 @@ func (e *CT_P) RList() []*CT_R {
 	children := e.FindAllChildren("w:r")
 	result := make([]*CT_R, len(children))
 	for i, c := range children {
-		result[i] = &CT_R{Element{E: c}}
+		result[i] = &CT_R{Element{e: c}}
 	}
 	return result
 }
@@ -117,11 +117,11 @@ func (e *CT_P) addR() *CT_R {
 // newR creates a detached <w:r> element.
 func (e *CT_P) newR() *CT_R {
 	el := OxmlElement("w:r")
-	return &CT_R{Element{E: el}}
+	return &CT_R{Element{e: el}}
 }
 
 // insertR inserts child before first successor.
 func (e *CT_P) insertR(child *CT_R) *CT_R {
-	e.InsertElementBefore(child.E)
+	e.InsertElementBefore(child.e)
 	return child
 }
