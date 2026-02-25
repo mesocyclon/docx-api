@@ -1,10 +1,9 @@
-// Package docx provides types and functions for creating, reading, and modifying
-// Microsoft Word (.docx) documents.
 package docx
 
 import (
 	"fmt"
 	"math"
+	"strconv"
 )
 
 // EMU conversion constants.
@@ -102,19 +101,9 @@ func (c RGBColor) B() byte { return c[2] }
 
 // parseHexByte parses a two-character hex string into a byte.
 func parseHexByte(s string) (byte, error) {
-	var b byte
-	for _, ch := range []byte(s) {
-		b <<= 4
-		switch {
-		case ch >= '0' && ch <= '9':
-			b |= ch - '0'
-		case ch >= 'a' && ch <= 'f':
-			b |= ch - 'a' + 10
-		case ch >= 'A' && ch <= 'F':
-			b |= ch - 'A' + 10
-		default:
-			return 0, fmt.Errorf("invalid hex character: %c", ch)
-		}
+	v, err := strconv.ParseUint(s, 16, 8)
+	if err != nil {
+		return 0, fmt.Errorf("invalid hex byte %q: %w", s, err)
 	}
-	return b, nil
+	return byte(v), nil
 }

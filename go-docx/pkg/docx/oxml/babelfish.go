@@ -7,6 +7,10 @@ package oxml
 // Translates special-case style names between their UI form (e.g. "Heading 1")
 // and the internal/styles.xml form (e.g. "heading 1").
 //
+// Only the built-in styles listed below have aliases. User-defined (custom)
+// styles are not translated and must be referenced by their exact name as it
+// appears in styles.xml.
+//
 // Lives in oxml because it's a static mapping table used by CT_Styles methods.
 // Mirrors Python docx.styles.BabelFish exactly.
 
@@ -47,7 +51,8 @@ func buildInternal2UIMap() map[string]string {
 }
 
 // UI2Internal converts a UI style name to its internal/styles.xml form.
-// Names without a mapping are returned unchanged.
+// Only built-in styles (Heading 1–9, Caption, Header, Footer) have mappings;
+// all other names are returned unchanged.
 //
 // Mirrors Python BabelFish.ui2internal.
 func UI2Internal(name string) string {
@@ -58,7 +63,8 @@ func UI2Internal(name string) string {
 }
 
 // Internal2UI converts an internal/styles.xml name to its UI form.
-// Names without a mapping are returned unchanged.
+// Only built-in styles (Heading 1–9, Caption, Header, Footer) have mappings;
+// all other names are returned unchanged.
 //
 // Mirrors Python BabelFish.internal2ui.
 func Internal2UI(name string) string {

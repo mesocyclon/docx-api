@@ -1,5 +1,3 @@
-// Package docx provides types and functions for creating and manipulating
-// Office Open XML (.docx) documents.
 package docx
 
 import "fmt"
