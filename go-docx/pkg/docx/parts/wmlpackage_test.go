@@ -13,10 +13,10 @@ func TestImageParts_GetOrAddSameBlob_Dedup(t *testing.T) {
 	ip1 := NewImagePart("/word/media/image1.png", opc.CTPng, blob, nil)
 	ips.Append(ip1)
 
-	// Look up by SHA1 — should find the existing part
-	found := ips.GetBySHA1(ip1.SHA1())
+	// Look up by hash — should find the existing part
+	found := ips.GetByHash(ip1.Hash())
 	if found != ip1 {
-		t.Error("GetBySHA1 should find existing part with same blob")
+		t.Error("GetByHash should find existing part with same blob")
 	}
 }
 
@@ -28,9 +28,9 @@ func TestImageParts_DifferentBlobs_NoDeDup(t *testing.T) {
 	ip1 := NewImagePart("/word/media/image1.png", opc.CTPng, blob1, nil)
 	ips.Append(ip1)
 
-	found := ips.GetBySHA1(NewImagePart("/tmp/x.png", opc.CTPng, blob2, nil).SHA1())
+	found := ips.GetByHash(NewImagePart("/tmp/x.png", opc.CTPng, blob2, nil).Hash())
 	if found != nil {
-		t.Error("GetBySHA1 should not find part with different blob")
+		t.Error("GetByHash should not find part with different blob")
 	}
 }
 

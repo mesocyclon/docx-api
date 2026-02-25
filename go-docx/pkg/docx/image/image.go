@@ -2,7 +2,7 @@ package image
 
 import (
 	"bytes"
-	"crypto/sha1"
+	"crypto/sha256"
 	"fmt"
 	"io"
 	"math"
@@ -31,7 +31,7 @@ type Image struct {
 	pxHeight    int
 	horzDpi     int
 	vertDpi     int
-	sha1Hash    string // lazy, "" until first SHA1() call
+	hash        string // lazy, "" until first Hash() call
 }
 
 // FromBlob returns a new Image parsed from the image binary in blob.
@@ -164,14 +164,14 @@ func (img *Image) ScaledDimensions(width, height *int64) (cx, cy int64) {
 	return *width, *height
 }
 
-// SHA1 returns the hex-encoded SHA1 hash of the image blob. The value is
+// Hash returns the hex-encoded SHA-256 hash of the image blob. The value is
 // computed lazily and cached.
-func (img *Image) SHA1() string {
-	if img.sha1Hash == "" {
-		sum := sha1.Sum(img.blob)
-		img.sha1Hash = fmt.Sprintf("%x", sum)
+func (img *Image) Hash() string {
+	if img.hash == "" {
+		sum := sha256.Sum256(img.blob)
+		img.hash = fmt.Sprintf("%x", sum)
 	}
-	return img.sha1Hash
+	return img.hash
 }
 
 // signatures is the table of magic bytes for recognizing image formats.

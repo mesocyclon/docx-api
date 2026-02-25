@@ -1,7 +1,7 @@
 package parts
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"fmt"
 	"math"
 	"testing"
@@ -9,30 +9,30 @@ import (
 	"github.com/vortex/go-docx/pkg/docx/opc"
 )
 
-func TestImagePartSHA1_Stable(t *testing.T) {
+func TestImagePartHash_Stable(t *testing.T) {
 	blob := []byte("test image data")
 	ip := NewImagePart("/word/media/image1.png", opc.CTPng, blob, nil)
 
-	h1 := ip.SHA1()
-	h2 := ip.SHA1()
+	h1 := ip.Hash()
+	h2 := ip.Hash()
 	if h1 != h2 {
-		t.Errorf("SHA1 not stable: %q != %q", h1, h2)
+		t.Errorf("Hash not stable: %q != %q", h1, h2)
 	}
 
 	// Verify against direct computation
-	expected := fmt.Sprintf("%x", sha1.Sum(blob))
+	expected := fmt.Sprintf("%x", sha256.Sum256(blob))
 	if h1 != expected {
-		t.Errorf("SHA1 = %q, want %q", h1, expected)
+		t.Errorf("Hash = %q, want %q", h1, expected)
 	}
 }
 
-func TestImagePartSHA1_SameBlob(t *testing.T) {
+func TestImagePartHash_SameBlob(t *testing.T) {
 	blob := []byte("identical data")
 	ip1 := NewImagePart("/word/media/image1.png", opc.CTPng, blob, nil)
 	ip2 := NewImagePart("/word/media/image2.png", opc.CTPng, blob, nil)
 
-	if ip1.SHA1() != ip2.SHA1() {
-		t.Error("Same blob should produce same SHA1")
+	if ip1.Hash() != ip2.Hash() {
+		t.Error("Same blob should produce same Hash")
 	}
 }
 

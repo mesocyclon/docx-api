@@ -8,7 +8,7 @@ import (
 )
 
 // WmlPackage adds WML-specific behaviours to OpcPackage, primarily image
-// part management with SHA1-based deduplication.
+// part management with SHA-256-based deduplication.
 //
 // Mirrors Python Package(OpcPackage).
 type WmlPackage struct {
@@ -30,13 +30,13 @@ func (wp *WmlPackage) ImageParts() *ImageParts {
 }
 
 // GetOrAddImagePart returns the ImagePart matching the given image part
-// (by SHA1 dedup), creating a new one if needed.
+// (by SHA-256 dedup), creating a new one if needed.
 //
 // Mirrors Python Package.get_or_add_image_part.
 // In Python this takes an image_descriptor; here we take a pre-built
 // ImagePart (with blob, metadata) since the Image parsing is in MR-10.
 func (wp *WmlPackage) GetOrAddImagePart(ip *ImagePart) *ImagePart {
-	existing := wp.ImageParts().GetBySHA1(ip.SHA1())
+	existing := wp.ImageParts().GetByHash(ip.Hash())
 	if existing != nil {
 		return existing
 	}
@@ -78,10 +78,10 @@ func (wp *WmlPackage) AfterUnmarshal() {
 }
 
 // --------------------------------------------------------------------------
-// ImageParts — collection with SHA1 deduplication
+// ImageParts — collection with SHA-256 deduplication
 // --------------------------------------------------------------------------
 
-// ImageParts is a collection of ImagePart objects with SHA1-based
+// ImageParts is a collection of ImagePart objects with SHA-256-based
 // deduplication.
 //
 // Mirrors Python ImageParts exactly.
@@ -119,12 +119,12 @@ func (ips *ImageParts) All() []*ImagePart {
 	return ips.parts
 }
 
-// GetBySHA1 returns the image part with a matching SHA1 hash, or nil.
+// GetByHash returns the image part with a matching hash, or nil.
 //
-// Mirrors Python ImageParts._get_by_sha1.
-func (ips *ImageParts) GetBySHA1(sha1 string) *ImagePart {
+// Mirrors Python ImageParts._get_by_sha1 (upgraded to SHA-256).
+func (ips *ImageParts) GetByHash(hash string) *ImagePart {
 	for _, ip := range ips.parts {
-		if ip.SHA1() == sha1 {
+		if ip.Hash() == hash {
 			return ip
 		}
 	}

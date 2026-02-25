@@ -32,7 +32,7 @@ func NewStoryPart(xp *opc.XmlPart) *StoryPart {
 
 // GetOrAddImage returns (rId, imagePart) for the image identified by imgPart.
 // The caller is expected to resolve the image through WmlPackage first (which
-// handles SHA1 deduplication), then this method wires the relationship.
+// handles SHA-256 deduplication), then this method wires the relationship.
 //
 // Mirrors Python StoryPart.get_or_add_image:
 //

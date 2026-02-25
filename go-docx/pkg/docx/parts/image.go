@@ -1,7 +1,7 @@
 package parts
 
 import (
-	"crypto/sha1"
+	"crypto/sha256"
 	"fmt"
 	"math"
 
@@ -15,7 +15,7 @@ import (
 // Mirrors Python ImagePart(Part).
 type ImagePart struct {
 	*opc.BasePart
-	sha1Hash   string // lazy, "" until first SHA1() call
+	hash       string // lazy, "" until first Hash() call
 	metaLoaded bool   // true once dimensions/DPI have been parsed
 
 	// Image metadata — populated lazily from blob or explicitly via SetImageMeta.
@@ -49,7 +49,7 @@ func NewImagePartWithMeta(partName opc.PackURI, contentType string, blob []byte,
 }
 
 // NewImagePartFromImage creates an ImagePart from a parsed image.Image and its
-// raw blob bytes. Used by the stream-based image insertion flow.
+// raw blob bytes. The hash is carried over from Image to avoid recomputation.
 //
 // Mirrors Python ImagePart.from_image(image, partname) classmethod.
 func NewImagePartFromImage(img *image.Image, blob []byte) *ImagePart {
@@ -59,6 +59,7 @@ func NewImagePartFromImage(img *image.Image, blob []byte) *ImagePart {
 	}
 	return &ImagePart{
 		BasePart:   opc.NewBasePart("", img.ContentType(), blob, nil),
+		hash:       img.Hash(), // reuse already-computed hash (#7)
 		metaLoaded: true,
 		pxWidth:    img.PxWidth(),
 		pxHeight:   img.PxHeight(),
@@ -68,18 +69,18 @@ func NewImagePartFromImage(img *image.Image, blob []byte) *ImagePart {
 	}
 }
 
-// SHA1 returns the hex-encoded SHA1 hash of this image's blob.
+// Hash returns the hex-encoded SHA-256 hash of this image's blob.
 // The value is cached after the first computation.
 //
-// Mirrors Python ImagePart.sha1 property.
-func (ip *ImagePart) SHA1() string {
-	if ip.sha1Hash != "" {
-		return ip.sha1Hash
+// Mirrors Python ImagePart.sha1 property (upgraded to SHA-256).
+func (ip *ImagePart) Hash() string {
+	if ip.hash != "" {
+		return ip.hash
 	}
 	blob, _ := ip.Blob()
-	h := sha1.Sum(blob)
-	ip.sha1Hash = fmt.Sprintf("%x", h)
-	return ip.sha1Hash
+	h := sha256.Sum256(blob)
+	ip.hash = fmt.Sprintf("%x", h)
+	return ip.hash
 }
 
 // Filename returns the original filename for this image. If no filename

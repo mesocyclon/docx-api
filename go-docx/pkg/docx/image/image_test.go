@@ -173,34 +173,34 @@ func TestImage_DefaultFilename(t *testing.T) {
 	}
 }
 
-func TestImage_SHA1_Stable(t *testing.T) {
+func TestImage_Hash_Stable(t *testing.T) {
 	blob := buildMinimalGIF(10, 10)
 	img1, _ := FromBlob(blob, "a.gif")
 	img2, _ := FromBlob(blob, "b.gif")
 
-	if img1.SHA1() == "" {
-		t.Error("SHA1 should not be empty")
+	if img1.Hash() == "" {
+		t.Error("Hash should not be empty")
 	}
-	if img1.SHA1() != img2.SHA1() {
-		t.Error("SHA1 should be stable for identical blobs")
+	if img1.Hash() != img2.Hash() {
+		t.Error("Hash should be stable for identical blobs")
 	}
 
-	// Verify calling SHA1 again returns cached value
-	sha1a := img1.SHA1()
-	sha1b := img1.SHA1()
-	if sha1a != sha1b {
-		t.Error("SHA1 should be cached")
+	// Verify calling Hash again returns cached value
+	ha := img1.Hash()
+	hb := img1.Hash()
+	if ha != hb {
+		t.Error("Hash should be cached")
 	}
 }
 
-func TestImage_SHA1_DifferentBlobs(t *testing.T) {
+func TestImage_Hash_DifferentBlobs(t *testing.T) {
 	blob1 := buildMinimalGIF(10, 10)
 	blob2 := buildMinimalGIF(20, 20)
 	img1, _ := FromBlob(blob1, "a.gif")
 	img2, _ := FromBlob(blob2, "b.gif")
 
-	if img1.SHA1() == img2.SHA1() {
-		t.Error("SHA1 should differ for different blobs")
+	if img1.Hash() == img2.Hash() {
+		t.Error("Hash should differ for different blobs")
 	}
 }
 
