@@ -282,12 +282,16 @@ func newHeader(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.W
 	return &Header{sectPr: sectPr, docPart: docPart, index: index}
 }
 
-// IsLinkedToPrevious returns true if this header uses the definition from
-// the prior section.
+// IsLinkedToPrevious reports whether this header uses the definition from
+// the prior section. Returns false on error (conservative: assume own definition).
 //
 // Mirrors Python _BaseHeaderFooter.is_linked_to_previous.
 func (h *Header) IsLinkedToPrevious() bool {
-	return !h.hasDefinition()
+	has, err := h.hasDefinition()
+	if err != nil {
+		return false
+	}
+	return !has
 }
 
 // SetIsLinkedToPrevious sets the linked-to-previous state.
@@ -363,21 +367,21 @@ func (h *Header) IterInnerContent() ([]*InnerContentItem, error) {
 // image insertion in header content.
 //
 // Mirrors Python _BaseHeaderFooter.part property.
-func (h *Header) Part() *parts.StoryPart {
-	hp := h.getOrAddDefinition()
-	if hp == nil {
-		return nil
+func (h *Header) Part() (*parts.StoryPart, error) {
+	hp, err := h.getOrAddDefinition()
+	if err != nil {
+		return nil, fmt.Errorf("docx: resolving header part: %w", err)
 	}
-	return &hp.StoryPart
+	return &hp.StoryPart, nil
 }
 
 // blockItemContainer creates a BlockItemContainer backed by the header part's
 // element and StoryPart. Created fresh each call to match Python's property
 // behavior (no stale cache if definition changes).
 func (h *Header) blockItemContainer() (*BlockItemContainer, error) {
-	hp := h.getOrAddDefinition()
-	if hp == nil {
-		return nil, fmt.Errorf("docx: failed to resolve header definition")
+	hp, err := h.getOrAddDefinition()
+	if err != nil {
+		return nil, fmt.Errorf("docx: resolving header definition: %w", err)
 	}
 	el := hp.Element()
 	if el == nil {
@@ -387,9 +391,12 @@ func (h *Header) blockItemContainer() (*BlockItemContainer, error) {
 	return &bic, nil
 }
 
-func (h *Header) hasDefinition() bool {
-	ref, _ := h.sectPr.GetHeaderRef(h.index)
-	return ref != nil
+func (h *Header) hasDefinition() (bool, error) {
+	ref, err := h.sectPr.GetHeaderRef(h.index)
+	if err != nil {
+		return false, fmt.Errorf("docx: checking header ref for index %d: %w", h.index, err)
+	}
+	return ref != nil, nil
 }
 
 func (h *Header) addDefinition() (*parts.HeaderPart, error) {
@@ -413,29 +420,38 @@ func (h *Header) dropDefinition() {
 // getOrAddDefinition mirrors Python _BaseHeaderFooter._get_or_add_definition.
 // Recursive: if linked, walk to prior section's header; if first section and
 // linked, add new definition.
-func (h *Header) getOrAddDefinition() *parts.HeaderPart {
-	if h.hasDefinition() {
+func (h *Header) getOrAddDefinition() (*parts.HeaderPart, error) {
+	has, err := h.hasDefinition()
+	if err != nil {
+		return nil, err
+	}
+	if has {
 		return h.definition()
 	}
 	prior := h.priorHeader()
 	if prior != nil {
 		return prior.getOrAddDefinition()
 	}
-	hp, _ := h.addDefinition()
-	return hp
+	return h.addDefinition()
 }
 
-func (h *Header) definition() *parts.HeaderPart {
-	ref, _ := h.sectPr.GetHeaderRef(h.index)
-	if ref == nil {
-		return nil
+func (h *Header) definition() (*parts.HeaderPart, error) {
+	ref, err := h.sectPr.GetHeaderRef(h.index)
+	if err != nil {
+		return nil, fmt.Errorf("docx: getting header ref for index %d: %w", h.index, err)
 	}
-	rId, _ := ref.RId()
+	if ref == nil {
+		return nil, nil
+	}
+	rId, err := ref.RId()
+	if err != nil {
+		return nil, fmt.Errorf("docx: getting header rId: %w", err)
+	}
 	hp, err := h.docPart.HeaderPartByRID(rId)
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: resolving header part for rId %q: %w", rId, err)
 	}
-	return hp
+	return hp, nil
 }
 
 func (h *Header) priorHeader() *Header {
@@ -466,10 +482,14 @@ func newFooter(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.W
 	return &Footer{sectPr: sectPr, docPart: docPart, index: index}
 }
 
-// IsLinkedToPrevious returns true if this footer uses the definition from
-// the prior section.
+// IsLinkedToPrevious reports whether this footer uses the definition from
+// the prior section. Returns false on error (conservative: assume own definition).
 func (f *Footer) IsLinkedToPrevious() bool {
-	return !f.hasDefinition()
+	has, err := f.hasDefinition()
+	if err != nil {
+		return false
+	}
+	return !has
 }
 
 // SetIsLinkedToPrevious sets the linked-to-previous state.
@@ -545,21 +565,21 @@ func (f *Footer) IterInnerContent() ([]*InnerContentItem, error) {
 // image insertion in footer content.
 //
 // Mirrors Python _BaseHeaderFooter.part property.
-func (f *Footer) Part() *parts.StoryPart {
-	fp := f.getOrAddDefinition()
-	if fp == nil {
-		return nil
+func (f *Footer) Part() (*parts.StoryPart, error) {
+	fp, err := f.getOrAddDefinition()
+	if err != nil {
+		return nil, fmt.Errorf("docx: resolving footer part: %w", err)
 	}
-	return &fp.StoryPart
+	return &fp.StoryPart, nil
 }
 
 // blockItemContainer creates a BlockItemContainer backed by the footer part's
 // element and StoryPart. Created fresh each call to match Python's property
 // behavior.
 func (f *Footer) blockItemContainer() (*BlockItemContainer, error) {
-	fp := f.getOrAddDefinition()
-	if fp == nil {
-		return nil, fmt.Errorf("docx: failed to resolve footer definition")
+	fp, err := f.getOrAddDefinition()
+	if err != nil {
+		return nil, fmt.Errorf("docx: resolving footer definition: %w", err)
 	}
 	el := fp.Element()
 	if el == nil {
@@ -569,9 +589,12 @@ func (f *Footer) blockItemContainer() (*BlockItemContainer, error) {
 	return &bic, nil
 }
 
-func (f *Footer) hasDefinition() bool {
-	ref, _ := f.sectPr.GetFooterRef(f.index)
-	return ref != nil
+func (f *Footer) hasDefinition() (bool, error) {
+	ref, err := f.sectPr.GetFooterRef(f.index)
+	if err != nil {
+		return false, fmt.Errorf("docx: checking footer ref for index %d: %w", f.index, err)
+	}
+	return ref != nil, nil
 }
 
 func (f *Footer) addDefinition() (*parts.FooterPart, error) {
@@ -592,29 +615,38 @@ func (f *Footer) dropDefinition() {
 	}
 }
 
-func (f *Footer) getOrAddDefinition() *parts.FooterPart {
-	if f.hasDefinition() {
+func (f *Footer) getOrAddDefinition() (*parts.FooterPart, error) {
+	has, err := f.hasDefinition()
+	if err != nil {
+		return nil, err
+	}
+	if has {
 		return f.definition()
 	}
 	prior := f.priorFooter()
 	if prior != nil {
 		return prior.getOrAddDefinition()
 	}
-	fp, _ := f.addDefinition()
-	return fp
+	return f.addDefinition()
 }
 
-func (f *Footer) definition() *parts.FooterPart {
-	ref, _ := f.sectPr.GetFooterRef(f.index)
-	if ref == nil {
-		return nil
+func (f *Footer) definition() (*parts.FooterPart, error) {
+	ref, err := f.sectPr.GetFooterRef(f.index)
+	if err != nil {
+		return nil, fmt.Errorf("docx: getting footer ref for index %d: %w", f.index, err)
 	}
-	rId, _ := ref.RId()
+	if ref == nil {
+		return nil, nil
+	}
+	rId, err := ref.RId()
+	if err != nil {
+		return nil, fmt.Errorf("docx: getting footer rId: %w", err)
+	}
 	fp, err := f.docPart.FooterPartByRID(rId)
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: resolving footer part for rId %q: %w", rId, err)
 	}
-	return fp
+	return fp, nil
 }
 
 func (f *Footer) priorFooter() *Footer {

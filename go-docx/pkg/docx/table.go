@@ -57,7 +57,9 @@ func (t *Table) AddRow() (*Row, error) {
 		tc := tr.AddTc()
 		w, err := gc.W()
 		if err == nil && w != nil {
-			tc.SetWidthTwips(*w) //nolint:errcheck
+			if err := tc.SetWidthTwips(*w); err != nil {
+				return nil, fmt.Errorf("docx: setting cell width in new row: %w", err)
+			}
 		}
 	}
 	return &Row{tr: tr, table: t}, nil
@@ -266,7 +268,10 @@ func (c *Cell) AddTable(rows, cols int) (*Table, error) {
 	if err != nil {
 		return nil, err
 	}
-	c.BlockItemContainer.AddParagraph("") //nolint:errcheck
+	// OOXML requires at least one paragraph in a cell after the table.
+	if _, err := c.BlockItemContainer.AddParagraph(""); err != nil {
+		return nil, fmt.Errorf("docx: adding trailing paragraph in cell: %w", err)
+	}
 	return tbl, nil
 }
 

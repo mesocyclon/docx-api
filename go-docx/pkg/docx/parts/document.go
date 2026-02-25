@@ -367,10 +367,15 @@ type styledObject interface {
 
 // GetStyleID returns the style_id string for styleOrName of styleType.
 //
+// styleOrName must be one of:
+//   - string: a style UI name (e.g. "Heading 1"), resolved via BabelFish
+//   - styledObject: any value implementing StyleID() and Type() (e.g. docx.BaseStyle)
+//   - nil: returns nil (inherit default style)
+//
+// Returns nil when the style resolves to the default style for styleType.
+//
 // Mirrors Python DocumentPart.get_style_id → self.styles.get_style_id.
-// The algorithm (BabelFish + lookup + type check + default check) lives
-// in oxml.CT_Styles.GetStyleIDByName; this method just dispatches by type.
-func (dp *DocumentPart) GetStyleID(styleOrName interface{}, styleType enum.WdStyleType) (*string, error) {
+func (dp *DocumentPart) GetStyleID(styleOrName any, styleType enum.WdStyleType) (*string, error) {
 	if styleOrName == nil {
 		return nil, nil
 	}

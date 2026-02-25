@@ -81,8 +81,11 @@ func (sp *StoryPart) GetStyle(styleID *string, styleType enum.WdStyleType) (*oxm
 // Returns nil if the style resolves to the default style for styleType or if
 // styleOrName is itself nil.
 //
+// styleOrName accepts the same types as [DocumentPart.GetStyleID]:
+// string (style UI name), styledObject, or nil.
+//
 // Mirrors Python StoryPart.get_style_id — delegates to _document_part.get_style_id.
-func (sp *StoryPart) GetStyleID(styleOrName interface{}, styleType enum.WdStyleType) (*string, error) {
+func (sp *StoryPart) GetStyleID(styleOrName any, styleType enum.WdStyleType) (*string, error) {
 	dp, err := sp.documentPart()
 	if err != nil {
 		return nil, err
