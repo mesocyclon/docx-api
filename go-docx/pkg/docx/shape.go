@@ -101,28 +101,32 @@ func (is *InlineShape) Height() (Length, error) {
 
 // SetHeight sets the display height of this inline shape.
 //
-// Mirrors Python InlineShape.height (setter).
+// Mirrors Python InlineShape.height (setter), which unconditionally sets
+// both extent.cy and graphic.graphicData.pic.spPr.cy. In the XML schema
+// graphic and graphicData are OneAndOnlyOne (required), so errors there
+// indicate structural corruption. pic is ZeroOrOne — absent for charts
+// and diagrams, where only the extent dimension matters.
 func (is *InlineShape) SetHeight(v Length) error {
 	cy := int64(v)
 	if err := is.inline.SetExtentCy(cy); err != nil {
 		return err
 	}
-	// Also update the spPr transform if accessible
+	// Also update the spPr transform.
 	graphic, err := is.inline.Graphic()
 	if err != nil {
-		return nil // no graphic, just extent was enough
+		return err
 	}
 	gd, err := graphic.GraphicData()
 	if err != nil {
-		return nil
+		return err
 	}
 	pic := gd.Pic()
 	if pic == nil {
-		return nil
+		return nil // non-picture shape (chart, diagram) — extent is sufficient
 	}
 	spPr, err := pic.SpPr()
 	if err != nil {
-		return nil
+		return err
 	}
 	return spPr.SetCy(cy)
 }
@@ -140,28 +144,28 @@ func (is *InlineShape) Width() (Length, error) {
 
 // SetWidth sets the display width of this inline shape.
 //
-// Mirrors Python InlineShape.width (setter).
+// Mirrors Python InlineShape.width (setter). See SetHeight for rationale.
 func (is *InlineShape) SetWidth(v Length) error {
 	cx := int64(v)
 	if err := is.inline.SetExtentCx(cx); err != nil {
 		return err
 	}
-	// Also update the spPr transform if accessible
+	// Also update the spPr transform.
 	graphic, err := is.inline.Graphic()
 	if err != nil {
-		return nil
+		return err
 	}
 	gd, err := graphic.GraphicData()
 	if err != nil {
-		return nil
+		return err
 	}
 	pic := gd.Pic()
 	if pic == nil {
-		return nil
+		return nil // non-picture shape (chart, diagram) — extent is sufficient
 	}
 	spPr, err := pic.SpPr()
 	if err != nil {
-		return nil
+		return err
 	}
 	return spPr.SetCx(cx)
 }

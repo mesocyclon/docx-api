@@ -159,30 +159,77 @@ func TestInlineShape_Dimensions_XML(t *testing.T) {
 
 // Mirrors Python: it_can_change_its_display_dimensions
 func TestInlineShape_SetDimensions_XML(t *testing.T) {
-	xml := `<wp:inline ` + wpNS + `>
-		<wp:extent cx="914400" cy="914400"/>
-	</wp:inline>`
-	el, err := oxml.ParseXml([]byte(xml))
-	if err != nil {
-		t.Fatal(err)
-	}
-	is := newInlineShape(&oxml.CT_Inline{Element: oxml.WrapElement(el)})
+	t.Run("picture_sets_extent_and_spPr", func(t *testing.T) {
+		xml := `<wp:inline ` + wpNS + ` ` + aNS + ` ` + picNS + ` ` + rNS + `>
+			<wp:extent cx="914400" cy="914400"/>
+			<wp:docPr id="1" name="Picture 1"/>
+			<a:graphic>
+				<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
+					<pic:pic>
+						<pic:nvPicPr><pic:cNvPr id="0" name="img.png"/><pic:cNvPicPr/></pic:nvPicPr>
+						<pic:blipFill><a:blip r:embed="rId1"/></pic:blipFill>
+						<pic:spPr>
+							<a:xfrm><a:off x="0" y="0"/><a:ext cx="914400" cy="914400"/></a:xfrm>
+						</pic:spPr>
+					</pic:pic>
+				</a:graphicData>
+			</a:graphic>
+		</wp:inline>`
+		el, err := oxml.ParseXml([]byte(xml))
+		if err != nil {
+			t.Fatal(err)
+		}
+		is := newInlineShape(&oxml.CT_Inline{Element: oxml.WrapElement(el)})
 
-	newWidth := Inches(2)
-	if err := is.SetWidth(newWidth); err != nil {
-		t.Fatal(err)
-	}
-	w, _ := is.Width()
-	if w != newWidth {
-		t.Errorf("Width() after set = %d, want %d", w, newWidth)
-	}
+		newWidth := Inches(2)
+		if err := is.SetWidth(newWidth); err != nil {
+			t.Fatal(err)
+		}
+		w, _ := is.Width()
+		if w != newWidth {
+			t.Errorf("Width() after set = %d, want %d", w, newWidth)
+		}
 
-	newHeight := Inches(3)
-	if err := is.SetHeight(newHeight); err != nil {
-		t.Fatal(err)
-	}
-	h, _ := is.Height()
-	if h != newHeight {
-		t.Errorf("Height() after set = %d, want %d", h, newHeight)
-	}
+		newHeight := Inches(3)
+		if err := is.SetHeight(newHeight); err != nil {
+			t.Fatal(err)
+		}
+		h, _ := is.Height()
+		if h != newHeight {
+			t.Errorf("Height() after set = %d, want %d", h, newHeight)
+		}
+	})
+
+	t.Run("chart_sets_extent_only", func(t *testing.T) {
+		xml := `<wp:inline ` + wpNS + ` ` + aNS + `>
+			<wp:extent cx="914400" cy="914400"/>
+			<wp:docPr id="1" name="Chart 1"/>
+			<a:graphic>
+				<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/chart"/>
+			</a:graphic>
+		</wp:inline>`
+		el, err := oxml.ParseXml([]byte(xml))
+		if err != nil {
+			t.Fatal(err)
+		}
+		is := newInlineShape(&oxml.CT_Inline{Element: oxml.WrapElement(el)})
+
+		newWidth := Inches(4)
+		if err := is.SetWidth(newWidth); err != nil {
+			t.Fatal(err)
+		}
+		w, _ := is.Width()
+		if w != newWidth {
+			t.Errorf("Width() after set = %d, want %d", w, newWidth)
+		}
+
+		newHeight := Inches(5)
+		if err := is.SetHeight(newHeight); err != nil {
+			t.Fatal(err)
+		}
+		h, _ := is.Height()
+		if h != newHeight {
+			t.Errorf("Height() after set = %d, want %d", h, newHeight)
+		}
+	})
 }
