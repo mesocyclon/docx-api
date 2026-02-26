@@ -139,9 +139,10 @@ func openFromPhysReader(physReader *PhysPkgReader, factory *PartFactory) (*OpcPa
 
 	pkg.parts = parts
 
-	// Call AfterUnmarshal on all parts
-	for _, part := range parts {
-		part.AfterUnmarshal()
+	// Call AfterUnmarshal on all parts in load order (Python iterates
+	// parts.values() which preserves insertion order from iter_sparts).
+	for _, sp := range result.SParts {
+		parts[sp.Partname].AfterUnmarshal()
 	}
 
 	return pkg, nil
@@ -153,13 +154,17 @@ func openFromPhysReader(physReader *PhysPkgReader, factory *PartFactory) (*OpcPa
 
 // Save writes the package to an io.Writer.
 func (p *OpcPackage) Save(w io.Writer) error {
-	// Call BeforeMarshal on all parts
-	for _, part := range p.parts {
+	// Collect parts once via deterministic DFS traversal (mirrors Python
+	// Package.save which calls self.parts → list(self.iter_parts()) for
+	// both before_marshal and PackageWriter.write).
+	parts := p.Parts()
+
+	for _, part := range parts {
 		part.BeforeMarshal()
 	}
 
 	pw := &PackageWriter{}
-	return pw.Write(w, p.rels, p.Parts())
+	return pw.Write(w, p.rels, parts)
 }
 
 // SaveToFile writes the package to a file.
