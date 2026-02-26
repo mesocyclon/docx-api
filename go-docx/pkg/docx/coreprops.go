@@ -98,19 +98,19 @@ func (cp *CoreProperties) SetVersion(v string) error { return cp.ct.SetVersionTe
 // --------------------------------------------------------------------------
 
 // Created returns the creation time (dcterms:created), or nil.
-func (cp *CoreProperties) Created() *time.Time { return cp.ct.CreatedDatetime() }
+func (cp *CoreProperties) Created() (*time.Time, error) { return cp.ct.CreatedDatetime() }
 
 // SetCreated sets the creation time (dcterms:created).
 func (cp *CoreProperties) SetCreated(t time.Time) { cp.ct.SetCreatedDatetime(t) }
 
 // Modified returns the last modification time (dcterms:modified), or nil.
-func (cp *CoreProperties) Modified() *time.Time { return cp.ct.ModifiedDatetime() }
+func (cp *CoreProperties) Modified() (*time.Time, error) { return cp.ct.ModifiedDatetime() }
 
 // SetModified sets the last modification time (dcterms:modified).
 func (cp *CoreProperties) SetModified(t time.Time) { cp.ct.SetModifiedDatetime(t) }
 
 // LastPrinted returns the last printed time (cp:lastPrinted), or nil.
-func (cp *CoreProperties) LastPrinted() *time.Time { return cp.ct.LastPrintedDatetime() }
+func (cp *CoreProperties) LastPrinted() (*time.Time, error) { return cp.ct.LastPrintedDatetime() }
 
 // SetLastPrinted sets the last printed time (cp:lastPrinted).
 func (cp *CoreProperties) SetLastPrinted(t time.Time) { cp.ct.SetLastPrintedDatetime(t) }

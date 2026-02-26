@@ -85,8 +85,12 @@ func TestAddComment_RoundTrip_MetadataPreserved(t *testing.T) {
 	}
 
 	c := all[0]
-	if c.Author() != "Alice Brown" {
-		t.Errorf("Author() = %q, want %q", c.Author(), "Alice Brown")
+	gotA, err := c.Author()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotA != "Alice Brown" {
+		t.Errorf("Author() = %q, want %q", gotA, "Alice Brown")
 	}
 	if c.Initials() != "AB" {
 		t.Errorf("Initials() = %q, want %q", c.Initials(), "AB")
@@ -373,7 +377,10 @@ func TestComment_Timestamp_RoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("AddComment: %v", err)
 	}
-	ts := comment.Timestamp()
+	ts, err := comment.Timestamp()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if ts == nil {
 		t.Fatal("expected non-nil Timestamp on new comment")
 	}
@@ -394,7 +401,10 @@ func TestComment_Timestamp_RoundTrip(t *testing.T) {
 	if len(all) != 1 {
 		t.Fatalf("expected 1 comment, got %d", len(all))
 	}
-	ts2 := all[0].Timestamp()
+	ts2, err := all[0].Timestamp()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if ts2 == nil {
 		t.Fatal("expected non-nil Timestamp after round-trip")
 	}

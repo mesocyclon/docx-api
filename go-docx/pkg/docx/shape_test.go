@@ -123,8 +123,12 @@ func TestInlineShape_Type_XML(t *testing.T) {
 				t.Fatal(err)
 			}
 			is := newInlineShape(&oxml.CT_Inline{Element: oxml.WrapElement(el)})
-			if is.Type() != tt.expected {
-				t.Errorf("Type() = %d, want %d", is.Type(), tt.expected)
+			gotType, err := is.Type()
+				if err != nil {
+					t.Fatal(err)
+				}
+				if gotType != tt.expected {
+					t.Errorf("Type() = %d, want %d", gotType, tt.expected)
 			}
 		})
 	}

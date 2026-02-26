@@ -299,7 +299,10 @@ func TestFont_Color(t *testing.T) {
 	if c == nil {
 		t.Fatal("Color() returned nil")
 	}
-	rgb := c.RGB()
+	rgb, err := c.RGB()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if rgb == nil || rgb.String() != "FF0000" {
 		t.Errorf("Color().RGB() = %v, want FF0000", rgb)
 	}

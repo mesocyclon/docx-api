@@ -48,7 +48,10 @@ func TestRenderedPageBreak_PrecedingFragment_InRun(t *testing.T) {
 		t.Fatal("no rendered page breaks found")
 	}
 
-	frag := rpbs[0].PrecedingParagraphFragment()
+	frag, err := rpbs[0].PrecedingParagraphFragment()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if frag == nil {
 		t.Fatal("PrecedingParagraphFragment returned nil")
 	}
@@ -69,7 +72,10 @@ func TestRenderedPageBreak_PrecedingFragment_Leading(t *testing.T) {
 		t.Fatal("no rendered page breaks found")
 	}
 
-	frag := rpbs[0].PrecedingParagraphFragment()
+	frag, err := rpbs[0].PrecedingParagraphFragment()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if frag != nil {
 		t.Error("expected nil for preceding fragment when page break is leading")
 	}
@@ -85,7 +91,10 @@ func TestRenderedPageBreak_FollowingFragment_InRun(t *testing.T) {
 		t.Fatal("no rendered page breaks found")
 	}
 
-	frag := rpbs[0].FollowingParagraphFragment()
+	frag, err := rpbs[0].FollowingParagraphFragment()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if frag == nil {
 		t.Fatal("FollowingParagraphFragment returned nil")
 	}
@@ -107,7 +116,10 @@ func TestRenderedPageBreak_FollowingFragment_Trailing(t *testing.T) {
 		t.Fatal("no rendered page breaks found")
 	}
 
-	frag := rpbs[0].FollowingParagraphFragment()
+	frag, err := rpbs[0].FollowingParagraphFragment()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if frag != nil {
 		t.Error("expected nil for following fragment when page break is trailing")
 	}
@@ -123,7 +135,10 @@ func TestRenderedPageBreak_PrecedingFragment_InHyperlink(t *testing.T) {
 		t.Fatal("no rendered page breaks found")
 	}
 
-	frag := rpbs[0].PrecedingParagraphFragment()
+	frag, err := rpbs[0].PrecedingParagraphFragment()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if frag == nil {
 		t.Fatal("PrecedingParagraphFragment returned nil")
 	}
@@ -147,7 +162,10 @@ func TestRenderedPageBreak_FollowingFragment_InHyperlink(t *testing.T) {
 		t.Fatal("no rendered page breaks found")
 	}
 
-	frag := rpbs[0].FollowingParagraphFragment()
+	frag, err := rpbs[0].FollowingParagraphFragment()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if frag == nil {
 		t.Fatal("FollowingParagraphFragment returned nil")
 	}
@@ -170,7 +188,10 @@ func TestRenderedPageBreak_FollowingFragment_MultiRun(t *testing.T) {
 		t.Fatal("no rendered page breaks found")
 	}
 
-	frag := rpbs[0].FollowingParagraphFragment()
+	frag, err := rpbs[0].FollowingParagraphFragment()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if frag == nil {
 		t.Fatal("FollowingParagraphFragment returned nil")
 	}

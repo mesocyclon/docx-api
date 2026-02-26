@@ -588,7 +588,10 @@ func TestColorFormat_RGB(t *testing.T) {
 	r := makeR(t, `<w:rPr><w:color w:val="3C2F80"/></w:rPr>`)
 	cf := newColorFormat(r)
 
-	rgb := cf.RGB()
+	rgb, err := cf.RGB()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if rgb == nil {
 		t.Fatal("expected non-nil RGB")
 	}
@@ -601,7 +604,10 @@ func TestColorFormat_Type_RGB(t *testing.T) {
 	r := makeR(t, `<w:rPr><w:color w:val="FF0000"/></w:rPr>`)
 	cf := newColorFormat(r)
 
-	ct := cf.Type()
+	ct, err := cf.Type()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if ct == nil {
 		t.Fatal("expected non-nil Type")
 	}
@@ -614,12 +620,15 @@ func TestColorFormat_Type_Auto(t *testing.T) {
 	r := makeR(t, `<w:rPr><w:color w:val="auto"/></w:rPr>`)
 	cf := newColorFormat(r)
 
-	ct := cf.Type()
-	if ct == nil {
+	ct2, err := cf.Type()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ct2 == nil {
 		t.Fatal("expected non-nil Type for auto")
 	}
-	if *ct != enum.MsoColorTypeAuto {
-		t.Errorf("Type() = %d, want AUTO(%d)", *ct, enum.MsoColorTypeAuto)
+	if *ct2 != enum.MsoColorTypeAuto {
+		t.Errorf("Type() = %d, want AUTO(%d)", *ct2, enum.MsoColorTypeAuto)
 	}
 }
 
@@ -627,7 +636,11 @@ func TestColorFormat_Type_None(t *testing.T) {
 	r := makeR(t, ``)
 	cf := newColorFormat(r)
 
-	if cf.Type() != nil {
+	ct3, err := cf.Type()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ct3 != nil {
 		t.Error("expected nil Type for no rPr")
 	}
 }
@@ -673,8 +686,12 @@ func TestComment_Properties(t *testing.T) {
 	ce := &oxml.CT_Comment{Element: *el}
 	c := newComment(ce, testCommentsPart(t))
 
-	if c.Author() != "John" {
-		t.Errorf("Author() = %q, want %q", c.Author(), "John")
+	gotAuthor, err := c.Author()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotAuthor != "John" {
+		t.Errorf("Author() = %q, want %q", gotAuthor, "John")
 	}
 	if c.Initials() != "JD" {
 		t.Errorf("Initials() = %q, want %q", c.Initials(), "JD")
@@ -682,7 +699,10 @@ func TestComment_Properties(t *testing.T) {
 	if c.Text() != "Test comment" {
 		t.Errorf("Text() = %q, want %q", c.Text(), "Test comment")
 	}
-	ts := c.Timestamp()
+	ts, err := c.Timestamp()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if ts == nil {
 		t.Fatal("expected non-nil Timestamp")
 	}

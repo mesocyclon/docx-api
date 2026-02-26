@@ -45,11 +45,19 @@ func TestComments_Iter(t *testing.T) {
 	if len(items) != 2 {
 		t.Fatalf("len(Iter()) = %d, want 2", len(items))
 	}
-	if items[0].Author() != "A" {
-		t.Errorf("Iter()[0].Author() = %q, want %q", items[0].Author(), "A")
+	a0, err := items[0].Author()
+	if err != nil {
+		t.Fatal(err)
 	}
-	if items[1].Author() != "B" {
-		t.Errorf("Iter()[1].Author() = %q, want %q", items[1].Author(), "B")
+	if a0 != "A" {
+		t.Errorf("Iter()[0].Author() = %q, want %q", a0, "A")
+	}
+	a1, err := items[1].Author()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a1 != "B" {
+		t.Errorf("Iter()[1].Author() = %q, want %q", a1, "B")
 	}
 }
 
@@ -62,8 +70,12 @@ func TestComments_Get(t *testing.T) {
 	if c == nil {
 		t.Fatal("Get(42) returned nil")
 	}
-	if c.Author() != "John" {
-		t.Errorf("Author() = %q, want %q", c.Author(), "John")
+	got, err := c.Author()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != "John" {
+		t.Errorf("Author() = %q, want %q", got, "John")
 	}
 
 	// Not found
@@ -84,8 +96,12 @@ func TestComments_AddComment(t *testing.T) {
 	if c == nil {
 		t.Fatal("AddComment returned nil")
 	}
-	if c.Author() != "Author" {
-		t.Errorf("Author() = %q, want %q", c.Author(), "Author")
+	gotA, err := c.Author()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotA != "Author" {
+		t.Errorf("Author() = %q, want %q", gotA, "Author")
 	}
 	if c.Initials() != "AA" {
 		t.Errorf("Initials() = %q, want %q", c.Initials(), "AA")
@@ -106,8 +122,12 @@ func TestComment_SetAuthor(t *testing.T) {
 	if err := c.SetAuthor("New"); err != nil {
 		t.Fatal(err)
 	}
-	if c.Author() != "New" {
-		t.Errorf("Author() = %q, want %q", c.Author(), "New")
+	gotN, err := c.Author()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotN != "New" {
+		t.Errorf("Author() = %q, want %q", gotN, "New")
 	}
 }
 
@@ -129,7 +149,10 @@ func TestComment_Timestamp(t *testing.T) {
 	cs := makeTestComments(t, `<w:comment w:id="0" w:author="A" w:date="2024-01-15T10:30:00Z"><w:p/></w:comment>`)
 	c := cs.Iter()[0]
 
-	ts := c.Timestamp()
+	ts, err := c.Timestamp()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if ts == nil {
 		t.Fatal("Timestamp() returned nil")
 	}

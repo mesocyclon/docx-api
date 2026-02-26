@@ -198,7 +198,10 @@ func imageHeaderFactory(stream io.ReadSeeker) (imageHeader, error) {
 		return nil, fmt.Errorf("image: seeking to start: %w", err)
 	}
 	var header [32]byte
-	n, _ := stream.Read(header[:])
+	n, err := stream.Read(header[:])
+	if err != nil && err != io.EOF {
+		return nil, fmt.Errorf("image: reading header bytes: %w", err)
+	}
 
 	for _, sig := range signatures {
 		end := sig.offset + len(sig.magic)

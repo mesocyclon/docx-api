@@ -44,8 +44,12 @@ func TestStyles_Get(t *testing.T) {
 		t.Fatal("Get(Normal) returned nil")
 	}
 	// Name should round-trip
-	if style.Name() != "Normal" {
-		t.Errorf("Name() = %q, want %q", style.Name(), "Normal")
+	gotName, err := style.Name()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotName != "Normal" {
+		t.Errorf("Name() = %q, want %q", gotName, "Normal")
 	}
 }
 
@@ -95,13 +99,19 @@ func TestStyles_Default(t *testing.T) {
 func TestStyles_GetByID(t *testing.T) {
 	ss := makeStylesFromDoc(t)
 	// Nil → default
-	def := ss.GetByID(nil, enum.WdStyleTypeParagraph)
+	def, err := ss.GetByID(nil, enum.WdStyleTypeParagraph)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if def == nil {
 		t.Error("GetByID(nil) returned nil")
 	}
 	// Known ID
 	id := "Normal"
-	style := ss.GetByID(&id, enum.WdStyleTypeParagraph)
+	style, err := ss.GetByID(&id, enum.WdStyleTypeParagraph)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if style == nil {
 		t.Error("GetByID(Normal) returned nil")
 	}
@@ -114,14 +124,22 @@ func TestBaseStyle_Name(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if style.Name() != "TestNameProp" {
-		t.Errorf("Name() = %q, want %q", style.Name(), "TestNameProp")
+	gotN1, err := style.Name()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotN1 != "TestNameProp" {
+		t.Errorf("Name() = %q, want %q", gotN1, "TestNameProp")
 	}
 	if err := style.SetName("Renamed"); err != nil {
 		t.Fatal(err)
 	}
-	if style.Name() != "Renamed" {
-		t.Errorf("Name() after rename = %q, want %q", style.Name(), "Renamed")
+	gotN2, err := style.Name()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotN2 != "Renamed" {
+		t.Errorf("Name() after rename = %q, want %q", gotN2, "Renamed")
 	}
 }
 

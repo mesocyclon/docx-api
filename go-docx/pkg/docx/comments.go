@@ -142,9 +142,12 @@ func newComment(elm *oxml.CT_Comment, part *parts.CommentsPart) *Comment {
 // Author returns the recorded author of this comment.
 //
 // Mirrors Python Comment.author (getter).
-func (c *Comment) Author() string {
-	v, _ := c.commentElm.Author()
-	return v
+func (c *Comment) Author() (string, error) {
+	v, err := c.commentElm.Author()
+	if err != nil {
+		return "", fmt.Errorf("docx: reading comment author: %w", err)
+	}
+	return v, nil
 }
 
 // SetAuthor sets the author of this comment.
@@ -216,14 +219,14 @@ func (c *Comment) Text() string {
 // if not set. The value is parsed from ISO 8601 format.
 //
 // Mirrors Python Comment.timestamp.
-func (c *Comment) Timestamp() *time.Time {
+func (c *Comment) Timestamp() (*time.Time, error) {
 	s := c.commentElm.Date()
 	if s == "" {
-		return nil
+		return nil, nil
 	}
 	t, err := time.Parse(time.RFC3339, s)
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: parsing comment timestamp %q: %w", s, err)
 	}
-	return &t
+	return &t, nil
 }

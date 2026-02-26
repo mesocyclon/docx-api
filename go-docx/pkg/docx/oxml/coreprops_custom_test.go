@@ -134,14 +134,21 @@ func TestCT_CoreProperties_DatetimeProperties(t *testing.T) {
 	}
 
 	// Created should be nil initially
-	if got := cp.CreatedDatetime(); got != nil {
-		t.Errorf("expected nil created, got %v", got)
+	gotInit, errInit := cp.CreatedDatetime()
+	if errInit != nil {
+		t.Fatal(errInit)
+	}
+	if gotInit != nil {
+		t.Errorf("expected nil created, got %v", gotInit)
 	}
 
 	// Set created
 	created := time.Date(2024, 1, 15, 10, 30, 0, 0, time.UTC)
 	cp.SetCreatedDatetime(created)
-	got := cp.CreatedDatetime()
+	got, err := cp.CreatedDatetime()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got == nil {
 		t.Fatal("expected non-nil created")
 	}
@@ -152,7 +159,10 @@ func TestCT_CoreProperties_DatetimeProperties(t *testing.T) {
 	// Set modified
 	modified := time.Date(2024, 6, 20, 14, 45, 0, 0, time.UTC)
 	cp.SetModifiedDatetime(modified)
-	got = cp.ModifiedDatetime()
+	got, err = cp.ModifiedDatetime()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got == nil {
 		t.Fatal("expected non-nil modified")
 	}
@@ -163,7 +173,10 @@ func TestCT_CoreProperties_DatetimeProperties(t *testing.T) {
 	// Set lastPrinted
 	lastPrinted := time.Date(2024, 3, 1, 8, 0, 0, 0, time.UTC)
 	cp.SetLastPrintedDatetime(lastPrinted)
-	got = cp.LastPrintedDatetime()
+	got, err = cp.LastPrintedDatetime()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got == nil {
 		t.Fatal("expected non-nil lastPrinted")
 	}

@@ -245,10 +245,18 @@ func TestCoreProperties_DatetimeProperties(t *testing.T) {
 	cpp := makeCorePropsPartForTest(makeCorePropsXML("", ""))
 	cp := newCoreProperties(ctFromPart(cpp))
 
-	if cp.Created() != nil {
+	cre, err := cp.Created()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cre != nil {
 		t.Error("Created should be nil initially")
 	}
-	if cp.Modified() != nil {
+	mod, err := cp.Modified()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if mod != nil {
 		t.Error("Modified should be nil initially")
 	}
 
@@ -256,16 +264,24 @@ func TestCoreProperties_DatetimeProperties(t *testing.T) {
 	cp.SetCreated(now)
 	cp.SetModified(now)
 
-	if got := cp.Created(); got == nil {
+	gotCre, err := cp.Created()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotCre == nil {
 		t.Fatal("Created should not be nil after set")
-	} else if !got.Equal(now) {
-		t.Errorf("Created: expected %v, got %v", now, *got)
+	} else if !gotCre.Equal(now) {
+		t.Errorf("Created: expected %v, got %v", now, *gotCre)
 	}
 
-	if got := cp.Modified(); got == nil {
+	gotMod, err := cp.Modified()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotMod == nil {
 		t.Fatal("Modified should not be nil after set")
-	} else if !got.Equal(now) {
-		t.Errorf("Modified: expected %v, got %v", now, *got)
+	} else if !gotMod.Equal(now) {
+		t.Errorf("Modified: expected %v, got %v", now, *gotMod)
 	}
 }
 
@@ -323,7 +339,11 @@ func TestDefaultCorePropertiesPart(t *testing.T) {
 	if got := cp.Revision(); got != 1 {
 		t.Errorf("Revision: expected 1, got %d", got)
 	}
-	if cp.Modified() == nil {
+	modCheck, err := cp.Modified()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if modCheck == nil {
 		t.Error("Modified should be set in default")
 	}
 }

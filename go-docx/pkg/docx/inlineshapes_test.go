@@ -295,7 +295,10 @@ func TestInlineShape_Type_Picture(t *testing.T) {
 		t.Fatalf("AddPicture: %v", err)
 	}
 
-	st := shape.Type()
+	st, err := shape.Type()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if st != enum.WdInlineShapeTypePicture {
 		t.Errorf("Type() = %d, want %d (PICTURE)", st, enum.WdInlineShapeTypePicture)
 	}

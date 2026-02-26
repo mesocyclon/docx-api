@@ -63,7 +63,10 @@ func TestColorFormat_SetRGB(t *testing.T) {
 			if err := cf.SetRGB(tt.newRGB); err != nil {
 				t.Fatal(err)
 			}
-			got := cf.RGB()
+			got, err := cf.RGB()
+			if err != nil {
+				t.Fatal(err)
+			}
 			if tt.wantNil {
 				if got != nil {
 					t.Errorf("RGB() = %v, want nil", got)
@@ -123,7 +126,10 @@ func TestColorFormat_ThemeColor_Setter(t *testing.T) {
 	}
 
 	// Type should be Theme
-	ct := cf.Type()
+	ct, err := cf.Type()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if ct == nil || *ct != enum.MsoColorTypeTheme {
 		t.Errorf("Type() = %v, want Theme", ct)
 	}
@@ -151,7 +157,10 @@ func TestColorFormat_Type_AllCases(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := makeR(t, tt.innerXml)
 			cf := newColorFormat(r)
-			got := cf.Type()
+			got, err := cf.Type()
+			if err != nil {
+				t.Fatal(err)
+			}
 			if tt.isNil {
 				if got != nil {
 					t.Errorf("Type() = %v, want nil", *got)

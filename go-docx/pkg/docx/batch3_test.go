@@ -420,8 +420,12 @@ func TestDocument_AddComment_Flow(t *testing.T) {
 	}
 
 	// Verify comment metadata
-	if got := comment.Author(); got != "John Doe" {
-		t.Errorf("comment.Author() = %q, want %q", got, "John Doe")
+	gotCA, err := comment.Author()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotCA != "John Doe" {
+		t.Errorf("comment.Author() = %q, want %q", gotCA, "John Doe")
 	}
 
 	// Verify comment ID was assigned

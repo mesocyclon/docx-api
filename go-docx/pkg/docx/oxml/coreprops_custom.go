@@ -226,19 +226,19 @@ func parseW3CDTF(s string) (*time.Time, error) {
 }
 
 // datetimeOfElement reads a datetime from a child element, or nil.
-func (cp *CT_CoreProperties) datetimeOfElement(el *CT_CorePropText) *time.Time {
+func (cp *CT_CoreProperties) datetimeOfElement(el *CT_CorePropText) (*time.Time, error) {
 	if el == nil {
-		return nil
+		return nil, nil
 	}
 	text := el.e.Text()
 	if text == "" {
-		return nil
+		return nil, nil
 	}
 	dt, err := parseW3CDTF(text)
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("oxml: parsing datetime %q: %w", text, err)
 	}
-	return dt
+	return dt, nil
 }
 
 // setElementDatetime sets a datetime on a child element, formatting as W3CDTF.
@@ -267,7 +267,7 @@ func (cp *CT_CoreProperties) ensureXsiNamespace() {
 }
 
 // CreatedDatetime returns the created datetime (dcterms:created) or nil.
-func (cp *CT_CoreProperties) CreatedDatetime() *time.Time {
+func (cp *CT_CoreProperties) CreatedDatetime() (*time.Time, error) {
 	return cp.datetimeOfElement(cp.Created())
 }
 
@@ -277,7 +277,7 @@ func (cp *CT_CoreProperties) SetCreatedDatetime(t time.Time) {
 }
 
 // ModifiedDatetime returns the modified datetime (dcterms:modified) or nil.
-func (cp *CT_CoreProperties) ModifiedDatetime() *time.Time {
+func (cp *CT_CoreProperties) ModifiedDatetime() (*time.Time, error) {
 	return cp.datetimeOfElement(cp.Modified())
 }
 
@@ -287,7 +287,7 @@ func (cp *CT_CoreProperties) SetModifiedDatetime(t time.Time) {
 }
 
 // LastPrintedDatetime returns the last printed datetime (cp:lastPrinted) or nil.
-func (cp *CT_CoreProperties) LastPrintedDatetime() *time.Time {
+func (cp *CT_CoreProperties) LastPrintedDatetime() (*time.Time, error) {
 	return cp.datetimeOfElement(cp.LastPrinted())
 }
 

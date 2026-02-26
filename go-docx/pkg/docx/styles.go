@@ -118,19 +118,22 @@ func (s *Styles) Default(styleType enum.WdStyleType) *BaseStyle {
 // style if styleID is nil or not found.
 //
 // Mirrors Python Styles.get_by_id.
-func (s *Styles) GetByID(styleID *string, styleType enum.WdStyleType) *BaseStyle {
+func (s *Styles) GetByID(styleID *string, styleType enum.WdStyleType) (*BaseStyle, error) {
 	if styleID == nil {
-		return s.Default(styleType)
+		return s.Default(styleType), nil
 	}
 	st := s.element.GetByID(*styleID)
 	if st == nil {
-		return s.Default(styleType)
+		return s.Default(styleType), nil
 	}
-	stTypeXml, _ := styleType.ToXml()
+	stTypeXml, err := styleType.ToXml()
+	if err != nil {
+		return nil, fmt.Errorf("docx: invalid style type: %w", err)
+	}
 	if st.Type() != stTypeXml {
-		return s.Default(styleType)
+		return s.Default(styleType), nil
 	}
-	return styleFactory(st)
+	return styleFactory(st), nil
 }
 
 // GetStyleID returns the style ID for the given style or name.
@@ -222,12 +225,12 @@ func (s *BaseStyle) SetLocked(v bool) error {
 }
 
 // Name returns the UI name of this style.
-func (s *BaseStyle) Name() string {
+func (s *BaseStyle) Name() (string, error) {
 	name, err := s.element.NameVal()
 	if err != nil {
-		return ""
+		return "", fmt.Errorf("docx: reading style name: %w", err)
 	}
-	return Internal2UI(name)
+	return Internal2UI(name), nil
 }
 
 // SetName sets the style name.

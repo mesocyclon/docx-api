@@ -1,6 +1,8 @@
 package docx
 
 import (
+	"fmt"
+
 	"github.com/vortex/go-docx/pkg/docx/oxml"
 	"github.com/vortex/go-docx/pkg/docx/parts"
 )
@@ -35,16 +37,16 @@ func newRenderedPageBreak(elm *oxml.CT_LastRenderedPageBreak, part *parts.StoryP
 // Contains the entire hyperlink when this break occurs within a hyperlink.
 //
 // Mirrors Python RenderedPageBreak.preceding_paragraph_fragment.
-func (rpb *RenderedPageBreak) PrecedingParagraphFragment() *Paragraph {
+func (rpb *RenderedPageBreak) PrecedingParagraphFragment() (*Paragraph, error) {
 	if rpb.lrpb.PrecedesAllContent() {
-		return nil
+		return nil, nil
 	}
 
 	fragP, err := rpb.lrpb.PrecedingFragmentP()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: building preceding fragment: %w", err)
 	}
-	return newParagraph(fragP, rpb.part)
+	return newParagraph(fragP, rpb.part), nil
 }
 
 // FollowingParagraphFragment returns a "loose" paragraph containing the content
@@ -57,14 +59,14 @@ func (rpb *RenderedPageBreak) PrecedingParagraphFragment() *Paragraph {
 // Contains no portion of the hyperlink when this break occurs within a hyperlink.
 //
 // Mirrors Python RenderedPageBreak.following_paragraph_fragment.
-func (rpb *RenderedPageBreak) FollowingParagraphFragment() *Paragraph {
+func (rpb *RenderedPageBreak) FollowingParagraphFragment() (*Paragraph, error) {
 	if rpb.lrpb.FollowsAllContent() {
-		return nil
+		return nil, nil
 	}
 
 	fragP, err := rpb.lrpb.FollowingFragmentP()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("docx: building following fragment: %w", err)
 	}
-	return newParagraph(fragP, rpb.part)
+	return newParagraph(fragP, rpb.part), nil
 }

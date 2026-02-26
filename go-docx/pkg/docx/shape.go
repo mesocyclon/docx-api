@@ -1,6 +1,8 @@
 package docx
 
 import (
+	"fmt"
+
 	"github.com/beevik/etree"
 	"github.com/vortex/go-docx/pkg/docx/enum"
 	"github.com/vortex/go-docx/pkg/docx/oxml"
@@ -174,43 +176,43 @@ func (is *InlineShape) SetWidth(v Length) error {
 // SMART_ART, or NOT_IMPLEMENTED).
 //
 // Mirrors Python InlineShape.type.
-func (is *InlineShape) Type() enum.WdInlineShapeType {
+func (is *InlineShape) Type() (enum.WdInlineShapeType, error) {
 	graphic, err := is.inline.Graphic()
 	if err != nil {
-		return enum.WdInlineShapeTypeNotImplemented
+		return 0, fmt.Errorf("docx: accessing inline graphic: %w", err)
 	}
 	gd, err := graphic.GraphicData()
 	if err != nil {
-		return enum.WdInlineShapeTypeNotImplemented
+		return 0, fmt.Errorf("docx: accessing graphic data: %w", err)
 	}
 	uri, err := gd.Uri()
 	if err != nil {
-		return enum.WdInlineShapeTypeNotImplemented
+		return 0, fmt.Errorf("docx: reading graphic URI: %w", err)
 	}
 
 	switch uri {
 	case nsPicture:
 		pic := gd.Pic()
 		if pic == nil {
-			return enum.WdInlineShapeTypePicture
+			return enum.WdInlineShapeTypePicture, nil
 		}
 		bf, err := pic.BlipFill()
 		if err != nil {
-			return enum.WdInlineShapeTypePicture
+			return 0, fmt.Errorf("docx: accessing blip fill: %w", err)
 		}
 		blip := bf.Blip()
 		if blip == nil {
-			return enum.WdInlineShapeTypePicture
+			return enum.WdInlineShapeTypePicture, nil
 		}
 		if blip.Link() != "" {
-			return enum.WdInlineShapeTypeLinkedPicture
+			return enum.WdInlineShapeTypeLinkedPicture, nil
 		}
-		return enum.WdInlineShapeTypePicture
+		return enum.WdInlineShapeTypePicture, nil
 	case nsChart:
-		return enum.WdInlineShapeTypeChart
+		return enum.WdInlineShapeTypeChart, nil
 	case nsDiagram:
-		return enum.WdInlineShapeTypeSmartArt
+		return enum.WdInlineShapeTypeSmartArt, nil
 	default:
-		return enum.WdInlineShapeTypeNotImplemented
+		return enum.WdInlineShapeTypeNotImplemented, nil
 	}
 }

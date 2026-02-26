@@ -212,8 +212,12 @@ func TestBaseStyle_Properties(t *testing.T) {
 	style := items[0]
 
 	// Name
-	if got := style.Name(); got != "Heading 1" {
-		t.Errorf("Name() = %q, want %q", got, "Heading 1")
+	gotSN, err := style.Name()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotSN != "Heading 1" {
+		t.Errorf("Name() = %q, want %q", gotSN, "Heading 1")
 	}
 	// StyleID
 	if got := style.StyleID(); got != "Heading1" {
