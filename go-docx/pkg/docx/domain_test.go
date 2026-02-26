@@ -859,6 +859,14 @@ func TestSplitNewlines(t *testing.T) {
 		{"hello", []string{"hello"}},
 		{"a\nb\nc", []string{"a", "b", "c"}},
 		{"line1\nline2\n", []string{"line1", "line2", ""}},
+		// Windows \r\n
+		{"a\r\nb\r\nc", []string{"a", "b", "c"}},
+		{"line1\r\nline2\r\n", []string{"line1", "line2", ""}},
+		// Classic Mac \r
+		{"a\rb\rc", []string{"a", "b", "c"}},
+		{"line1\rline2\r", []string{"line1", "line2", ""}},
+		// Mixed
+		{"unix\nwin\r\nmac\rend", []string{"unix", "win", "mac", "end"}},
 	}
 	for _, tt := range tests {
 		result := splitNewlines(tt.input)

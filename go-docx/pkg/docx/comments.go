@@ -95,12 +95,23 @@ func (cs *Comments) AddComment(text, author string, initials *string) (*Comment,
 	return comment, nil
 }
 
-// splitNewlines splits a string on newline characters.
+// splitNewlines splits a string on newline sequences.
+// Handles Unix (\n), Windows (\r\n), and classic Mac (\r) line endings.
 func splitNewlines(s string) []string {
+	// Normalize: \r\n → \n, then remaining \r → \n, then split.
+	// Single pass: scan for \r and \n.
 	var result []string
 	start := 0
 	for i := 0; i < len(s); i++ {
-		if s[i] == '\n' {
+		switch s[i] {
+		case '\r':
+			result = append(result, s[start:i])
+			// consume \n in a \r\n pair
+			if i+1 < len(s) && s[i+1] == '\n' {
+				i++
+			}
+			start = i + 1
+		case '\n':
 			result = append(result, s[start:i])
 			start = i + 1
 		}
