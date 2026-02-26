@@ -217,7 +217,10 @@ func TestFont_Size(t *testing.T) {
 	// size 24 = 12pt in half-points
 	r := makeR(t, `<w:rPr><w:sz w:val="24"/></w:rPr>`)
 	f := newFont(r)
-	got := f.Size()
+	got, err := f.Size()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got == nil {
 		t.Fatal("expected non-nil Size()")
 	}

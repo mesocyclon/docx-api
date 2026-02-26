@@ -306,31 +306,38 @@ func (f *Font) SetName(v *string) error {
 //
 // Mirrors Python Font.size (getter) — returns Length (EMU).
 // Internally the XML stores half-points: <w:sz val="24"/> = 12pt = 152400 EMU.
-func (f *Font) Size() *Length {
+// Python converts via Pt(int(str_value) / 2.0), i.e. float64 arithmetic.
+func (f *Font) Size() (*Length, error) {
 	rPr := f.rPrOwner.RPr()
 	if rPr == nil {
-		return nil
+		return nil, nil
 	}
 	hp, err := rPr.SzVal()
-	if err != nil || hp == nil {
-		return nil
+	if err != nil {
+		return nil, fmt.Errorf("docx: reading font size: %w", err)
 	}
-	// half-points → EMU: hp/2 * EmusPerPt = hp * 6350
-	emu := Length(*hp * int64(EmusPerPt) / 2)
-	return &emu
+	if hp == nil {
+		return nil, nil
+	}
+	// half-points → EMU via float64, matching Python's Pt(int(val) / 2.0):
+	//   Pt(x) = int(x * 12700)
+	emu := Length(int64(float64(*hp) / 2.0 * float64(EmusPerPt)))
+	return &emu, nil
 }
 
 // SetSize sets the font size. Passing nil removes it.
 // Accepts Length (EMU). E.g. Pt(12) for 12-point font.
 //
 // Mirrors Python Font.size (setter) — accepts EMU.
+// Python converts via int(emu.pt * 2), i.e. float64 arithmetic.
 func (f *Font) SetSize(v *Length) error {
 	rPr := f.rPrOwner.GetOrAddRPr()
 	if v == nil {
 		return rPr.SetSzVal(nil)
 	}
-	// EMU → half-points: hp = emu * 2 / EmusPerPt
-	hp := int64(*v) * 2 / int64(EmusPerPt)
+	// EMU → half-points via float64, matching Python's int(Emu(value).pt * 2):
+	//   emu.pt = emu / 12700.0
+	hp := int64(float64(*v) / float64(EmusPerPt) * 2.0)
 	return rPr.SetSzVal(&hp)
 }
 

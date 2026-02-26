@@ -230,7 +230,10 @@ func TestFont_Size_Getter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := makeR(t, tt.innerXml)
 			f := newFont(r)
-			got := f.Size()
+			got, err := f.Size()
+			if err != nil {
+				t.Fatal(err)
+			}
 			if tt.isNil {
 				if got != nil {
 					t.Errorf("Size() = %v, want nil", got)
@@ -268,7 +271,10 @@ func TestFont_Size_Setter(t *testing.T) {
 			if err := f.SetSize(tt.value); err != nil {
 				t.Fatal(err)
 			}
-			got := f.Size()
+			got, err := f.Size()
+			if err != nil {
+				t.Fatal(err)
+			}
 			if tt.wantNil {
 				if got != nil {
 					t.Errorf("Size() = %v after set nil, want nil", got)
