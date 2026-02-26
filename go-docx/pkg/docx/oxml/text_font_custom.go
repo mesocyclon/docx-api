@@ -499,7 +499,10 @@ func (rPr *CT_RPr) SetSubscript(v *bool) error {
 	} else {
 		va := rPr.VertAlign()
 		if va != nil {
-			val, _ := va.Val()
+			val, err := va.Val()
+			if err != nil {
+				return fmt.Errorf("oxml: reading vertAlign val for subscript clear: %w", err)
+			}
 			if val == "subscript" {
 				rPr.RemoveVertAlign()
 			}
@@ -582,7 +585,10 @@ func (rPr *CT_RPr) SetSuperscript(v *bool) error {
 	} else {
 		va := rPr.VertAlign()
 		if va != nil {
-			val, _ := va.Val()
+			val, err := va.Val()
+			if err != nil {
+				return fmt.Errorf("oxml: reading vertAlign val for superscript clear: %w", err)
+			}
 			if val == "superscript" {
 				rPr.RemoveVertAlign()
 			}

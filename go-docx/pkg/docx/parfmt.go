@@ -1,6 +1,8 @@
 package docx
 
 import (
+	"fmt"
+
 	"github.com/vortex/go-docx/pkg/docx/enum"
 	"github.com/vortex/go-docx/pkg/docx/oxml"
 )
@@ -195,7 +197,10 @@ func (pf *ParagraphFormat) SetLineSpacing(v *LineSpacingVal) error {
 	if err := pPr.SetSpacingLine(&tw); err != nil {
 		return err
 	}
-	rule, _ := pPr.SpacingLineRule()
+	rule, err := pPr.SpacingLineRule()
+	if err != nil {
+		return fmt.Errorf("docx: reading line spacing rule: %w", err)
+	}
 	if rule != nil && *rule == enum.WdLineSpacingAtLeast {
 		return nil // preserve AT_LEAST
 	}
