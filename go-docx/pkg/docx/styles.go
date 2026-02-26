@@ -477,26 +477,12 @@ func (ls *LatentStyle) Name() string {
 
 // Priority returns the sort priority, or nil.
 func (ls *LatentStyle) Priority() (*int, error) {
-	v := ls.element.RawElement().SelectAttrValue("w:uiPriority", "")
-	if v == "" {
-		return nil, nil
-	}
-	var i int
-	_, err := fmt.Sscanf(v, "%d", &i)
-	if err != nil {
-		return nil, err
-	}
-	return &i, nil
+	return ls.element.UiPriority()
 }
 
 // SetPriority sets the sort priority.
 func (ls *LatentStyle) SetPriority(v *int) error {
-	if v == nil {
-		ls.element.RawElement().RemoveAttr("w:uiPriority")
-		return nil
-	}
-	ls.element.RawElement().CreateAttr("w:uiPriority", fmt.Sprintf("%d", *v))
-	return nil
+	return ls.element.SetUiPriority(v)
 }
 
 // QuickStyle returns the tri-state quick-style value.
