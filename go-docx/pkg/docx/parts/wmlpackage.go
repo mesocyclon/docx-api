@@ -35,10 +35,17 @@ func (wp *WmlPackage) ImageParts() *ImageParts {
 // Mirrors Python Package.get_or_add_image_part.
 // In Python this takes an image_descriptor; here we take a pre-built
 // ImagePart (with blob, metadata) since the Image parsing is in MR-10.
-func (wp *WmlPackage) GetOrAddImagePart(ip *ImagePart) *ImagePart {
-	existing := wp.ImageParts().GetByHash(ip.Hash())
+func (wp *WmlPackage) GetOrAddImagePart(ip *ImagePart) (*ImagePart, error) {
+	hash, err := ip.Hash()
+	if err != nil {
+		return nil, fmt.Errorf("parts: hashing new image part: %w", err)
+	}
+	existing, err := wp.ImageParts().GetByHash(hash)
+	if err != nil {
+		return nil, fmt.Errorf("parts: searching existing image parts: %w", err)
+	}
 	if existing != nil {
-		return existing
+		return existing, nil
 	}
 	// Assign a new partname
 	ext := ip.PartName().Ext()
@@ -49,7 +56,7 @@ func (wp *WmlPackage) GetOrAddImagePart(ip *ImagePart) *ImagePart {
 	ip.SetPartName(pn)
 	wp.ImageParts().Append(ip)
 	wp.OpcPackage.AddPart(ip)
-	return ip
+	return ip, nil
 }
 
 // AfterUnmarshal gathers existing image parts from all relationships.
@@ -122,13 +129,17 @@ func (ips *ImageParts) All() []*ImagePart {
 // GetByHash returns the image part with a matching hash, or nil.
 //
 // Mirrors Python ImageParts._get_by_sha1 (upgraded to SHA-256).
-func (ips *ImageParts) GetByHash(hash string) *ImagePart {
+func (ips *ImageParts) GetByHash(hash string) (*ImagePart, error) {
 	for _, ip := range ips.parts {
-		if ip.Hash() == hash {
-			return ip
+		h, err := ip.Hash()
+		if err != nil {
+			return nil, fmt.Errorf("parts: computing hash for dedup: %w", err)
+		}
+		if h == hash {
+			return ip, nil
 		}
 	}
-	return nil
+	return nil, nil
 }
 
 // nextImagePartname returns the next available image partname starting from

@@ -180,7 +180,10 @@ func (sp *StoryPart) GetOrAddImageFromReader(r io.ReadSeeker) (string, *ImagePar
 	// Create ImagePart
 	ip := NewImagePartFromImage(img, blob)
 	// Dedup via WmlPackage
-	ip = wp.GetOrAddImagePart(ip)
+	ip, err = wp.GetOrAddImagePart(ip)
+	if err != nil {
+		return "", nil, fmt.Errorf("parts: dedup image part: %w", err)
+	}
 	// Wire relationship
 	rId := sp.Rels().GetOrAdd(opc.RTImage, ip).RID
 	return rId, ip, nil

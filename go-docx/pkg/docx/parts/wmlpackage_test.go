@@ -14,7 +14,14 @@ func TestImageParts_GetOrAddSameBlob_Dedup(t *testing.T) {
 	ips.Append(ip1)
 
 	// Look up by hash — should find the existing part
-	found := ips.GetByHash(ip1.Hash())
+	h, err := ip1.Hash()
+	if err != nil {
+		t.Fatal(err)
+	}
+	found, err := ips.GetByHash(h)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if found != ip1 {
 		t.Error("GetByHash should find existing part with same blob")
 	}
@@ -28,7 +35,15 @@ func TestImageParts_DifferentBlobs_NoDeDup(t *testing.T) {
 	ip1 := NewImagePart("/word/media/image1.png", opc.CTPng, blob1, nil)
 	ips.Append(ip1)
 
-	found := ips.GetByHash(NewImagePart("/tmp/x.png", opc.CTPng, blob2, nil).Hash())
+	ipTmp := NewImagePart("/tmp/x.png", opc.CTPng, blob2, nil)
+	h, err := ipTmp.Hash()
+	if err != nil {
+		t.Fatal(err)
+	}
+	found, err := ips.GetByHash(h)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if found != nil {
 		t.Error("GetByHash should not find part with different blob")
 	}
@@ -111,14 +126,20 @@ func TestWmlPackage_GetOrAddImagePart_Dedup(t *testing.T) {
 	blob := []byte("test image")
 	ip1 := NewImagePart("/word/media/image1.png", opc.CTPng, blob, nil)
 
-	result1 := wp.GetOrAddImagePart(ip1)
+	result1, err := wp.GetOrAddImagePart(ip1)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if result1 == nil {
 		t.Fatal("GetOrAddImagePart returned nil")
 	}
 
 	// Add same blob again — should return existing
 	ip2 := NewImagePart("/tmp/temp.png", opc.CTPng, blob, nil)
-	result2 := wp.GetOrAddImagePart(ip2)
+	result2, err := wp.GetOrAddImagePart(ip2)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if result2 != result1 {
 		t.Error("GetOrAddImagePart should dedup same blob")
 	}
@@ -134,8 +155,12 @@ func TestWmlPackage_GetOrAddImagePart_Different(t *testing.T) {
 	ip1 := NewImagePart("/word/media/image1.png", opc.CTPng, []byte("A"), nil)
 	ip2 := NewImagePart("/tmp/temp.png", opc.CTPng, []byte("B"), nil)
 
-	wp.GetOrAddImagePart(ip1)
-	wp.GetOrAddImagePart(ip2)
+	if _, err := wp.GetOrAddImagePart(ip1); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := wp.GetOrAddImagePart(ip2); err != nil {
+		t.Fatal(err)
+	}
 	if wp.ImageParts().Len() != 2 {
 		t.Errorf("image parts count = %d, want 2", wp.ImageParts().Len())
 	}

@@ -13,8 +13,14 @@ func TestImagePartHash_Stable(t *testing.T) {
 	blob := []byte("test image data")
 	ip := NewImagePart("/word/media/image1.png", opc.CTPng, blob, nil)
 
-	h1 := ip.Hash()
-	h2 := ip.Hash()
+	h1, err := ip.Hash()
+	if err != nil {
+		t.Fatal(err)
+	}
+	h2, err := ip.Hash()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if h1 != h2 {
 		t.Errorf("Hash not stable: %q != %q", h1, h2)
 	}
@@ -31,7 +37,15 @@ func TestImagePartHash_SameBlob(t *testing.T) {
 	ip1 := NewImagePart("/word/media/image1.png", opc.CTPng, blob, nil)
 	ip2 := NewImagePart("/word/media/image2.png", opc.CTPng, blob, nil)
 
-	if ip1.Hash() != ip2.Hash() {
+	h1, err := ip1.Hash()
+	if err != nil {
+		t.Fatal(err)
+	}
+	h2, err := ip2.Hash()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if h1 != h2 {
 		t.Error("Same blob should produce same Hash")
 	}
 }

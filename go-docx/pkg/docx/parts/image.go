@@ -73,14 +73,17 @@ func NewImagePartFromImage(img *image.Image, blob []byte) *ImagePart {
 // The value is cached after the first computation.
 //
 // Mirrors Python ImagePart.sha1 property (upgraded to SHA-256).
-func (ip *ImagePart) Hash() string {
+func (ip *ImagePart) Hash() (string, error) {
 	if ip.hash != "" {
-		return ip.hash
+		return ip.hash, nil
 	}
-	blob, _ := ip.Blob()
+	blob, err := ip.Blob()
+	if err != nil {
+		return "", fmt.Errorf("parts: reading image blob for hash: %w", err)
+	}
 	h := sha256.Sum256(blob)
 	ip.hash = fmt.Sprintf("%x", h)
-	return ip.hash
+	return ip.hash, nil
 }
 
 // Filename returns the original filename for this image. If no filename
@@ -121,9 +124,12 @@ func (ip *ImagePart) ensureMeta() error {
 	if ip.metaLoaded {
 		return nil
 	}
-	blob, _ := ip.Blob()
+	blob, err := ip.Blob()
+	if err != nil {
+		return fmt.Errorf("parts: reading image blob: %w", err)
+	}
 	if len(blob) == 0 {
-		return fmt.Errorf("parts: image part has no blob data")
+		return fmt.Errorf("parts: image part has empty blob")
 	}
 	img, err := image.FromBlob(blob, ip.Filename())
 	if err != nil {
