@@ -165,8 +165,12 @@ func (s *Styles) getStyleIDFromName(name string, styleType enum.WdStyleType) (*s
 }
 
 func (s *Styles) getStyleIDFromStyle(style *BaseStyle, styleType enum.WdStyleType) (*string, error) {
-	if style.Type() != styleType {
-		return nil, fmt.Errorf("docx: assigned style is type %v, need type %v", style.Type(), styleType)
+	st, err := style.Type()
+	if err != nil {
+		return nil, err
+	}
+	if st != styleType {
+		return nil, fmt.Errorf("docx: assigned style is type %v, need type %v", st, styleType)
 	}
 	def := s.Default(styleType)
 	if def != nil && style.StyleID() == def.StyleID() {
@@ -262,13 +266,19 @@ func (s *BaseStyle) SetStyleID(v string) error {
 }
 
 // Type returns the style type as WdStyleType.
-func (s *BaseStyle) Type() enum.WdStyleType {
+//
+// Mirrors Python BaseStyle.type: absent w:type defaults to PARAGRAPH
+// (per OOXML spec); an unrecognised value is an error.
+func (s *BaseStyle) Type() (enum.WdStyleType, error) {
 	xmlType := s.element.Type()
+	if xmlType == "" {
+		return enum.WdStyleTypeParagraph, nil // absent → paragraph (matches Python)
+	}
 	st, err := enum.WdStyleTypeFromXml(xmlType)
 	if err != nil {
-		return enum.WdStyleTypeParagraph
+		return 0, fmt.Errorf("docx: parsing style type %q: %w", xmlType, err)
 	}
-	return st
+	return st, nil
 }
 
 // isStyleRef implements StyleRef, allowing *BaseStyle to be passed directly

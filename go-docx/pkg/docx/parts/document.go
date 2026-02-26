@@ -362,7 +362,7 @@ func (dp *DocumentPart) GetStyle(styleID *string, styleType enum.WdStyleType) (*
 // Standard Go consumer-side interface — parts doesn't import docx.
 type styledObject interface {
 	StyleID() string
-	Type() enum.WdStyleType
+	Type() (enum.WdStyleType, error)
 }
 
 // GetStyleID returns the style_id string for styleOrName of styleType.
@@ -388,8 +388,12 @@ func (dp *DocumentPart) GetStyleID(styleOrName any, styleType enum.WdStyleType) 
 		return ss.GetStyleIDByName(v, styleType)
 	case styledObject:
 		// Validate type (Python: _get_style_id_from_style raises ValueError).
-		if v.Type() != styleType {
-			return nil, fmt.Errorf("parts: assigned style is type %v, need type %v", v.Type(), styleType)
+		st, err := v.Type()
+		if err != nil {
+			return nil, err
+		}
+		if st != styleType {
+			return nil, fmt.Errorf("parts: assigned style is type %v, need type %v", st, styleType)
 		}
 		// Default check (Python: if style == self.default(style_type): return None).
 		ss, err := dp.Styles()

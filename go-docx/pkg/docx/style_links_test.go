@@ -220,7 +220,11 @@ func TestBaseStyle_Properties(t *testing.T) {
 		t.Errorf("StyleID() = %q, want %q", got, "Heading1")
 	}
 	// Type
-	if got := style.Type(); got != enum.WdStyleTypeParagraph {
+	got, err := style.Type()
+	if err != nil {
+		t.Fatalf("Type: %v", err)
+	}
+	if got != enum.WdStyleTypeParagraph {
 		t.Errorf("Type() = %v, want WdStyleTypeParagraph", got)
 	}
 	// QuickStyle (qFormat present without val → true)

@@ -151,8 +151,12 @@ func TestBaseStyle_Type(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if style.Type() != enum.WdStyleTypeParagraph {
-		t.Errorf("Type() = %v, want Paragraph", style.Type())
+	got, err := style.Type()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != enum.WdStyleTypeParagraph {
+		t.Errorf("Type() = %v, want Paragraph", got)
 	}
 }
 
