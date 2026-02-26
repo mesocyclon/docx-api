@@ -303,7 +303,10 @@ func TestRun_Underline_Getter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := makeR(t, tt.innerXml)
 			run := newRun(r, nil)
-			got := run.Underline()
+			got, err := run.Underline()
+			if err != nil {
+				t.Fatal(err)
+			}
 			if tt.isNil {
 				if got != nil {
 					t.Error("expected nil Underline")
@@ -332,7 +335,10 @@ func TestRun_Underline_Setter(t *testing.T) {
 		if err := run.SetUnderline(&v); err != nil {
 			t.Fatal(err)
 		}
-		got := run.Underline()
+		got, err := run.Underline()
+		if err != nil {
+			t.Fatal(err)
+		}
 		if got == nil || !got.IsSingle() {
 			t.Error("expected single underline after set")
 		}
@@ -344,7 +350,10 @@ func TestRun_Underline_Setter(t *testing.T) {
 		if err := run.SetUnderline(&v); err != nil {
 			t.Fatal(err)
 		}
-		got := run.Underline()
+		got, err := run.Underline()
+		if err != nil {
+			t.Fatal(err)
+		}
 		if got == nil || !got.IsNone() {
 			t.Error("expected none underline after set")
 		}
@@ -355,7 +364,11 @@ func TestRun_Underline_Setter(t *testing.T) {
 		if err := run.SetUnderline(nil); err != nil {
 			t.Fatal(err)
 		}
-		if run.Underline() != nil {
+		got, err := run.Underline()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got != nil {
 			t.Error("expected nil underline after set nil")
 		}
 	})

@@ -316,7 +316,10 @@ func TestFont_Underline_Getter(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			r := makeR(t, tt.innerXml)
 			f := newFont(r)
-			got := f.Underline()
+			got, err := f.Underline()
+			if err != nil {
+				t.Fatal(err)
+			}
 			if tt.isNil {
 				if got != nil {
 					t.Error("expected nil Underline")
@@ -345,7 +348,10 @@ func TestFont_Underline_Setter(t *testing.T) {
 	if err := f.SetUnderline(&single); err != nil {
 		t.Fatal(err)
 	}
-	got := f.Underline()
+	got, err := f.Underline()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got == nil || !got.IsSingle() {
 		t.Error("expected single underline")
 	}
@@ -353,7 +359,11 @@ func TestFont_Underline_Setter(t *testing.T) {
 	if err := f.SetUnderline(nil); err != nil {
 		t.Fatal(err)
 	}
-	if f.Underline() != nil {
+	got2, err := f.Underline()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got2 != nil {
 		t.Error("expected nil underline after set nil")
 	}
 }

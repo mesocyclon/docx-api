@@ -364,39 +364,34 @@ func (f *Font) SetSuperscript(v *bool) error {
 	return rPr.SetSuperscript(v)
 }
 
-// Underline returns the underline value. Possible returns:
-//   - nil: inherited
-//   - bool(true): SINGLE underline
-//   - bool(false): no underline (explicit)
-//   - enum.WdUnderline: specific underline style
-//
-// Mirrors Python Font.underline (getter).
 // Underline returns the underline setting, or nil if inherited.
 //
-// Mirrors Python Font.underline (getter).
-func (f *Font) Underline() *UnderlineVal {
+// Mirrors Python Font.underline (getter). Python's OptionalAttribute
+// descriptor raises on unrecognised w:val values; we propagate the error
+// rather than silently returning nil (which means "inherited").
+func (f *Font) Underline() (*UnderlineVal, error) {
 	rPr := f.rPrOwner.RPr()
 	if rPr == nil {
-		return nil
+		return nil, nil
 	}
 	uVal := rPr.UVal()
 	if uVal == nil {
-		return nil // inherited
+		return nil, nil // inherited
 	}
 	switch *uVal {
 	case "single":
 		v := UnderlineSingle()
-		return &v
+		return &v, nil
 	case "none":
 		v := UnderlineNone()
-		return &v
+		return &v, nil
 	default:
 		wdu, err := enum.WdUnderlineFromXml(*uVal)
 		if err != nil {
-			return nil
+			return nil, fmt.Errorf("docx: parsing underline %q: %w", *uVal, err)
 		}
 		v := UnderlineStyle(wdu)
-		return &v
+		return &v, nil
 	}
 }
 

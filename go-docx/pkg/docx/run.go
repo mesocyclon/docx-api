@@ -206,7 +206,7 @@ func (run *Run) SetText(text string) {
 // Underline returns the underline value (delegates to Font).
 //
 // Mirrors Python Run.underline (getter).
-func (run *Run) Underline() *UnderlineVal {
+func (run *Run) Underline() (*UnderlineVal, error) {
 	return run.Font().Underline()
 }
 
