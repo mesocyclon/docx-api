@@ -300,8 +300,7 @@ func (h *Header) SetIsLinkedToPrevious(v bool) error {
 		return nil
 	}
 	if v {
-		h.dropDefinition()
-		return nil
+		return h.dropDefinition()
 	}
 	_, err := h.addDefinition()
 	return err
@@ -410,11 +409,15 @@ func (h *Header) addDefinition() (*parts.HeaderPart, error) {
 	return hp, nil
 }
 
-func (h *Header) dropDefinition() {
-	rId := h.sectPr.RemoveHeaderRef(h.index)
+func (h *Header) dropDefinition() error {
+	rId, err := h.sectPr.RemoveHeaderRef(h.index)
+	if err != nil {
+		return fmt.Errorf("docx: removing header ref: %w", err)
+	}
 	if rId != "" {
 		h.docPart.DropHeaderPart(rId)
 	}
+	return nil
 }
 
 // getOrAddDefinition mirrors Python _BaseHeaderFooter._get_or_add_definition.
@@ -498,8 +501,7 @@ func (f *Footer) SetIsLinkedToPrevious(v bool) error {
 		return nil
 	}
 	if v {
-		f.dropDefinition()
-		return nil
+		return f.dropDefinition()
 	}
 	_, err := f.addDefinition()
 	return err
@@ -608,11 +610,15 @@ func (f *Footer) addDefinition() (*parts.FooterPart, error) {
 	return fp, nil
 }
 
-func (f *Footer) dropDefinition() {
-	rId := f.sectPr.RemoveFooterRef(f.index)
+func (f *Footer) dropDefinition() error {
+	rId, err := f.sectPr.RemoveFooterRef(f.index)
+	if err != nil {
+		return fmt.Errorf("docx: removing footer ref: %w", err)
+	}
 	if rId != "" {
 		f.docPart.DropRel(rId)
 	}
+	return nil
 }
 
 func (f *Footer) getOrAddDefinition() (*parts.FooterPart, error) {

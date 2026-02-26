@@ -338,27 +338,39 @@ func (sp *CT_SectPr) GetFooterRef(hfType enum.WdHeaderFooterIndex) (*CT_HdrFtrRe
 }
 
 // RemoveHeaderRef removes the headerReference of the given type and returns its rId.
-// Returns "" if not found or on error.
-func (sp *CT_SectPr) RemoveHeaderRef(hfType enum.WdHeaderFooterIndex) string {
+// Returns "" if not found.
+func (sp *CT_SectPr) RemoveHeaderRef(hfType enum.WdHeaderFooterIndex) (string, error) {
 	ref, err := sp.GetHeaderRef(hfType)
-	if err != nil || ref == nil {
-		return ""
+	if err != nil {
+		return "", fmt.Errorf("oxml: getting header ref: %w", err)
 	}
-	rId, _ := ref.RId()
+	if ref == nil {
+		return "", nil
+	}
+	rId, err := ref.RId()
+	if err != nil {
+		return "", fmt.Errorf("oxml: reading header rId: %w", err)
+	}
 	sp.e.RemoveChild(ref.e)
-	return rId
+	return rId, nil
 }
 
 // RemoveFooterRef removes the footerReference of the given type and returns its rId.
-// Returns "" if not found or on error.
-func (sp *CT_SectPr) RemoveFooterRef(hfType enum.WdHeaderFooterIndex) string {
+// Returns "" if not found.
+func (sp *CT_SectPr) RemoveFooterRef(hfType enum.WdHeaderFooterIndex) (string, error) {
 	ref, err := sp.GetFooterRef(hfType)
-	if err != nil || ref == nil {
-		return ""
+	if err != nil {
+		return "", fmt.Errorf("oxml: getting footer ref: %w", err)
 	}
-	rId, _ := ref.RId()
+	if ref == nil {
+		return "", nil
+	}
+	rId, err := ref.RId()
+	if err != nil {
+		return "", fmt.Errorf("oxml: reading footer rId: %w", err)
+	}
 	sp.e.RemoveChild(ref.e)
-	return rId
+	return rId, nil
 }
 
 // BodyElement returns the w:body element that contains this sectPr.

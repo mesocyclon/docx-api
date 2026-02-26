@@ -89,7 +89,10 @@ func TestStyles_AddStyle(t *testing.T) {
 // Mirrors Python: Styles.default
 func TestStyles_Default(t *testing.T) {
 	ss := makeStylesFromDoc(t)
-	def := ss.Default(enum.WdStyleTypeParagraph)
+	def, err := ss.Default(enum.WdStyleTypeParagraph)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if def == nil {
 		t.Error("Default(Paragraph) returned nil")
 	}

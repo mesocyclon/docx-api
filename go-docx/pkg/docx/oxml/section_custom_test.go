@@ -255,7 +255,10 @@ func TestCT_SectPr_HeaderFooterRef(t *testing.T) {
 	}
 
 	// Remove header ref
-	removed := sp.RemoveHeaderRef(enum.WdHeaderFooterIndexPrimary)
+	removed, err := sp.RemoveHeaderRef(enum.WdHeaderFooterIndexPrimary)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if removed != "rId1" {
 		t.Errorf("expected removed rId1, got %s", removed)
 	}
@@ -268,7 +271,10 @@ func TestCT_SectPr_HeaderFooterRef(t *testing.T) {
 	}
 
 	// Remove footer ref
-	removedF := sp.RemoveFooterRef(enum.WdHeaderFooterIndexPrimary)
+	removedF, err := sp.RemoveFooterRef(enum.WdHeaderFooterIndexPrimary)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if removedF != "rId2" {
 		t.Errorf("expected removed rId2, got %s", removedF)
 	}

@@ -106,12 +106,15 @@ func (s *Styles) AddStyle(name string, styleType enum.WdStyleType, builtin bool)
 // Default returns the default style for the given type, or nil.
 //
 // Mirrors Python Styles.default.
-func (s *Styles) Default(styleType enum.WdStyleType) *BaseStyle {
-	st := s.element.DefaultFor(styleType)
-	if st == nil {
-		return nil
+func (s *Styles) Default(styleType enum.WdStyleType) (*BaseStyle, error) {
+	st, err := s.element.DefaultFor(styleType)
+	if err != nil {
+		return nil, fmt.Errorf("docx: getting default style: %w", err)
 	}
-	return styleFactory(st)
+	if st == nil {
+		return nil, nil
+	}
+	return styleFactory(st), nil
 }
 
 // GetByID returns the style matching styleID and styleType. Returns the default
@@ -120,18 +123,18 @@ func (s *Styles) Default(styleType enum.WdStyleType) *BaseStyle {
 // Mirrors Python Styles.get_by_id.
 func (s *Styles) GetByID(styleID *string, styleType enum.WdStyleType) (*BaseStyle, error) {
 	if styleID == nil {
-		return s.Default(styleType), nil
+		return s.Default(styleType)
 	}
 	st := s.element.GetByID(*styleID)
 	if st == nil {
-		return s.Default(styleType), nil
+		return s.Default(styleType)
 	}
 	stTypeXml, err := styleType.ToXml()
 	if err != nil {
 		return nil, fmt.Errorf("docx: invalid style type: %w", err)
 	}
 	if st.Type() != stTypeXml {
-		return s.Default(styleType), nil
+		return s.Default(styleType)
 	}
 	return styleFactory(st), nil
 }
@@ -175,7 +178,10 @@ func (s *Styles) getStyleIDFromStyle(style *BaseStyle, styleType enum.WdStyleTyp
 	if st != styleType {
 		return nil, fmt.Errorf("docx: assigned style is type %v, need type %v", st, styleType)
 	}
-	def := s.Default(styleType)
+	def, err := s.Default(styleType)
+	if err != nil {
+		return nil, fmt.Errorf("docx: getting default style: %w", err)
+	}
 	if def != nil && style.StyleID() == def.StyleID() {
 		return nil, nil
 	}

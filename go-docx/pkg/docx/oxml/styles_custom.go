@@ -61,10 +61,10 @@ func (ss *CT_Styles) GetByName(name string) *CT_Style {
 
 // DefaultFor returns the default style for the given type, or nil.
 // If multiple defaults exist, returns the last one (per OOXML spec).
-func (ss *CT_Styles) DefaultFor(styleType enum.WdStyleType) *CT_Style {
+func (ss *CT_Styles) DefaultFor(styleType enum.WdStyleType) (*CT_Style, error) {
 	xmlType, err := styleType.ToXml()
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("oxml: invalid style type for DefaultFor: %w", err)
 	}
 	var last *CT_Style
 	for _, s := range ss.StyleList() {
@@ -72,7 +72,7 @@ func (ss *CT_Styles) DefaultFor(styleType enum.WdStyleType) *CT_Style {
 			last = s
 		}
 	}
-	return last
+	return last, nil
 }
 
 // AddStyleOfType creates and adds a new w:style element with the given name, type,
@@ -342,13 +342,19 @@ func (ss *CT_Styles) GetStyleIDByName(uiName string, styleType enum.WdStyleType)
 	}
 
 	// 5. Type check (Python: _get_style_id_from_style raises ValueError)
-	xmlType, _ := styleType.ToXml()
+	xmlType, err := styleType.ToXml()
+	if err != nil {
+		return nil, fmt.Errorf("oxml: invalid style type: %w", err)
+	}
 	if s.Type() != xmlType {
 		return nil, fmt.Errorf("oxml: style %q is type %q, need %q", uiName, s.Type(), xmlType)
 	}
 
 	// 6. Default check → return nil (Python: if style == self.default(style_type): return None)
-	def := ss.DefaultFor(styleType)
+	def, err := ss.DefaultFor(styleType)
+	if err != nil {
+		return nil, fmt.Errorf("oxml: getting default style: %w", err)
+	}
 	if def != nil && def.StyleId() == s.StyleId() {
 		return nil, nil
 	}

@@ -347,13 +347,16 @@ func (dp *DocumentPart) GetStyle(styleID *string, styleType enum.WdStyleType) (*
 		return nil, err
 	}
 	if styleID == nil {
-		return ss.DefaultFor(styleType), nil
+		return ss.DefaultFor(styleType)
 	}
 	s := ss.GetByID(*styleID)
-	xmlType, _ := styleType.ToXml()
+	xmlType, err := styleType.ToXml()
+	if err != nil {
+		return nil, fmt.Errorf("parts: invalid style type: %w", err)
+	}
 	if s == nil || s.Type() != xmlType {
 		// Fall back to default for the style type (matches Python _get_by_id).
-		return ss.DefaultFor(styleType), nil
+		return ss.DefaultFor(styleType)
 	}
 	return s, nil
 }
@@ -400,7 +403,10 @@ func (dp *DocumentPart) GetStyleID(styleOrName any, styleType enum.WdStyleType) 
 		if err != nil {
 			return nil, err
 		}
-		def := ss.DefaultFor(styleType)
+		def, err := ss.DefaultFor(styleType)
+		if err != nil {
+			return nil, err
+		}
 		if def != nil && def.StyleId() == v.StyleID() {
 			return nil, nil
 		}

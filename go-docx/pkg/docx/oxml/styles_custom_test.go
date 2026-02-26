@@ -85,7 +85,10 @@ func TestCT_Styles_DefaultFor(t *testing.T) {
 		t.Fatalf("SetDefault: %v", err)
 	}
 
-	def := styles.DefaultFor(enum.WdStyleTypeParagraph)
+	def, err := styles.DefaultFor(enum.WdStyleTypeParagraph)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if def == nil {
 		t.Fatal("expected default style")
 	}
@@ -94,7 +97,11 @@ func TestCT_Styles_DefaultFor(t *testing.T) {
 	}
 
 	// No default for character
-	if styles.DefaultFor(enum.WdStyleTypeCharacter) != nil {
+	defChar, err := styles.DefaultFor(enum.WdStyleTypeCharacter)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if defChar != nil {
 		t.Error("expected nil for character type")
 	}
 }
