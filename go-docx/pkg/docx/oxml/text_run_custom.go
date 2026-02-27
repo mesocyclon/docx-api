@@ -104,6 +104,22 @@ func (r *CT_R) LastRenderedPageBreaks() []*CT_LastRenderedPageBreak {
 	return result
 }
 
+// NewDetachedBr creates a <w:br> element that is NOT yet attached to this run's
+// XML tree. Configure attributes (SetType, SetClear) on the returned element,
+// then call AttachBr to insert it in the correct sequence position.
+//
+// This avoids orphan elements: if attribute configuration fails, the tree is
+// left untouched.
+func (r *CT_R) NewDetachedBr() *CT_Br {
+	return r.newBr()
+}
+
+// AttachBr inserts a previously detached <w:br> into this run in correct
+// sequence order. Typically called after NewDetachedBr + attribute setup.
+func (r *CT_R) AttachBr(br *CT_Br) {
+	r.insertBr(br)
+}
+
 // --- CT_Br custom methods ---
 
 // TextEquivalent returns the text equivalent of this break element.

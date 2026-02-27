@@ -30,7 +30,7 @@ func (run *Run) AddBreak(breakType enum.WdBreakType) error {
 	if err != nil {
 		return err
 	}
-	br := run.r.AddBr()
+	br := run.r.NewDetachedBr()
 	if type_ != "" {
 		if err := br.SetType(type_); err != nil {
 			return err
@@ -41,6 +41,7 @@ func (run *Run) AddBreak(breakType enum.WdBreakType) error {
 			return err
 		}
 	}
+	run.r.AttachBr(br)
 	return nil
 }
 
