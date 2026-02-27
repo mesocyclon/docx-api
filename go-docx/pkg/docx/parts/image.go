@@ -200,20 +200,20 @@ func (ip *ImagePart) DefaultCx() (int64, error) {
 }
 
 // DefaultCy returns the native height of this image in EMU for display.
-// NOTE: Python uses horz_dpi for cy (not vert_dpi) and round() (not int()).
+// Uses vert_dpi and round(), matching the formula for vertical dimensions.
 //
-// Mirrors Python ImagePart.default_cy:
-//
-//	Emu(int(round(914400 * px_height / horz_dpi)))
+// NOTE: Python ImagePart.default_cy uses horz_dpi here — this is a bug
+// (docstring says "vertical dots per inch" but code reads horz_dpi).
+// We intentionally diverge from Python and use vert_dpi, consistent
+// with Image.height and the OOXML spec.
 func (ip *ImagePart) DefaultCy() (int64, error) {
 	if err := ip.ensureMeta(); err != nil {
 		return 0, err
 	}
-	if ip.horzDpi == 0 {
+	if ip.vertDpi == 0 {
 		return 0, fmt.Errorf("parts: image has no DPI metadata")
 	}
-	// Python: int(round(914400 * px_height / horz_dpi)) — ROUNDS, uses horz_dpi
-	return int64(math.Round(914400 * float64(ip.pxHeight) / float64(ip.horzDpi))), nil
+	return int64(math.Round(914400 * float64(ip.pxHeight) / float64(ip.vertDpi))), nil
 }
 
 // --------------------------------------------------------------------------
@@ -238,8 +238,7 @@ func (ip *ImagePart) NativeWidth() (int64, error) {
 }
 
 // NativeHeight returns the native height of the image in EMU, matching
-// Python Image.height. NOTE: uses vert_dpi (unlike DefaultCy which uses
-// horz_dpi).
+// Python Image.height. Uses vert_dpi, same as DefaultCy.
 //
 // Mirrors Python Image.height:
 //
