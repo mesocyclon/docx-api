@@ -382,40 +382,52 @@ func (r *Row) Cells() []*Cell {
 	return cells
 }
 
-// tcAbove finds the tc element at the same grid offset in the prior row.
+// tcAbove finds the top cell of a vertical merge region by walking upward
+// iteratively. Previous recursive implementation could overflow the stack
+// on tall merge regions.
 func (r *Row) tcAbove(tc *oxml.CT_Tc) *oxml.CT_Tc {
-	trIdx := r.tr.TrIdx()
-	if trIdx == 0 {
-		return nil
-	}
 	trList := r.table.tbl.TrList()
-	if trIdx <= 0 || trIdx > len(trList) {
+	idx := r.tr.TrIdx()
+	if idx <= 0 || idx > len(trList) {
 		return nil
 	}
-	prevTr := trList[trIdx-1]
-	// Find the grid offset of tc in this row
-	offset := 0
-	for _, c := range r.tr.TcList() {
-		if c.RawElement() == tc.RawElement() {
-			break
+
+	curTr := r.tr
+	curTc := tc
+
+	for idx > 0 {
+		// Find the grid offset of curTc in curTr
+		offset := 0
+		for _, c := range curTr.TcList() {
+			if c.RawElement() == curTc.RawElement() {
+				break
+			}
+			gs, err := c.GridSpanVal()
+			if err != nil {
+				gs = 1
+			}
+			offset += gs
 		}
-		gs, err := c.GridSpanVal()
+
+		prevTr := trList[idx-1]
+		above, err := prevTr.TcAtGridOffset(offset)
 		if err != nil {
-			gs = 1
+			return nil
 		}
-		offset += gs
+
+		// If the cell above is not a vMerge continue, it's the top of the region.
+		vm := above.VMergeVal()
+		if vm == nil || *vm != "continue" {
+			return above
+		}
+
+		// Otherwise keep walking up.
+		idx--
+		curTr = prevTr
+		curTc = above
 	}
-	above, err := prevTr.TcAtGridOffset(offset)
-	if err != nil {
-		return nil
-	}
-	// If the above tc is also a vMerge continue, recurse
-	vm := above.VMergeVal()
-	if vm != nil && *vm == "continue" {
-		prevRow := &Row{tr: prevTr, table: r.table}
-		return prevRow.tcAbove(above)
-	}
-	return above
+	// Reached row 0 while still seeing vMerge=continue — malformed document.
+	return nil
 }
 
 // GridColsBefore returns the count of unpopulated grid-columns before the first cell.
