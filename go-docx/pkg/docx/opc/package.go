@@ -257,41 +257,72 @@ func (p *OpcPackage) NextPartname(template string) PackURI {
 }
 
 // IterParts generates all parts reachable via the relationship graph.
+// Uses iterative DFS to avoid unbounded call-stack growth on deep
+// relationship chains.
 func (p *OpcPackage) IterParts() []Part {
 	var result []Part
 	visited := make(map[Part]bool)
-	p.walkParts(p.rels, visited, &result)
-	return result
-}
+	// Explicit stack: each entry is a slice of relationships to process.
+	// We push slices in reverse so the first rel is popped first,
+	// preserving the original DFS order.
+	stack := []([]*Relationship){p.rels.All()}
 
-func (p *OpcPackage) walkParts(rels *Relationships, visited map[Part]bool, result *[]Part) {
-	for _, rel := range rels.All() {
-		if rel.IsExternal || rel.TargetPart == nil {
-			continue
+	for len(stack) > 0 {
+		top := len(stack) - 1
+		rels := stack[top]
+
+		// Find next unvisited part in current rels slice.
+		var advanced bool
+		for len(rels) > 0 {
+			rel := rels[0]
+			rels = rels[1:]
+			stack[top] = rels // consume
+
+			if rel.IsExternal || rel.TargetPart == nil {
+				continue
+			}
+			part := rel.TargetPart
+			if visited[part] {
+				continue
+			}
+			visited[part] = true
+			result = append(result, part)
+			// Push child rels — will be processed before remaining siblings.
+			stack = append(stack, part.Rels().All())
+			advanced = true
+			break
 		}
-		part := rel.TargetPart
-		if visited[part] {
-			continue
+		if !advanced {
+			// Current slice exhausted — pop it.
+			stack = stack[:top]
 		}
-		visited[part] = true
-		*result = append(*result, part)
-		p.walkParts(part.Rels(), visited, result)
 	}
+	return result
 }
 
 // IterRels yields every relationship in the package exactly once via a
 // depth-first traversal of the relationship graph. Mirrors Python
 // OpcPackage.iter_rels.
+// Uses iterative DFS to avoid unbounded call-stack growth.
 func (p *OpcPackage) IterRels() []*Relationship {
 	var result []*Relationship
 	visited := make(map[Part]bool)
-	p.walkRels(p.rels, visited, &result)
-	return result
-}
+	stack := []([]*Relationship){p.rels.All()}
 
-func (p *OpcPackage) walkRels(rels *Relationships, visited map[Part]bool, result *[]*Relationship) {
-	for _, rel := range rels.All() {
-		*result = append(*result, rel)
+	for len(stack) > 0 {
+		top := len(stack) - 1
+		rels := stack[top]
+
+		if len(rels) == 0 {
+			stack = stack[:top]
+			continue
+		}
+
+		rel := rels[0]
+		stack[top] = rels[1:] // consume
+
+		result = append(result, rel)
+
 		if rel.IsExternal || rel.TargetPart == nil {
 			continue
 		}
@@ -300,6 +331,7 @@ func (p *OpcPackage) walkRels(rels *Relationships, visited map[Part]bool, result
 			continue
 		}
 		visited[part] = true
-		p.walkRels(part.Rels(), visited, result)
+		stack = append(stack, part.Rels().All())
 	}
+	return result
 }
