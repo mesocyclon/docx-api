@@ -22,6 +22,10 @@ type Generator struct {
 
 // NewGenerator creates a new Generator for the given schema.
 func NewGenerator(schema Schema) (*Generator, error) {
+	if err := schema.Validate(); err != nil {
+		return nil, err
+	}
+
 	tmplContent, err := templateFS.ReadFile("templates/element.go.tmpl")
 	if err != nil {
 		return nil, fmt.Errorf("codegen: reading template: %w", err)
@@ -135,14 +139,17 @@ func (g *Generator) buildTemplateData() templateData {
 			}
 
 			switch ch.Cardinality {
-			case "zero_or_one":
+			case ZeroOrOne:
 				ed.ZeroOrOneChildren = append(ed.ZeroOrOneChildren, cd)
-			case "zero_or_more":
+			case ZeroOrMore:
 				ed.ZeroOrMoreChildren = append(ed.ZeroOrMoreChildren, cd)
-			case "one_and_only_one":
+			case OneAndOnlyOne:
 				ed.OneAndOnlyOneChildren = append(ed.OneAndOnlyOneChildren, cd)
-			case "one_or_more":
+			case OneOrMore:
 				ed.OneOrMoreChildren = append(ed.OneOrMoreChildren, cd)
+			default:
+				panic(fmt.Sprintf("codegen: unhandled cardinality %q for %s.%s (should be caught by Validate)",
+					ch.Cardinality, el.Name, ch.Name))
 			}
 		}
 

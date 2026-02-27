@@ -47,7 +47,7 @@ func TestZeroOrOne_Generates6Methods(t *testing.T) {
 				Doc:  "paragraph element",
 				Children: []Child{{
 					Name: "PPr", Tag: "w:pPr", Type: "CT_PPr",
-					Cardinality: "zero_or_one",
+					Cardinality: ZeroOrOne,
 					Successors:  []string{"w:r", "w:hyperlink"},
 				}},
 			},
@@ -78,7 +78,7 @@ func TestZeroOrMore_Generates5Methods(t *testing.T) {
 				Tag:  "w:p",
 				Children: []Child{{
 					Name: "R", Tag: "w:r", Type: "CT_R",
-					Cardinality: "zero_or_more",
+					Cardinality: ZeroOrMore,
 					Successors:  []string{"w:hyperlink"},
 				}},
 			},
@@ -107,7 +107,7 @@ func TestOneAndOnlyOne_Generates1Method(t *testing.T) {
 				Tag:  "w:document",
 				Children: []Child{{
 					Name: "Body", Tag: "w:body", Type: "CT_Body",
-					Cardinality: "one_and_only_one",
+					Cardinality: OneAndOnlyOne,
 				}},
 			},
 		},
@@ -135,7 +135,7 @@ func TestOneOrMore_Generates5Methods(t *testing.T) {
 				Doc:  "table cell element",
 				Children: []Child{{
 					Name: "P", Tag: "w:p", Type: "CT_P",
-					Cardinality: "one_or_more",
+					Cardinality: OneOrMore,
 				}},
 			},
 		},
@@ -362,9 +362,9 @@ func TestGenerate_OutputIsParsableGo(t *testing.T) {
 				Tag:  "w:p",
 				Doc:  "paragraph element",
 				Children: []Child{
-					{Name: "PPr", Tag: "w:pPr", Type: "CT_PPr", Cardinality: "zero_or_one", Successors: []string{"w:r", "w:hyperlink"}},
-					{Name: "R", Tag: "w:r", Type: "CT_R", Cardinality: "zero_or_more", Successors: []string{"w:hyperlink"}},
-					{Name: "Hyperlink", Tag: "w:hyperlink", Type: "CT_Hyperlink", Cardinality: "zero_or_more"},
+					{Name: "PPr", Tag: "w:pPr", Type: "CT_PPr", Cardinality: ZeroOrOne, Successors: []string{"w:r", "w:hyperlink"}},
+					{Name: "R", Tag: "w:r", Type: "CT_R", Cardinality: ZeroOrMore, Successors: []string{"w:hyperlink"}},
+					{Name: "Hyperlink", Tag: "w:hyperlink", Type: "CT_Hyperlink", Cardinality: ZeroOrMore},
 				},
 				Attributes: []Attribute{
 					{Name: "RsidR", AttrName: "w:rsidR", Type: "string"},
@@ -374,14 +374,14 @@ func TestGenerate_OutputIsParsableGo(t *testing.T) {
 				Name: "CT_Document",
 				Tag:  "w:document",
 				Children: []Child{
-					{Name: "Body", Tag: "w:body", Type: "CT_Body", Cardinality: "one_and_only_one"},
+					{Name: "Body", Tag: "w:body", Type: "CT_Body", Cardinality: OneAndOnlyOne},
 				},
 			},
 			{
 				Name: "CT_Tc",
 				Tag:  "w:tc",
 				Children: []Child{
-					{Name: "P", Tag: "w:p", Type: "CT_P", Cardinality: "one_or_more"},
+					{Name: "P", Tag: "w:p", Type: "CT_P", Cardinality: OneOrMore},
 				},
 			},
 		},
@@ -502,7 +502,7 @@ func TestGenerate_NoSuccessors_CallsInsertWithoutArgs(t *testing.T) {
 				Tag:  "w:parent",
 				Children: []Child{{
 					Name: "Child", Tag: "w:child", Type: "CT_Child",
-					Cardinality: "zero_or_one",
+					Cardinality: ZeroOrOne,
 					Successors:  []string{},
 				}},
 			},
@@ -524,7 +524,7 @@ func TestGenerate_SuccessorsPreserveOrder(t *testing.T) {
 				Tag:  "w:parent",
 				Children: []Child{{
 					Name: "A", Tag: "w:a", Type: "CT_A",
-					Cardinality: "zero_or_one",
+					Cardinality: ZeroOrOne,
 					Successors:  []string{"w:b", "w:c", "w:d"},
 				}},
 			},

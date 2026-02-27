@@ -23,19 +23,37 @@ type Element struct {
 	ChoiceGroups []ChoiceGroup `yaml:"choice_groups"` // ZeroOrOneChoice groups
 }
 
+// Cardinality describes the multiplicity of a child element.
+type Cardinality string
+
+const (
+	ZeroOrOne     Cardinality = "zero_or_one"
+	ZeroOrMore    Cardinality = "zero_or_more"
+	OneAndOnlyOne Cardinality = "one_and_only_one"
+	OneOrMore     Cardinality = "one_or_more"
+)
+
+func (c Cardinality) valid() bool {
+	switch c {
+	case ZeroOrOne, ZeroOrMore, OneAndOnlyOne, OneOrMore:
+		return true
+	}
+	return false
+}
+
 // Child describes a child element with its cardinality.
 //
 // Cardinality determines which methods are generated:
-//   - "zero_or_one":       getter, GetOrAdd, Remove, add, new, insert (6 methods)
-//   - "zero_or_more":      List getter, Add, add, new, insert          (5 methods)
-//   - "one_and_only_one":  getter only (returns error if absent)        (1 method)
-//   - "one_or_more":       List getter, Add, add, new, insert          (5 methods)
+//   - ZeroOrOne:       getter, GetOrAdd, Remove, add, new, insert (6 methods)
+//   - ZeroOrMore:      List getter, Add, add, new, insert          (5 methods)
+//   - OneAndOnlyOne:   getter only (returns error if absent)        (1 method)
+//   - OneOrMore:       List getter, Add, add, new, insert          (5 methods)
 type Child struct {
-	Name        string   `yaml:"name"`        // Go property name, e.g. "PPr"
-	Tag         string   `yaml:"tag"`         // XML tag, e.g. "w:pPr"
-	Type        string   `yaml:"type"`        // Go type name, e.g. "CT_PPr"
-	Cardinality string   `yaml:"cardinality"` // see above
-	Successors  []string `yaml:"successors"`  // tags for InsertElementBefore ordering
+	Name        string      `yaml:"name"`        // Go property name, e.g. "PPr"
+	Tag         string      `yaml:"tag"`         // XML tag, e.g. "w:pPr"
+	Type        string      `yaml:"type"`        // Go type name, e.g. "CT_PPr"
+	Cardinality Cardinality `yaml:"cardinality"` // see above
+	Successors  []string    `yaml:"successors"`  // tags for InsertElementBefore ordering
 }
 
 // Attribute describes an XML attribute on an element.
