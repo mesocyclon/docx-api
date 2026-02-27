@@ -264,30 +264,53 @@ func (ss *Sections) Iter() []*Section {
 
 // --------------------------------------------------------------------------
 // Header / Footer — _BaseHeaderFooter pattern
+//
+// Mirrors Python _BaseHeaderFooter(BlockItemContainer). The shared logic
+// (IsLinkedToPrevious, AddParagraph, Part, getOrAddDefinition, etc.) lives
+// in baseHeaderFooter. Type-specific operations (hasDefinition, definition,
+// addDefinition, dropDefinition, prior) are provided via the hdrFtrOps
+// interface, implemented separately by Header and Footer.
 // --------------------------------------------------------------------------
 
-// Header is a proxy for a page header.
+// hdrFtrOps encapsulates the five type-specific hook methods that differ
+// between Header and Footer. Everything else is shared in baseHeaderFooter.
+type hdrFtrOps interface {
+	// hasDefinition reports whether an explicit definition exists for this
+	// header/footer in its sectPr (i.e. a headerReference / footerReference).
+	hasDefinition() (bool, error)
+
+	// definition returns the StoryPart that contains the content.
+	definition() (*parts.StoryPart, error)
+
+	// addDefinition creates a new part and wires the reference in sectPr.
+	addDefinition() (*parts.StoryPart, error)
+
+	// dropDefinition removes the reference and drops the related part.
+	dropDefinition() error
+
+	// prior returns the same-type header/footer ops for the preceding section,
+	// or nil if this is the first section.
+	prior() hdrFtrOps
+
+	// kind returns "header" or "footer" for error messages.
+	kind() string
+}
+
+// baseHeaderFooter holds all the shared logic for Header and Footer.
 //
-// Mirrors Python _Header(_BaseHeaderFooter(BlockItemContainer)).
-// Provides BlockItemContainer methods (AddParagraph, AddTable, Paragraphs,
-// Tables, IterInnerContent) by delegating to the underlying header part.
-type Header struct {
-	sectPr  *oxml.CT_SectPr
-	docPart *parts.DocumentPart
-	index   enum.WdHeaderFooterIndex
+// Mirrors Python _BaseHeaderFooter: is_linked_to_previous, part,
+// _get_or_add_definition, _element, and all BlockItemContainer delegators.
+type baseHeaderFooter struct {
+	ops hdrFtrOps
 }
 
-// newHeader creates a new Header proxy.
-func newHeader(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.WdHeaderFooterIndex) *Header {
-	return &Header{sectPr: sectPr, docPart: docPart, index: index}
-}
-
-// IsLinkedToPrevious reports whether this header uses the definition from
-// the prior section. Returns false on error (conservative: assume own definition).
+// IsLinkedToPrevious reports whether this header/footer uses the definition
+// from the prior section. Returns false on error (conservative: assume own
+// definition).
 //
 // Mirrors Python _BaseHeaderFooter.is_linked_to_previous.
-func (h *Header) IsLinkedToPrevious() bool {
-	has, err := h.hasDefinition()
+func (b *baseHeaderFooter) IsLinkedToPrevious() bool {
+	has, err := b.ops.hasDefinition()
 	if err != nil {
 		return false
 	}
@@ -295,100 +318,149 @@ func (h *Header) IsLinkedToPrevious() bool {
 }
 
 // SetIsLinkedToPrevious sets the linked-to-previous state.
-func (h *Header) SetIsLinkedToPrevious(v bool) error {
-	if v == h.IsLinkedToPrevious() {
+func (b *baseHeaderFooter) SetIsLinkedToPrevious(v bool) error {
+	if v == b.IsLinkedToPrevious() {
 		return nil
 	}
 	if v {
-		return h.dropDefinition()
+		return b.ops.dropDefinition()
 	}
-	_, err := h.addDefinition()
+	_, err := b.ops.addDefinition()
 	return err
 }
 
-// AddParagraph appends a new paragraph to this header.
+// AddParagraph appends a new paragraph to this header/footer.
 //
 // Mirrors Python BlockItemContainer.add_paragraph (inherited by _BaseHeaderFooter).
-func (h *Header) AddParagraph(text string, style ...StyleRef) (*Paragraph, error) {
-	bic, err := h.blockItemContainer()
+func (b *baseHeaderFooter) AddParagraph(text string, style ...StyleRef) (*Paragraph, error) {
+	bic, err := b.blockItemContainer()
 	if err != nil {
-		return nil, fmt.Errorf("docx: header add paragraph: %w", err)
+		return nil, fmt.Errorf("docx: %s add paragraph: %w", b.ops.kind(), err)
 	}
 	return bic.AddParagraph(text, style...)
 }
 
-// AddTable appends a new table to this header.
+// AddTable appends a new table to this header/footer.
 //
 // Mirrors Python BlockItemContainer.add_table (inherited by _BaseHeaderFooter).
-func (h *Header) AddTable(rows, cols int, widthTwips int) (*Table, error) {
-	bic, err := h.blockItemContainer()
+func (b *baseHeaderFooter) AddTable(rows, cols int, widthTwips int) (*Table, error) {
+	bic, err := b.blockItemContainer()
 	if err != nil {
-		return nil, fmt.Errorf("docx: header add table: %w", err)
+		return nil, fmt.Errorf("docx: %s add table: %w", b.ops.kind(), err)
 	}
 	return bic.AddTable(rows, cols, widthTwips)
 }
 
-// Paragraphs returns the paragraphs in this header.
+// Paragraphs returns the paragraphs in this header/footer.
 //
 // Mirrors Python BlockItemContainer.paragraphs (inherited by _BaseHeaderFooter).
-func (h *Header) Paragraphs() ([]*Paragraph, error) {
-	bic, err := h.blockItemContainer()
+func (b *baseHeaderFooter) Paragraphs() ([]*Paragraph, error) {
+	bic, err := b.blockItemContainer()
 	if err != nil {
-		return nil, fmt.Errorf("docx: header paragraphs: %w", err)
+		return nil, fmt.Errorf("docx: %s paragraphs: %w", b.ops.kind(), err)
 	}
 	return bic.Paragraphs(), nil
 }
 
-// Tables returns the tables in this header.
+// Tables returns the tables in this header/footer.
 //
 // Mirrors Python BlockItemContainer.tables (inherited by _BaseHeaderFooter).
-func (h *Header) Tables() ([]*Table, error) {
-	bic, err := h.blockItemContainer()
+func (b *baseHeaderFooter) Tables() ([]*Table, error) {
+	bic, err := b.blockItemContainer()
 	if err != nil {
-		return nil, fmt.Errorf("docx: header tables: %w", err)
+		return nil, fmt.Errorf("docx: %s tables: %w", b.ops.kind(), err)
 	}
 	return bic.Tables(), nil
 }
 
-// IterInnerContent returns paragraphs and tables in this header in document order.
+// IterInnerContent returns paragraphs and tables in document order.
 //
 // Mirrors Python BlockItemContainer.iter_inner_content (inherited by _BaseHeaderFooter).
-func (h *Header) IterInnerContent() ([]*InnerContentItem, error) {
-	bic, err := h.blockItemContainer()
+func (b *baseHeaderFooter) IterInnerContent() ([]*InnerContentItem, error) {
+	bic, err := b.blockItemContainer()
 	if err != nil {
-		return nil, fmt.Errorf("docx: header inner content: %w", err)
+		return nil, fmt.Errorf("docx: %s inner content: %w", b.ops.kind(), err)
 	}
 	return bic.IterInnerContent(), nil
 }
 
-// Part returns the HeaderPart as a StoryPart. This overrides the part
-// accessor to provide the correct StoryPart for style resolution and
-// image insertion in header content.
+// Part returns the underlying StoryPart for style resolution and image
+// insertion.
 //
 // Mirrors Python _BaseHeaderFooter.part property.
-func (h *Header) Part() (*parts.StoryPart, error) {
-	hp, err := h.getOrAddDefinition()
+func (b *baseHeaderFooter) Part() (*parts.StoryPart, error) {
+	sp, err := b.getOrAddDefinition()
 	if err != nil {
-		return nil, fmt.Errorf("docx: resolving header part: %w", err)
+		return nil, fmt.Errorf("docx: resolving %s part: %w", b.ops.kind(), err)
 	}
-	return &hp.StoryPart, nil
+	return sp, nil
 }
 
-// blockItemContainer creates a BlockItemContainer backed by the header part's
-// element and StoryPart. Created fresh each call to match Python's property
-// behavior (no stale cache if definition changes).
-func (h *Header) blockItemContainer() (*BlockItemContainer, error) {
-	hp, err := h.getOrAddDefinition()
+// blockItemContainer creates a BlockItemContainer backed by the header/footer
+// part's element and StoryPart. Created fresh each call to match Python's
+// property behavior (no stale cache if definition changes).
+func (b *baseHeaderFooter) blockItemContainer() (*BlockItemContainer, error) {
+	sp, err := b.getOrAddDefinition()
 	if err != nil {
-		return nil, fmt.Errorf("docx: resolving header definition: %w", err)
+		return nil, fmt.Errorf("docx: resolving %s definition: %w", b.ops.kind(), err)
 	}
-	el := hp.Element()
+	el := sp.Element()
 	if el == nil {
-		return nil, fmt.Errorf("docx: header part has nil element")
+		return nil, fmt.Errorf("docx: %s part has nil element", b.ops.kind())
 	}
-	bic := newBlockItemContainer(el, &hp.StoryPart)
+	bic := newBlockItemContainer(el, sp)
 	return &bic, nil
 }
+
+// getOrAddDefinition mirrors Python _BaseHeaderFooter._get_or_add_definition.
+// Walks backward through preceding sections looking for an existing definition.
+// If no section in the chain has one, adds a new definition on the earliest
+// (first) section — matching the original recursive semantics without unbounded
+// call depth.
+func (b *baseHeaderFooter) getOrAddDefinition() (*parts.StoryPart, error) {
+	cur := b.ops
+	for {
+		has, err := cur.hasDefinition()
+		if err != nil {
+			return nil, err
+		}
+		if has {
+			return cur.definition()
+		}
+		p := cur.prior()
+		if p == nil {
+			// First section reached — create a new definition here.
+			return cur.addDefinition()
+		}
+		cur = p
+	}
+}
+
+// --------------------------------------------------------------------------
+// Header
+// --------------------------------------------------------------------------
+
+// Header is a proxy for a page header.
+//
+// Mirrors Python _Header(_BaseHeaderFooter(BlockItemContainer)).
+// Provides BlockItemContainer methods (AddParagraph, AddTable, Paragraphs,
+// Tables, IterInnerContent) via the embedded baseHeaderFooter; type-specific
+// operations are implemented directly on Header to satisfy hdrFtrOps.
+type Header struct {
+	baseHeaderFooter
+	sectPr  *oxml.CT_SectPr
+	docPart *parts.DocumentPart
+	index   enum.WdHeaderFooterIndex
+}
+
+// newHeader creates a new Header proxy.
+func newHeader(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.WdHeaderFooterIndex) *Header {
+	h := &Header{sectPr: sectPr, docPart: docPart, index: index}
+	h.ops = h
+	return h
+}
+
+func (h *Header) kind() string { return "header" }
 
 func (h *Header) hasDefinition() (bool, error) {
 	ref, err := h.sectPr.GetHeaderRef(h.index)
@@ -398,53 +470,7 @@ func (h *Header) hasDefinition() (bool, error) {
 	return ref != nil, nil
 }
 
-func (h *Header) addDefinition() (*parts.HeaderPart, error) {
-	hp, rId, err := h.docPart.AddHeaderPart()
-	if err != nil {
-		return nil, err
-	}
-	if _, err := h.sectPr.AddHeaderRef(h.index, rId); err != nil {
-		return nil, err
-	}
-	return hp, nil
-}
-
-func (h *Header) dropDefinition() error {
-	rId, err := h.sectPr.RemoveHeaderRef(h.index)
-	if err != nil {
-		return fmt.Errorf("docx: removing header ref: %w", err)
-	}
-	if rId != "" {
-		h.docPart.DropHeaderPart(rId)
-	}
-	return nil
-}
-
-// getOrAddDefinition mirrors Python _BaseHeaderFooter._get_or_add_definition.
-// Walks backward through preceding sections looking for an existing definition.
-// If no section in the chain has one, adds a new definition on the earliest
-// (first) section — matching the original recursive semantics without unbounded
-// call depth.
-func (h *Header) getOrAddDefinition() (*parts.HeaderPart, error) {
-	cur := h
-	for {
-		has, err := cur.hasDefinition()
-		if err != nil {
-			return nil, err
-		}
-		if has {
-			return cur.definition()
-		}
-		prior := cur.priorHeader()
-		if prior == nil {
-			// First section reached — create a new definition here.
-			return cur.addDefinition()
-		}
-		cur = prior
-	}
-}
-
-func (h *Header) definition() (*parts.HeaderPart, error) {
+func (h *Header) definition() (*parts.StoryPart, error) {
 	ref, err := h.sectPr.GetHeaderRef(h.index)
 	if err != nil {
 		return nil, fmt.Errorf("docx: getting header ref for index %d: %w", h.index, err)
@@ -460,10 +486,32 @@ func (h *Header) definition() (*parts.HeaderPart, error) {
 	if err != nil {
 		return nil, fmt.Errorf("docx: resolving header part for rId %q: %w", rId, err)
 	}
-	return hp, nil
+	return &hp.StoryPart, nil
 }
 
-func (h *Header) priorHeader() *Header {
+func (h *Header) addDefinition() (*parts.StoryPart, error) {
+	hp, rId, err := h.docPart.AddHeaderPart()
+	if err != nil {
+		return nil, err
+	}
+	if _, err := h.sectPr.AddHeaderRef(h.index, rId); err != nil {
+		return nil, err
+	}
+	return &hp.StoryPart, nil
+}
+
+func (h *Header) dropDefinition() error {
+	rId, err := h.sectPr.RemoveHeaderRef(h.index)
+	if err != nil {
+		return fmt.Errorf("docx: removing header ref: %w", err)
+	}
+	if rId != "" {
+		h.docPart.DropHeaderPart(rId)
+	}
+	return nil
+}
+
+func (h *Header) prior() hdrFtrOps {
 	prev := h.sectPr.PrecedingSectPr()
 	if prev == nil {
 		return nil
@@ -479,8 +527,10 @@ func (h *Header) priorHeader() *Header {
 //
 // Mirrors Python _Footer(_BaseHeaderFooter(BlockItemContainer)).
 // Provides BlockItemContainer methods (AddParagraph, AddTable, Paragraphs,
-// Tables, IterInnerContent) by delegating to the underlying footer part.
+// Tables, IterInnerContent) via the embedded baseHeaderFooter; type-specific
+// operations are implemented directly on Footer to satisfy hdrFtrOps.
 type Footer struct {
+	baseHeaderFooter
 	sectPr  *oxml.CT_SectPr
 	docPart *parts.DocumentPart
 	index   enum.WdHeaderFooterIndex
@@ -488,114 +538,12 @@ type Footer struct {
 
 // newFooter creates a new Footer proxy.
 func newFooter(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.WdHeaderFooterIndex) *Footer {
-	return &Footer{sectPr: sectPr, docPart: docPart, index: index}
+	f := &Footer{sectPr: sectPr, docPart: docPart, index: index}
+	f.ops = f
+	return f
 }
 
-// IsLinkedToPrevious reports whether this footer uses the definition from
-// the prior section. Returns false on error (conservative: assume own definition).
-func (f *Footer) IsLinkedToPrevious() bool {
-	has, err := f.hasDefinition()
-	if err != nil {
-		return false
-	}
-	return !has
-}
-
-// SetIsLinkedToPrevious sets the linked-to-previous state.
-func (f *Footer) SetIsLinkedToPrevious(v bool) error {
-	if v == f.IsLinkedToPrevious() {
-		return nil
-	}
-	if v {
-		return f.dropDefinition()
-	}
-	_, err := f.addDefinition()
-	return err
-}
-
-// AddParagraph appends a new paragraph to this footer.
-//
-// Mirrors Python BlockItemContainer.add_paragraph (inherited by _BaseHeaderFooter).
-func (f *Footer) AddParagraph(text string, style ...StyleRef) (*Paragraph, error) {
-	bic, err := f.blockItemContainer()
-	if err != nil {
-		return nil, fmt.Errorf("docx: footer add paragraph: %w", err)
-	}
-	return bic.AddParagraph(text, style...)
-}
-
-// AddTable appends a new table to this footer.
-//
-// Mirrors Python BlockItemContainer.add_table (inherited by _BaseHeaderFooter).
-func (f *Footer) AddTable(rows, cols int, widthTwips int) (*Table, error) {
-	bic, err := f.blockItemContainer()
-	if err != nil {
-		return nil, fmt.Errorf("docx: footer add table: %w", err)
-	}
-	return bic.AddTable(rows, cols, widthTwips)
-}
-
-// Paragraphs returns the paragraphs in this footer.
-//
-// Mirrors Python BlockItemContainer.paragraphs (inherited by _BaseHeaderFooter).
-func (f *Footer) Paragraphs() ([]*Paragraph, error) {
-	bic, err := f.blockItemContainer()
-	if err != nil {
-		return nil, fmt.Errorf("docx: footer paragraphs: %w", err)
-	}
-	return bic.Paragraphs(), nil
-}
-
-// Tables returns the tables in this footer.
-//
-// Mirrors Python BlockItemContainer.tables (inherited by _BaseHeaderFooter).
-func (f *Footer) Tables() ([]*Table, error) {
-	bic, err := f.blockItemContainer()
-	if err != nil {
-		return nil, fmt.Errorf("docx: footer tables: %w", err)
-	}
-	return bic.Tables(), nil
-}
-
-// IterInnerContent returns paragraphs and tables in this footer in document order.
-//
-// Mirrors Python BlockItemContainer.iter_inner_content (inherited by _BaseHeaderFooter).
-func (f *Footer) IterInnerContent() ([]*InnerContentItem, error) {
-	bic, err := f.blockItemContainer()
-	if err != nil {
-		return nil, fmt.Errorf("docx: footer inner content: %w", err)
-	}
-	return bic.IterInnerContent(), nil
-}
-
-// Part returns the FooterPart as a StoryPart. This overrides the part
-// accessor to provide the correct StoryPart for style resolution and
-// image insertion in footer content.
-//
-// Mirrors Python _BaseHeaderFooter.part property.
-func (f *Footer) Part() (*parts.StoryPart, error) {
-	fp, err := f.getOrAddDefinition()
-	if err != nil {
-		return nil, fmt.Errorf("docx: resolving footer part: %w", err)
-	}
-	return &fp.StoryPart, nil
-}
-
-// blockItemContainer creates a BlockItemContainer backed by the footer part's
-// element and StoryPart. Created fresh each call to match Python's property
-// behavior.
-func (f *Footer) blockItemContainer() (*BlockItemContainer, error) {
-	fp, err := f.getOrAddDefinition()
-	if err != nil {
-		return nil, fmt.Errorf("docx: resolving footer definition: %w", err)
-	}
-	el := fp.Element()
-	if el == nil {
-		return nil, fmt.Errorf("docx: footer part has nil element")
-	}
-	bic := newBlockItemContainer(el, &fp.StoryPart)
-	return &bic, nil
-}
+func (f *Footer) kind() string { return "footer" }
 
 func (f *Footer) hasDefinition() (bool, error) {
 	ref, err := f.sectPr.GetFooterRef(f.index)
@@ -605,49 +553,7 @@ func (f *Footer) hasDefinition() (bool, error) {
 	return ref != nil, nil
 }
 
-func (f *Footer) addDefinition() (*parts.FooterPart, error) {
-	fp, rId, err := f.docPart.AddFooterPart()
-	if err != nil {
-		return nil, err
-	}
-	if _, err := f.sectPr.AddFooterRef(f.index, rId); err != nil {
-		return nil, err
-	}
-	return fp, nil
-}
-
-func (f *Footer) dropDefinition() error {
-	rId, err := f.sectPr.RemoveFooterRef(f.index)
-	if err != nil {
-		return fmt.Errorf("docx: removing footer ref: %w", err)
-	}
-	if rId != "" {
-		f.docPart.DropRel(rId)
-	}
-	return nil
-}
-
-// getOrAddDefinition mirrors Python _BaseHeaderFooter._get_or_add_definition.
-// Iterative version — see Header.getOrAddDefinition for rationale.
-func (f *Footer) getOrAddDefinition() (*parts.FooterPart, error) {
-	cur := f
-	for {
-		has, err := cur.hasDefinition()
-		if err != nil {
-			return nil, err
-		}
-		if has {
-			return cur.definition()
-		}
-		prior := cur.priorFooter()
-		if prior == nil {
-			return cur.addDefinition()
-		}
-		cur = prior
-	}
-}
-
-func (f *Footer) definition() (*parts.FooterPart, error) {
+func (f *Footer) definition() (*parts.StoryPart, error) {
 	ref, err := f.sectPr.GetFooterRef(f.index)
 	if err != nil {
 		return nil, fmt.Errorf("docx: getting footer ref for index %d: %w", f.index, err)
@@ -663,10 +569,32 @@ func (f *Footer) definition() (*parts.FooterPart, error) {
 	if err != nil {
 		return nil, fmt.Errorf("docx: resolving footer part for rId %q: %w", rId, err)
 	}
-	return fp, nil
+	return &fp.StoryPart, nil
 }
 
-func (f *Footer) priorFooter() *Footer {
+func (f *Footer) addDefinition() (*parts.StoryPart, error) {
+	fp, rId, err := f.docPart.AddFooterPart()
+	if err != nil {
+		return nil, err
+	}
+	if _, err := f.sectPr.AddFooterRef(f.index, rId); err != nil {
+		return nil, err
+	}
+	return &fp.StoryPart, nil
+}
+
+func (f *Footer) dropDefinition() error {
+	rId, err := f.sectPr.RemoveFooterRef(f.index)
+	if err != nil {
+		return fmt.Errorf("docx: removing footer ref: %w", err)
+	}
+	if rId != "" {
+		f.docPart.DropRel(rId)
+	}
+	return nil
+}
+
+func (f *Footer) prior() hdrFtrOps {
 	prev := f.sectPr.PrecedingSectPr()
 	if prev == nil {
 		return nil
