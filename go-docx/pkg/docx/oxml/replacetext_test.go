@@ -633,3 +633,123 @@ func TestReplaceText_OnlyFixedAtoms(t *testing.T) {
 		t.Errorf("unexpected text: %q", got)
 	}
 }
+
+// --- Regression: findRunForAtom must return the correct run, not a neighbor ---
+
+// TestReplaceText_FixedAtomsCrossRun_CorrectRun verifies that when a match
+// spans only fixed atoms across two differently-formatted runs, the
+// replacement <w:t> is inserted into the first matched run (preserving its
+// formatting), not into an unrelated neighbor run.
+func TestReplaceText_FixedAtomsCrossRun_CorrectRun(t *testing.T) {
+	// Structure:
+	//   Run 1 (bold):   <w:tab/>           → "\t"
+	//   Run 2 (normal): <w:tab/><w:t>B</w:t> → "\tB"
+	// Full text: "\t\tB"
+	// Replace "\t\t" → "X"
+	//
+	// Before fix: findRunForAtom could return Run 2 (nearest alive parent),
+	// so "X" would appear in the normal run instead of the bold run.
+	boolTrue := true
+	p := buildP(func(p *CT_P) {
+		r1 := p.AddR()
+		_ = r1.GetOrAddRPr().SetBoldVal(&boolTrue) // Run 1: bold
+		r1.AddTab()
+
+		r2 := p.AddR()
+		r2.AddTab()
+		r2.AddTWithText("B")
+	})
+
+	n := p.ReplaceText("\t\t", "X")
+	if n != 1 {
+		t.Fatalf("expected 1 replacement, got %d", n)
+	}
+	assertText(t, p, "XB")
+
+	// The replacement "X" must be in Run 1 (the bold run), not Run 2.
+	runs := p.RList()
+	if len(runs) < 1 {
+		t.Fatal("expected at least 1 run")
+	}
+	r1 := runs[0]
+	// Check that Run 1 has a <w:t> child with "X".
+	found := false
+	for _, child := range r1.RawElement().ChildElements() {
+		if child.Space == "w" && child.Tag == "t" && child.Text() == "X" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("replacement text 'X' should be in the first (bold) run, but was not found there")
+	}
+	// Verify bold rPr is still present in that run.
+	rPr := r1.RPr()
+	if rPr == nil {
+		t.Error("first run should still have rPr (bold)")
+	}
+}
+
+// TestReplaceText_FixedAtomsNotLeakedToHyperlink verifies that replacing
+// fixed atoms adjacent to a hyperlink run does not insert the replacement
+// text inside the hyperlink.
+func TestReplaceText_FixedAtomsNotLeakedToHyperlink(t *testing.T) {
+	// Structure:
+	//   Run 1:      <w:tab/><w:tab/>   → "\t\t"
+	//   Hyperlink:  Run 2: <w:t>link</w:t>  → "link"
+	// Full text: "\t\tlink"
+	// Replace "\t\t" → "X"
+	p := buildP(func(p *CT_P) {
+		r1 := p.AddR()
+		r1.AddTab()
+		r1.AddTab()
+
+		h := p.AddHyperlink()
+		h.AddR().AddTWithText("link")
+	})
+
+	n := p.ReplaceText("\t\t", "X")
+	if n != 1 {
+		t.Fatalf("expected 1 replacement, got %d", n)
+	}
+	assertText(t, p, "Xlink")
+
+	// Verify "X" is NOT inside the hyperlink.
+	for _, hl := range p.HyperlinkList() {
+		text := hl.HyperlinkText()
+		if strings.Contains(text, "X") {
+			t.Errorf("replacement 'X' leaked into hyperlink, hyperlink text = %q", text)
+		}
+	}
+}
+
+// TestReplaceText_FixedAtoms_InsertAfterRPr verifies that the replacement
+// <w:t> is inserted right after <w:rPr> (not appended at the end of the run).
+func TestReplaceText_FixedAtoms_InsertAfterRPr(t *testing.T) {
+	boolTrue := true
+	p := buildP(func(p *CT_P) {
+		r := p.AddR()
+		_ = r.GetOrAddRPr().SetBoldVal(&boolTrue)
+		r.AddTab()
+		r.AddTab()
+	})
+
+	n := p.ReplaceText("\t\t", "X")
+	if n != 1 {
+		t.Fatalf("expected 1 replacement, got %d", n)
+	}
+
+	// The run's children should be: rPr, then t (not t appended at end).
+	r := p.RList()[0]
+	children := r.RawElement().ChildElements()
+	if len(children) < 2 {
+		t.Fatalf("expected at least 2 children in run, got %d", len(children))
+	}
+	if children[0].Tag != "rPr" {
+		t.Errorf("first child should be rPr, got %s:%s", children[0].Space, children[0].Tag)
+	}
+	if children[1].Tag != "t" || children[1].Text() != "X" {
+		t.Errorf("second child should be <w:t>X</w:t>, got <%s:%s>%s",
+			children[1].Space, children[1].Tag, children[1].Text())
+	}
+}

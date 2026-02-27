@@ -28,8 +28,9 @@ import (
 //     produce exactly 1 character; can only be removed entirely.
 type textAtom struct {
 	elem     *etree.Element // the concrete XML element
+	run      *etree.Element // parent <w:r> element, captured at collection time
 	text     string         // text equivalent of this element
-	startPos int            // byte offset in the concatenated string
+	startPos int            // byte offset in the concatenated string (byte-based, not rune-based — intentional)
 	editable bool           // true for <w:t>, false for fixed elements
 }
 
@@ -93,6 +94,7 @@ func collectRunAtoms(rElem *etree.Element, atoms *[]textAtom, pos *int) {
 			text := child.Text()
 			*atoms = append(*atoms, textAtom{
 				elem:     child,
+				run:      rElem,
 				text:     text,
 				startPos: *pos,
 				editable: true,
@@ -105,6 +107,7 @@ func collectRunAtoms(rElem *etree.Element, atoms *[]textAtom, pos *int) {
 			if brType == "" || brType == "textWrapping" {
 				*atoms = append(*atoms, textAtom{
 					elem:     child,
+					run:      rElem,
 					text:     "\n",
 					startPos: *pos,
 					editable: false,
@@ -115,6 +118,7 @@ func collectRunAtoms(rElem *etree.Element, atoms *[]textAtom, pos *int) {
 		case "cr":
 			*atoms = append(*atoms, textAtom{
 				elem:     child,
+				run:      rElem,
 				text:     "\n",
 				startPos: *pos,
 				editable: false,
@@ -124,6 +128,7 @@ func collectRunAtoms(rElem *etree.Element, atoms *[]textAtom, pos *int) {
 		case "tab":
 			*atoms = append(*atoms, textAtom{
 				elem:     child,
+				run:      rElem,
 				text:     "\t",
 				startPos: *pos,
 				editable: false,
@@ -133,6 +138,7 @@ func collectRunAtoms(rElem *etree.Element, atoms *[]textAtom, pos *int) {
 		case "noBreakHyphen":
 			*atoms = append(*atoms, textAtom{
 				elem:     child,
+				run:      rElem,
 				text:     "-",
 				startPos: *pos,
 				editable: false,
@@ -142,6 +148,7 @@ func collectRunAtoms(rElem *etree.Element, atoms *[]textAtom, pos *int) {
 		case "ptab":
 			*atoms = append(*atoms, textAtom{
 				elem:     child,
+				run:      rElem,
 				text:     "\t",
 				startPos: *pos,
 				editable: false,
@@ -242,56 +249,45 @@ func applyReplacements(atoms []textAtom, fullText, old, new string) int {
 // insertReplacementText handles the rare edge case where a match covers
 // only fixed atoms (no editable <w:t> to write the replacement into).
 // It creates a new <w:t> element in the parent <w:r> of the first matched
-// atom, placed right before that atom's (now removed) position.
+// atom (known from atom.run, captured at collection time), inserted right
+// after <w:rPr> to preserve correct element ordering.
 func insertReplacementText(atoms []textAtom, matchStart, matchEnd int, replacement string) {
-	// Find the run that owned the first matched atom.
+	// Find the first atom that intersects the match — its .run is the
+	// correct parent, even if the atom's elem was already removed.
 	for j := range atoms {
 		atom := &atoms[j]
 		atomEnd := atom.startPos + len(atom.text)
 		if atom.startPos >= matchEnd || atomEnd <= matchStart {
 			continue
 		}
-		// atom.elem was already removed, but its Parent() was the <w:r>.
-		// Walk up from a sibling or use the run element directly.
-		// Since the element was removed, Parent() returns nil.
-		// We need to find the <w:r> another way: look for a non-removed
-		// atom in the same run, or scan forward/backward.
-		run := findRunForAtom(atoms, j)
-		if run == nil {
-			break
-		}
+
 		tEl := OxmlElement("w:t")
 		tEl.SetText(replacement)
 		ensurePreserveSpace(tEl)
-		run.AddChild(tEl)
+		insertAfterRPr(atom.run, tEl)
 		return
 	}
 }
 
-// findRunForAtom tries to locate the parent <w:r> element for the atom
-// at index j. If the atom's element was removed (Parent()==nil), it
-// searches nearby atoms for one that still has a parent.
+// findRunForAtom returns the parent <w:r> element for the atom at index j.
+// The run is captured at collection time in atom.run, so this always returns
+// the correct run even after the atom's element has been removed from the tree.
 func findRunForAtom(atoms []textAtom, j int) *etree.Element {
-	// Try the atom itself first (in case it's editable and wasn't removed).
-	if p := atoms[j].elem.Parent(); p != nil {
-		if p.Space == "w" && p.Tag == "r" {
-			return p
+	return atoms[j].run
+}
+
+// insertAfterRPr inserts child into run immediately after the <w:rPr> element
+// (if present), or at position 0 otherwise. This preserves the canonical
+// element ordering within a <w:r>.
+func insertAfterRPr(run, child *etree.Element) {
+	for i, c := range run.Child {
+		if elem, ok := c.(*etree.Element); ok && elem.Space == "w" && elem.Tag == "rPr" {
+			run.InsertChildAt(i+1, child)
+			return
 		}
 	}
-	// Search forward and backward for a neighbor in the same conceptual run.
-	for delta := 1; delta < len(atoms); delta++ {
-		for _, idx := range []int{j - delta, j + delta} {
-			if idx < 0 || idx >= len(atoms) {
-				continue
-			}
-			if p := atoms[idx].elem.Parent(); p != nil {
-				if p.Space == "w" && p.Tag == "r" {
-					return p
-				}
-			}
-		}
-	}
-	return nil
+	// No rPr — insert at the beginning of the run.
+	run.InsertChildAt(0, child)
 }
 
 // ensurePreserveSpace sets or removes xml:space="preserve" on a <w:t>
