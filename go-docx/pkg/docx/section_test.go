@@ -223,3 +223,298 @@ func makeSectionsDoc(t *testing.T, bodySectPrXml string) *oxml.CT_Document {
 	el := mustParseXml(t, xml)
 	return &oxml.CT_Document{Element: *el}
 }
+
+// -----------------------------------------------------------------------
+// Header/Footer.getOrAddDefinition — iterative prior-section walk
+// -----------------------------------------------------------------------
+
+// mustGetSection is a test helper that returns sections.Get(idx) or fails.
+func mustGetSection(t *testing.T, doc *Document, idx int) *Section {
+	t.Helper()
+	sec, err := doc.Sections().Get(idx)
+	if err != nil {
+		t.Fatalf("Sections().Get(%d): %v", idx, err)
+	}
+	return sec
+}
+
+// Single section, no existing header definition.
+// getOrAddDefinition should create a new definition (addDefinition path).
+func TestHeaderGetOrAddDef_SingleSection_CreatesNew(t *testing.T) {
+	doc := mustNewDoc(t)
+	sec := mustGetSection(t, doc, 0)
+	hdr := sec.Header()
+
+	// Initially linked (no definition)
+	if !hdr.IsLinkedToPrevious() {
+		t.Fatal("expected IsLinkedToPrevious=true before any access")
+	}
+
+	// AddParagraph triggers getOrAddDefinition → addDefinition (no prior section)
+	p, err := hdr.AddParagraph("created")
+	if err != nil {
+		t.Fatalf("AddParagraph: %v", err)
+	}
+	if p.Text() != "created" {
+		t.Errorf("paragraph text = %q, want %q", p.Text(), "created")
+	}
+
+	// Now the section has its own definition
+	if hdr.IsLinkedToPrevious() {
+		t.Error("expected IsLinkedToPrevious=false after AddParagraph")
+	}
+}
+
+// Two sections: sec0 has a header, sec1 is linked.
+// sec1.Header().Paragraphs() should resolve to sec0's header part.
+func TestHeaderGetOrAddDef_WalksToPrior(t *testing.T) {
+	doc := mustNewDoc(t)
+
+	// Give sec0 a header with recognizable text.
+	sec0 := mustGetSection(t, doc, 0)
+	_, err := sec0.Header().AddParagraph("sec0-header")
+	if err != nil {
+		t.Fatalf("sec0 AddParagraph: %v", err)
+	}
+
+	// Add a second section — its header is linked (no own definition).
+	sec1, err := doc.AddSection(enum.WdSectionStartNewPage)
+	if err != nil {
+		t.Fatalf("AddSection: %v", err)
+	}
+	hdr1 := sec1.Header()
+	if !hdr1.IsLinkedToPrevious() {
+		t.Fatal("sec1 header should be linked to previous")
+	}
+
+	// Paragraphs() walks to sec0's definition.
+	paras, err := hdr1.Paragraphs()
+	if err != nil {
+		t.Fatalf("sec1 Paragraphs: %v", err)
+	}
+	found := false
+	for _, p := range paras {
+		if p.Text() == "sec0-header" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("sec1 header paragraphs should contain text from sec0 header")
+	}
+}
+
+// Deep chain: 5 sections, only sec0 has a header definition, rest are linked.
+// The last section should resolve all the way back to sec0 via the iterative
+// loop (previously would be 4 recursive calls).
+func TestHeaderGetOrAddDef_DeepChain(t *testing.T) {
+	doc := mustNewDoc(t)
+
+	sec0 := mustGetSection(t, doc, 0)
+	_, err := sec0.Header().AddParagraph("deep-origin")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Add 4 more sections, all linked (no own header definition).
+	for i := 0; i < 4; i++ {
+		if _, err := doc.AddSection(enum.WdSectionStartNewPage); err != nil {
+			t.Fatalf("AddSection %d: %v", i+1, err)
+		}
+	}
+
+	// Total 5 sections; last is index 4.
+	lastSec := mustGetSection(t, doc, 4)
+	hdr := lastSec.Header()
+	if !hdr.IsLinkedToPrevious() {
+		t.Fatal("last section header should be linked")
+	}
+
+	paras, err := hdr.Paragraphs()
+	if err != nil {
+		t.Fatalf("Paragraphs on last section: %v", err)
+	}
+	found := false
+	for _, p := range paras {
+		if p.Text() == "deep-origin" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("last section header should resolve to sec0's header (deep-origin)")
+	}
+}
+
+// Three sections: sec0 and sec2 are linked, sec1 has its own definition.
+// sec2 should resolve to sec1 (not walk past it to sec0).
+func TestHeaderGetOrAddDef_StopsAtMiddle(t *testing.T) {
+	doc := mustNewDoc(t)
+
+	// Give the initial (only) section a header.
+	initSec := mustGetSection(t, doc, 0)
+	_, err := initSec.Header().AddParagraph("sec0-text")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Add two more sections (total 3).
+	if _, err := doc.AddSection(enum.WdSectionStartNewPage); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := doc.AddSection(enum.WdSectionStartNewPage); err != nil {
+		t.Fatal(err)
+	}
+
+	// Re-fetch after structural changes — AddSectionBreak shuffles sectPr
+	// elements (clones the sentinel into a paragraph), so cached pointers
+	// to the old sentinel would address the wrong section.
+	sec1 := mustGetSection(t, doc, 1)
+	sec2 := mustGetSection(t, doc, 2)
+
+	// Unlink sec1 and give it its own header with distinct text.
+	hdr1 := sec1.Header()
+	if err := hdr1.SetIsLinkedToPrevious(false); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := hdr1.AddParagraph("sec1-text"); err != nil {
+		t.Fatal(err)
+	}
+
+	// sec2 is linked — should resolve to sec1 (not walk past it).
+	paras, err := sec2.Header().Paragraphs()
+	if err != nil {
+		t.Fatalf("Paragraphs on sec2: %v", err)
+	}
+
+	hasSec1 := false
+	for _, p := range paras {
+		if p.Text() == "sec1-text" {
+			hasSec1 = true
+		}
+		if p.Text() == "sec0-text" {
+			t.Error("sec2 header should NOT resolve to sec0; should stop at sec1")
+		}
+	}
+	if !hasSec1 {
+		t.Error("sec2 header should resolve to sec1's header (sec1-text)")
+	}
+}
+
+// Footer: same iterative walk as Header.
+// Two sections, sec0 has footer, sec1 linked → sec1 resolves to sec0.
+func TestFooterGetOrAddDef_WalksToPrior(t *testing.T) {
+	doc := mustNewDoc(t)
+
+	sec0 := mustGetSection(t, doc, 0)
+	_, err := sec0.Footer().AddParagraph("sec0-footer")
+	if err != nil {
+		t.Fatalf("sec0 Footer.AddParagraph: %v", err)
+	}
+
+	sec1, err := doc.AddSection(enum.WdSectionStartNewPage)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ftr1 := sec1.Footer()
+	if !ftr1.IsLinkedToPrevious() {
+		t.Fatal("sec1 footer should be linked")
+	}
+
+	paras, err := ftr1.Paragraphs()
+	if err != nil {
+		t.Fatalf("sec1 Footer.Paragraphs: %v", err)
+	}
+	found := false
+	for _, p := range paras {
+		if p.Text() == "sec0-footer" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("sec1 footer should resolve to sec0's footer (sec0-footer)")
+	}
+}
+
+// Footer deep chain: 4 sections linked, only sec0 has definition.
+func TestFooterGetOrAddDef_DeepChain(t *testing.T) {
+	doc := mustNewDoc(t)
+
+	sec0 := mustGetSection(t, doc, 0)
+	_, err := sec0.Footer().AddParagraph("footer-origin")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for i := 0; i < 3; i++ {
+		if _, err := doc.AddSection(enum.WdSectionStartNewPage); err != nil {
+			t.Fatalf("AddSection %d: %v", i+1, err)
+		}
+	}
+
+	lastSec := mustGetSection(t, doc, 3)
+	paras, err := lastSec.Footer().Paragraphs()
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, p := range paras {
+		if p.Text() == "footer-origin" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("last section footer should resolve to sec0's footer")
+	}
+}
+
+// Unlinking a previously linked header triggers addDefinition on that section,
+// giving it its own independent header part.
+func TestHeaderGetOrAddDef_UnlinkCreatesOwnDefinition(t *testing.T) {
+	doc := mustNewDoc(t)
+
+	// Give the initial section a header.
+	initSec := mustGetSection(t, doc, 0)
+	_, err := initSec.Header().AddParagraph("original")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Add a second section.
+	if _, err := doc.AddSection(enum.WdSectionStartNewPage); err != nil {
+		t.Fatal(err)
+	}
+
+	// Re-fetch — AddSectionBreak clones the sentinel, so cached pointers
+	// to the old sectPr now address the wrong section.
+	sec0 := mustGetSection(t, doc, 0)
+	sec1 := mustGetSection(t, doc, 1)
+	hdr1 := sec1.Header()
+
+	// Unlink: gives sec1 its own header definition.
+	if err := hdr1.SetIsLinkedToPrevious(false); err != nil {
+		t.Fatalf("SetIsLinkedToPrevious(false): %v", err)
+	}
+	if hdr1.IsLinkedToPrevious() {
+		t.Error("expected not linked after SetIsLinkedToPrevious(false)")
+	}
+
+	// Adding text to sec1's header should NOT affect sec0.
+	_, err = hdr1.AddParagraph("sec1-own")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// sec0 header should still have only "original".
+	sec0paras, err := sec0.Header().Paragraphs()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range sec0paras {
+		if p.Text() == "sec1-own" {
+			t.Error("sec0 header should NOT contain sec1's text after unlinking")
+		}
+	}
+}

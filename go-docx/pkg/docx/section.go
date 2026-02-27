@@ -421,21 +421,27 @@ func (h *Header) dropDefinition() error {
 }
 
 // getOrAddDefinition mirrors Python _BaseHeaderFooter._get_or_add_definition.
-// Recursive: if linked, walk to prior section's header; if first section and
-// linked, add new definition.
+// Walks backward through preceding sections looking for an existing definition.
+// If no section in the chain has one, adds a new definition on the earliest
+// (first) section — matching the original recursive semantics without unbounded
+// call depth.
 func (h *Header) getOrAddDefinition() (*parts.HeaderPart, error) {
-	has, err := h.hasDefinition()
-	if err != nil {
-		return nil, err
+	cur := h
+	for {
+		has, err := cur.hasDefinition()
+		if err != nil {
+			return nil, err
+		}
+		if has {
+			return cur.definition()
+		}
+		prior := cur.priorHeader()
+		if prior == nil {
+			// First section reached — create a new definition here.
+			return cur.addDefinition()
+		}
+		cur = prior
 	}
-	if has {
-		return h.definition()
-	}
-	prior := h.priorHeader()
-	if prior != nil {
-		return prior.getOrAddDefinition()
-	}
-	return h.addDefinition()
 }
 
 func (h *Header) definition() (*parts.HeaderPart, error) {
@@ -621,19 +627,24 @@ func (f *Footer) dropDefinition() error {
 	return nil
 }
 
+// getOrAddDefinition mirrors Python _BaseHeaderFooter._get_or_add_definition.
+// Iterative version — see Header.getOrAddDefinition for rationale.
 func (f *Footer) getOrAddDefinition() (*parts.FooterPart, error) {
-	has, err := f.hasDefinition()
-	if err != nil {
-		return nil, err
+	cur := f
+	for {
+		has, err := cur.hasDefinition()
+		if err != nil {
+			return nil, err
+		}
+		if has {
+			return cur.definition()
+		}
+		prior := cur.priorFooter()
+		if prior == nil {
+			return cur.addDefinition()
+		}
+		cur = prior
 	}
-	if has {
-		return f.definition()
-	}
-	prior := f.priorFooter()
-	if prior != nil {
-		return prior.getOrAddDefinition()
-	}
-	return f.addDefinition()
 }
 
 func (f *Footer) definition() (*parts.FooterPart, error) {
