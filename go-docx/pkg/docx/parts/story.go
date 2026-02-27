@@ -22,7 +22,9 @@ import (
 // Mirrors Python StoryPart(XmlPart).
 type StoryPart struct {
 	*opc.XmlPart
-	docPart *DocumentPart // cached, mirrors Python lazyproperty _document_part
+	docPart  *DocumentPart // cached, mirrors Python lazyproperty _document_part
+	lastID   int           // cached max ID from last scan / allocation
+	idScaned bool          // true after first NextID call
 }
 
 // NewStoryPart creates a StoryPart wrapping the given XmlPart.
@@ -94,18 +96,21 @@ func (sp *StoryPart) GetStyleID(styleOrName any, styleType enum.WdStyleType) (*s
 }
 
 // NextID returns the next available positive integer id value in this story
-// XML document. The value is determined by incrementing the maximum existing
-// id value. Gaps in the existing id sequence are not filled.
+// XML document. The first call scans the tree to find the current maximum;
+// subsequent calls simply increment the counter. Gaps in the existing id
+// sequence are not filled.
 //
 // Mirrors Python StoryPart.next_id.
 func (sp *StoryPart) NextID() int {
-	el := sp.Element()
-	if el == nil {
-		return 1
+	if !sp.idScaned {
+		el := sp.Element()
+		if el != nil {
+			sp.lastID = collectMaxID(el)
+		}
+		sp.idScaned = true
 	}
-	maxID := 0
-	collectMaxID(el, &maxID)
-	return maxID + 1
+	sp.lastID++
+	return sp.lastID
 }
 
 // documentPart returns the main DocumentPart for the package this story part
@@ -224,30 +229,31 @@ func (sp *StoryPart) relRefCount(rId string) int {
 	if el == nil {
 		return 0
 	}
-	count := 0
-	countRIdRefs(el, rId, &count)
-	return count
+	return countRIdRefs(el, rId)
 }
 
 // --------------------------------------------------------------------------
 // internal helpers
 // --------------------------------------------------------------------------
 
-// collectMaxID walks the element tree collecting all @id attributes that are
-// purely numeric digits, tracking the maximum value found.
-func collectMaxID(el *etree.Element, maxID *int) {
-	for _, attr := range el.Attr {
-		if attr.Key == "id" && attr.Space == "" {
-			if isDigits(attr.Value) {
-				if v, err := strconv.Atoi(attr.Value); err == nil && v > *maxID {
-					*maxID = v
+// collectMaxID iterates the element tree collecting all @id attributes that
+// are purely numeric digits, returning the maximum value found (0 if none).
+func collectMaxID(root *etree.Element) int {
+	maxID := 0
+	stack := []*etree.Element{root}
+	for len(stack) > 0 {
+		el := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		for _, attr := range el.Attr {
+			if attr.Key == "id" && attr.Space == "" && isDigits(attr.Value) {
+				if v, err := strconv.Atoi(attr.Value); err == nil && v > maxID {
+					maxID = v
 				}
 			}
 		}
+		stack = append(stack, el.ChildElements()...)
 	}
-	for _, child := range el.ChildElements() {
-		collectMaxID(child, maxID)
-	}
+	return maxID
 }
 
 // isDigits returns true if s is non-empty and consists only of ASCII digits.
@@ -263,17 +269,22 @@ func isDigits(s string) bool {
 	return true
 }
 
-// countRIdRefs recursively counts attributes named r:id (or {relationship-ns}id)
-// with the given value.
-func countRIdRefs(el *etree.Element, rId string, count *int) {
-	for _, attr := range el.Attr {
-		if attr.Key == "id" && isRelNS(attr.Space) && attr.Value == rId {
-			*count++
+// countRIdRefs iteratively counts attributes named r:id (or {relationship-ns}id)
+// with the given value across the entire element tree.
+func countRIdRefs(root *etree.Element, rId string) int {
+	count := 0
+	stack := []*etree.Element{root}
+	for len(stack) > 0 {
+		el := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		for _, attr := range el.Attr {
+			if attr.Key == "id" && isRelNS(attr.Space) && attr.Value == rId {
+				count++
+			}
 		}
+		stack = append(stack, el.ChildElements()...)
 	}
-	for _, child := range el.ChildElements() {
-		countRIdRefs(child, rId, count)
-	}
+	return count
 }
 
 // isRelNS returns true if the namespace prefix or URI matches the OFC

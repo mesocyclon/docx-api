@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/beevik/etree"
+	"github.com/vortex/go-docx/pkg/docx/opc"
 )
 
 func makeElementWithIDs(ids ...string) *etree.Element {
@@ -18,9 +19,7 @@ func makeElementWithIDs(ids ...string) *etree.Element {
 
 func TestNextID_EmptyElement(t *testing.T) {
 	el := etree.NewElement("root")
-	maxID := 0
-	collectMaxID(el, &maxID)
-	got := maxID + 1
+	got := collectMaxID(el) + 1
 	if got != 1 {
 		t.Errorf("NextID for empty element: got %d, want 1", got)
 	}
@@ -28,9 +27,7 @@ func TestNextID_EmptyElement(t *testing.T) {
 
 func TestNextID_WithIDs(t *testing.T) {
 	el := makeElementWithIDs("1", "5", "3")
-	maxID := 0
-	collectMaxID(el, &maxID)
-	got := maxID + 1
+	got := collectMaxID(el) + 1
 	if got != 6 {
 		t.Errorf("NextID with ids [1,5,3]: got %d, want 6", got)
 	}
@@ -38,9 +35,7 @@ func TestNextID_WithIDs(t *testing.T) {
 
 func TestNextID_IgnoresNonDigit(t *testing.T) {
 	el := makeElementWithIDs("abc", "12", "rId4", "7")
-	maxID := 0
-	collectMaxID(el, &maxID)
-	got := maxID + 1
+	got := collectMaxID(el) + 1
 	if got != 13 {
 		t.Errorf("NextID with mixed ids: got %d, want 13", got)
 	}
@@ -55,9 +50,7 @@ func TestNextID_NestedElements(t *testing.T) {
 	child.AddChild(grandchild)
 	el.AddChild(child)
 
-	maxID := 0
-	collectMaxID(el, &maxID)
-	got := maxID + 1
+	got := collectMaxID(el) + 1
 	if got != 21 {
 		t.Errorf("NextID nested: got %d, want 21", got)
 	}
@@ -95,22 +88,14 @@ func TestRelRefCount(t *testing.T) {
 	child3.CreateAttr("r:id", "rId3")
 	el.AddChild(child3)
 
-	count := 0
-	countRIdRefs(el, "rId5", &count)
-	if count != 2 {
-		t.Errorf("relRefCount for rId5: got %d, want 2", count)
+	if got := countRIdRefs(el, "rId5"); got != 2 {
+		t.Errorf("relRefCount for rId5: got %d, want 2", got)
 	}
-
-	count = 0
-	countRIdRefs(el, "rId3", &count)
-	if count != 1 {
-		t.Errorf("relRefCount for rId3: got %d, want 1", count)
+	if got := countRIdRefs(el, "rId3"); got != 1 {
+		t.Errorf("relRefCount for rId3: got %d, want 1", got)
 	}
-
-	count = 0
-	countRIdRefs(el, "rId99", &count)
-	if count != 0 {
-		t.Errorf("relRefCount for rId99: got %d, want 0", count)
+	if got := countRIdRefs(el, "rId99"); got != 0 {
+		t.Errorf("relRefCount for rId99: got %d, want 0", got)
 	}
 }
 
@@ -118,9 +103,47 @@ func TestDropRel_DeletesWhenRefCountLow(t *testing.T) {
 	// DropRel should delete a relationship when its XML reference count < 2.
 	// Core logic tested via countRIdRefs; integration tested in document_test.go.
 	el := etree.NewElement("root")
-	count := 0
-	countRIdRefs(el, "rId1", &count)
-	if count >= 2 {
-		t.Errorf("expected count < 2 for element with no refs, got %d", count)
+	if got := countRIdRefs(el, "rId1"); got >= 2 {
+		t.Errorf("expected count < 2 for element with no refs, got %d", got)
 	}
+}
+
+// --- NextID caching ---
+
+func TestNextID_CachesAfterFirstCall(t *testing.T) {
+	// Two consecutive NextID calls should return sequential values
+	// without the second call needing to rescan the tree.
+	sp := newTestStoryPart(t, makeElementWithIDs("1", "5", "3"))
+
+	first := sp.NextID()
+	if first != 6 {
+		t.Errorf("first NextID: got %d, want 6", first)
+	}
+
+	second := sp.NextID()
+	if second != 7 {
+		t.Errorf("second NextID: got %d, want 7", second)
+	}
+
+	third := sp.NextID()
+	if third != 8 {
+		t.Errorf("third NextID: got %d, want 8", third)
+	}
+}
+
+func TestNextID_EmptyElement_CachesAndIncrements(t *testing.T) {
+	sp := newTestStoryPart(t, etree.NewElement("root"))
+	if got := sp.NextID(); got != 1 {
+		t.Errorf("first NextID on empty: got %d, want 1", got)
+	}
+	if got := sp.NextID(); got != 2 {
+		t.Errorf("second NextID on empty: got %d, want 2", got)
+	}
+}
+
+// newTestStoryPart creates a minimal StoryPart for unit tests.
+func newTestStoryPart(t *testing.T, el *etree.Element) *StoryPart {
+	t.Helper()
+	xp := opc.NewXmlPartFromElement("", "", el, nil)
+	return &StoryPart{XmlPart: xp}
 }
