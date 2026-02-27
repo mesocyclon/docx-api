@@ -3,46 +3,39 @@ package docx
 import "fmt"
 
 // DocxError is the base error type for all go-docx errors.
+// It implements Unwrap() so errors.Is / errors.As traverse the chain.
 type DocxError struct {
-	msg string
+	msg   string
+	cause error
 }
 
 func (e *DocxError) Error() string { return e.msg }
+func (e *DocxError) Unwrap() error { return e.cause }
 
-// NewDocxError creates a new DocxError with the given message.
-func NewDocxError(msg string, args ...any) *DocxError {
-	return &DocxError{msg: fmt.Sprintf(msg, args...)}
+// NewDocxError creates a DocxError. cause may be nil.
+func NewDocxError(cause error, msg string, args ...any) *DocxError {
+	return &DocxError{msg: fmt.Sprintf(msg, args...), cause: cause}
 }
 
-// InvalidXmlError indicates that the XML is invalid or does not conform
-// to the expected schema.
-type InvalidXmlError struct {
-	DocxError
+// InvalidXmlError indicates invalid or non-conformant XML.
+type InvalidXmlError struct{ DocxError }
+
+func NewInvalidXmlError(cause error, msg string, args ...any) *InvalidXmlError {
+	return &InvalidXmlError{DocxError{msg: fmt.Sprintf(msg, args...), cause: cause}}
 }
 
-// NewInvalidXmlError creates a new InvalidXmlError.
-func NewInvalidXmlError(msg string, args ...any) *InvalidXmlError {
-	return &InvalidXmlError{DocxError{msg: fmt.Sprintf(msg, args...)}}
+// PackageNotFoundError indicates a missing package file.
+type PackageNotFoundError struct{ DocxError }
+
+func NewPackageNotFoundError(cause error, msg string, args ...any) *PackageNotFoundError {
+	return &PackageNotFoundError{DocxError{msg: fmt.Sprintf(msg, args...), cause: cause}}
 }
 
-// PackageNotFoundError indicates that a package file was not found.
-type PackageNotFoundError struct {
-	DocxError
-}
+// InvalidSpanError indicates an invalid table cell span.
+type InvalidSpanError struct{ DocxError }
 
-// NewPackageNotFoundError creates a new PackageNotFoundError.
-func NewPackageNotFoundError(msg string, args ...any) *PackageNotFoundError {
-	return &PackageNotFoundError{DocxError{msg: fmt.Sprintf(msg, args...)}}
-}
-
-// InvalidSpanError indicates that a table cell span is invalid.
-type InvalidSpanError struct {
-	DocxError
-}
-
-// NewInvalidSpanError creates a new InvalidSpanError.
-func NewInvalidSpanError(msg string, args ...any) *InvalidSpanError {
-	return &InvalidSpanError{DocxError{msg: fmt.Sprintf(msg, args...)}}
+func NewInvalidSpanError(cause error, msg string, args ...any) *InvalidSpanError {
+	return &InvalidSpanError{DocxError{msg: fmt.Sprintf(msg, args...), cause: cause}}
 }
 
 // errIndexOutOfRange returns an IndexError-equivalent for collections.

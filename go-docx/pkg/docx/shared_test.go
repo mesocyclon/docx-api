@@ -1,6 +1,8 @@
 package docx
 
 import (
+	"errors"
+	"io"
 	"math"
 	"testing"
 )
@@ -171,18 +173,39 @@ func TestRGBColorZeroValue(t *testing.T) {
 
 func TestErrorTypes(t *testing.T) {
 	t.Parallel()
-	e1 := NewInvalidXmlError("bad xml: %s", "test")
+
+	// Basic message formatting, no cause.
+	e1 := NewInvalidXmlError(nil, "bad xml: %s", "test")
 	if e1.Error() != "bad xml: test" {
 		t.Errorf("InvalidXmlError.Error() = %q", e1.Error())
 	}
+	if e1.Unwrap() != nil {
+		t.Error("Unwrap() should be nil when no cause")
+	}
 
-	e2 := NewPackageNotFoundError("not found")
+	e2 := NewPackageNotFoundError(nil, "not found")
 	if e2.Error() != "not found" {
 		t.Errorf("PackageNotFoundError.Error() = %q", e2.Error())
 	}
 
-	e3 := NewInvalidSpanError("bad span")
+	e3 := NewInvalidSpanError(nil, "bad span")
 	if e3.Error() != "bad span" {
 		t.Errorf("InvalidSpanError.Error() = %q", e3.Error())
+	}
+
+	// Wrapping a cause — errors.Is sees through.
+	wrapped := NewDocxError(io.ErrUnexpectedEOF, "reading chunk")
+	if !errors.Is(wrapped, io.ErrUnexpectedEOF) {
+		t.Error("errors.Is should find io.ErrUnexpectedEOF through Unwrap")
+	}
+
+	// errors.As matches the typed wrapper.
+	xmlErr := NewInvalidXmlError(io.EOF, "parse failed")
+	var target *InvalidXmlError
+	if !errors.As(xmlErr, &target) {
+		t.Error("errors.As should match *InvalidXmlError")
+	}
+	if !errors.Is(xmlErr, io.EOF) {
+		t.Error("errors.Is should find io.EOF through InvalidXmlError → DocxError.Unwrap")
 	}
 }
