@@ -97,7 +97,7 @@ func (d *Drawing) Image() (*image.Image, error) {
 }
 
 // pictureRId finds the r:embed attribute on a:blip inside pic:blipFill.
-// Walks: drawing → inline/anchor → graphic → graphicData → pic → blipFill → blip → @r:embed.
+// Path: drawing → inline/anchor → graphic → graphicData → pic → blipFill → blip → @r:embed.
 //
 // Mirrors Python: self._drawing.xpath(".//pic:blipFill/a:blip/@r:embed")
 func (d *Drawing) pictureRId() string {
@@ -111,44 +111,43 @@ func (d *Drawing) pictureRId() string {
 	return ""
 }
 
-// findBlipRId recursively searches for pic:blipFill/a:blip/@r:embed.
+// findBlipRId walks the known path graphic → graphicData → pic → blipFill → blip
+// and returns the r:embed attribute value from the blip element.
 func findBlipRId(el *etree.Element) string {
-	for _, child := range el.ChildElements() {
-		if child.Tag == "blipFill" {
-			for _, blipChild := range child.ChildElements() {
-				if blipChild.Tag == "blip" {
-					for _, attr := range blipChild.Attr {
-						if attr.Key == "embed" && (attr.Space == "r" || attr.Space == "") {
-							return attr.Value
-						}
-					}
-				}
+	for _, blip := range walkPath(el, "graphic", "graphicData", "pic", "blipFill", "blip") {
+		for _, attr := range blip.Attr {
+			if attr.Key == "embed" && (attr.Space == "r" || attr.Space == "") {
+				return attr.Value
 			}
-		}
-		// Recurse into children (graphic → graphicData → pic → ...)
-		if rId := findBlipRId(child); rId != "" {
-			return rId
 		}
 	}
 	return ""
 }
 
-// findPicInGraphicData walks child → a:graphic → a:graphicData → pic:pic.
+// findPicInGraphicData walks graphic → graphicData and checks for a pic:pic child.
 func findPicInGraphicData(el *etree.Element) bool {
-	for _, graphic := range el.ChildElements() {
-		if graphic.Tag == "graphic" {
-			for _, graphicData := range graphic.ChildElements() {
-				if graphicData.Tag == "graphicData" {
-					for _, pic := range graphicData.ChildElements() {
-						if pic.Tag == "pic" {
-							return true
-						}
-					}
+	return len(walkPath(el, "graphic", "graphicData", "pic")) > 0
+}
+
+// walkPath performs an iterative level-by-level descent through child elements
+// matching successive tags. Returns all elements that match the full path.
+//
+// For example, walkPath(el, "graphic", "graphicData", "pic") finds all elements
+// reachable by el → graphic → graphicData → pic without any recursion.
+func walkPath(root *etree.Element, tags ...string) []*etree.Element {
+	current := []*etree.Element{root}
+	for _, tag := range tags {
+		var next []*etree.Element
+		for _, el := range current {
+			for _, child := range el.ChildElements() {
+				if child.Tag == tag {
+					next = append(next, child)
 				}
 			}
 		}
+		current = next
 	}
-	return false
+	return current
 }
 
 // CT_Drawing returns the underlying oxml element.
