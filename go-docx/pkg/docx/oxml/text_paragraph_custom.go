@@ -130,3 +130,25 @@ func (p *CT_P) ParagraphText() string {
 	}
 	return sb.String()
 }
+
+// ReplaceText replaces all non-overlapping occurrences of old with new in the
+// text of this paragraph, correctly handling replacements that span across
+// run and hyperlink boundaries.
+//
+// Formatting (<w:rPr>), non-textual elements (<w:drawing>, <w:commentReference>),
+// and XML structure (hyperlinks, comment ranges, bookmarks) are preserved.
+// Replacement text inherits the formatting of the first affected run.
+//
+// Returns the number of replacements performed.
+// Returns 0 if old == new (no-op optimization — XML is not modified even
+// though occurrences may exist in the text).
+func (p *CT_P) ReplaceText(old, new string) int {
+	if old == "" || old == new {
+		return 0
+	}
+	atoms, fullText := collectTextAtoms(p.e)
+	if len(atoms) == 0 {
+		return 0
+	}
+	return applyReplacements(atoms, fullText, old, new)
+}

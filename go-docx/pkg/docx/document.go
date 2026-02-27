@@ -172,6 +172,49 @@ func (d *Document) AddComment(runs []*Run, text, author string, initials *string
 	return comment, nil
 }
 
+// ReplaceText replaces all occurrences of old with new throughout the entire
+// document: body, headers, and footers of all sections.
+//
+// Headers/footers without their own definition (linked to previous) are
+// skipped. Additionally, already-processed StoryParts are tracked by pointer
+// to avoid double replacement when multiple sections share the same
+// HeaderPart/FooterPart.
+//
+// Returns the total number of replacements performed.
+func (d *Document) ReplaceText(old, new string) (int, error) {
+	if old == "" {
+		return 0, nil
+	}
+
+	// 1. Document body.
+	b, err := d.getBody()
+	if err != nil {
+		return 0, err
+	}
+	count := b.ReplaceText(old, new)
+
+	// 2. Headers/footers of all sections, with deduplication.
+	seen := map[*parts.StoryPart]bool{}
+	for _, sect := range d.Sections().Iter() {
+		hfs := []*baseHeaderFooter{
+			&sect.Header().baseHeaderFooter,
+			&sect.Footer().baseHeaderFooter,
+			&sect.EvenPageHeader().baseHeaderFooter,
+			&sect.EvenPageFooter().baseHeaderFooter,
+			&sect.FirstPageHeader().baseHeaderFooter,
+			&sect.FirstPageFooter().baseHeaderFooter,
+		}
+		for _, hf := range hfs {
+			n, err := hf.replaceTextDedup(old, new, seen)
+			if err != nil {
+				return count, fmt.Errorf("docx: replacing text in %s: %w", hf.ops.kind(), err)
+			}
+			count += n
+		}
+	}
+	return count, nil
+}
+
 // --------------------------------------------------------------------------
 // Properties
 // --------------------------------------------------------------------------

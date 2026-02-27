@@ -396,6 +396,58 @@ func (b *baseHeaderFooter) Part() (*parts.StoryPart, error) {
 	return sp, nil
 }
 
+// replaceText performs text replacement in this header/footer's content.
+// If the header/footer has no own definition (linked to previous), returns
+// 0, nil — the content will be processed through the owning section.
+func (b *baseHeaderFooter) replaceText(old, new string) (int, error) {
+	has, err := b.ops.hasDefinition()
+	if err != nil {
+		return 0, err
+	}
+	if !has {
+		return 0, nil
+	}
+	bic, err := b.blockItemContainer()
+	if err != nil {
+		return 0, err
+	}
+	return bic.ReplaceText(old, new), nil
+}
+
+// replaceTextDedup is a variant with StoryPart deduplication.
+// Used by Document.ReplaceText to prevent double replacement when
+// multiple sections share the same HeaderPart/FooterPart.
+//
+// Uses hasDefinition() + definition() (which returns an existing
+// StoryPart without creating one) instead of Part() (which calls
+// getOrAddDefinition() and may create an empty definition as a
+// side effect).
+func (b *baseHeaderFooter) replaceTextDedup(old, new string, seen map[*parts.StoryPart]bool) (int, error) {
+	has, err := b.ops.hasDefinition()
+	if err != nil {
+		return 0, err
+	}
+	if !has {
+		return 0, nil
+	}
+	sp, err := b.ops.definition()
+	if err != nil {
+		return 0, err
+	}
+	if sp == nil {
+		return 0, nil
+	}
+	if seen[sp] {
+		return 0, nil
+	}
+	seen[sp] = true
+	bic, err := b.blockItemContainer()
+	if err != nil {
+		return 0, err
+	}
+	return bic.ReplaceText(old, new), nil
+}
+
 // blockItemContainer creates a BlockItemContainer backed by the header/footer
 // part's element and StoryPart. Created fresh each call to match Python's
 // property behavior (no stale cache if definition changes).
@@ -461,6 +513,13 @@ func newHeader(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.W
 }
 
 func (h *Header) kind() string { return "header" }
+
+// ReplaceText replaces all occurrences of old with new in this header's
+// content. If the header is linked to previous (no own definition),
+// returns 0, nil.
+func (h *Header) ReplaceText(old, new string) (int, error) {
+	return h.replaceText(old, new)
+}
 
 func (h *Header) hasDefinition() (bool, error) {
 	ref, err := h.sectPr.GetHeaderRef(h.index)
@@ -544,6 +603,13 @@ func newFooter(sectPr *oxml.CT_SectPr, docPart *parts.DocumentPart, index enum.W
 }
 
 func (f *Footer) kind() string { return "footer" }
+
+// ReplaceText replaces all occurrences of old with new in this footer's
+// content. If the footer is linked to previous (no own definition),
+// returns 0, nil.
+func (f *Footer) ReplaceText(old, new string) (int, error) {
+	return f.replaceText(old, new)
+}
 
 func (f *Footer) hasDefinition() (bool, error) {
 	ref, err := f.sectPr.GetFooterRef(f.index)

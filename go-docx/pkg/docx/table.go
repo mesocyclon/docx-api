@@ -192,6 +192,19 @@ func (t *Table) SetTableDirection(v *bool) error {
 	return t.tbl.SetBidiVisualVal(v)
 }
 
+// ReplaceText replaces all occurrences of old with new in every cell of
+// this table, recursively (including nested tables). Each physical cell
+// is processed exactly once via IterTcs() (no duplicates from merged cells).
+// Returns the total number of replacements performed.
+func (t *Table) ReplaceText(old, new string) int {
+	count := 0
+	for _, tc := range t.tbl.IterTcs() {
+		bic := newBlockItemContainer(tc.RawElement(), t.part)
+		count += bic.ReplaceText(old, new)
+	}
+	return count
+}
+
 // CT_Tbl returns the underlying oxml element.
 func (t *Table) CT_Tbl() *oxml.CT_Tbl { return t.tbl }
 

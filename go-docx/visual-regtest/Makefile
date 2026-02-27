@@ -25,7 +25,7 @@ REPORT_DIR     := $(CURDIR)/report
 # Project root = one level up from this Makefile.
 PROJECT_ROOT := $(abspath $(CURDIR)/..)
 
-.PHONY: build run clean report help check-files gen-files gen-clean
+.PHONY: build run clean report help check-files gen-files gen-clean replace-txt replace-txt-clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -75,6 +75,18 @@ gen-files: ## Generate .docx test files from scratch using the public API
 
 gen-clean: ## Remove generated test files
 	rm -rf $(GEN_OUTPUT)
+
+REPLACE_TXT_OUTPUT := $(CURDIR)/replace-txt/out
+
+replace-txt: ## Generate before/after .docx files for ReplaceText visual check
+	@mkdir -p $(REPLACE_TXT_OUTPUT)
+	cd $(PROJECT_ROOT) && go run ./visual-regtest/replace-txt --output $(REPLACE_TXT_OUTPUT)
+	@echo ""
+	@echo "  Before: $(REPLACE_TXT_OUTPUT)/01_before_replace.docx"
+	@echo "  After:  $(REPLACE_TXT_OUTPUT)/02_after_replace.docx"
+
+replace-txt-clean: ## Remove replace-txt output
+	rm -rf $(REPLACE_TXT_OUTPUT)
 
 report: ## Open the HTML report (macOS / Linux)
 	@if [ -f "$(REPORT_DIR)/index.html" ]; then \

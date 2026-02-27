@@ -194,5 +194,16 @@ func (para *Paragraph) SetText(text string) error {
 	return err
 }
 
+// ReplaceText replaces all occurrences of old with new in the text of this
+// paragraph. Works across run boundaries, including text inside hyperlinks.
+// Preserves formatting and XML structure.
+//
+// Returns the number of replacements performed.
+// Returns 0 if old == new (no-op optimization — XML is not modified even
+// though occurrences may exist in the text).
+func (para *Paragraph) ReplaceText(old, new string) int {
+	return para.p.ReplaceText(old, new)
+}
+
 // CT_P returns the underlying oxml element.
 func (para *Paragraph) CT_P() *oxml.CT_P { return para.p }

@@ -118,6 +118,21 @@ func (c *BlockItemContainer) Tables() []*Table {
 	return result
 }
 
+// ReplaceText replaces all occurrences of old with new in all paragraphs
+// and tables of this container, recursively. Returns the total number of
+// replacements performed.
+func (c *BlockItemContainer) ReplaceText(old, new string) int {
+	count := 0
+	for _, item := range c.IterInnerContent() {
+		if item.IsParagraph() {
+			count += item.Paragraph().ReplaceText(old, new)
+		} else if item.IsTable() {
+			count += item.Table().ReplaceText(old, new)
+		}
+	}
+	return count
+}
+
 // Element returns the backing etree element.
 func (c *BlockItemContainer) Element() *etree.Element { return c.element }
 
