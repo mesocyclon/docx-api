@@ -25,7 +25,7 @@ REPORT_DIR     := $(CURDIR)/report
 # Project root = one level up from this Makefile.
 PROJECT_ROOT := $(abspath $(CURDIR)/..)
 
-.PHONY: build run clean report help check-files
+.PHONY: build run clean report help check-files gen-files gen-clean
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
@@ -63,6 +63,18 @@ run: build ## Run the full pipeline (LAYER=opc|docx)
 clean: ## Remove report and Docker image
 	rm -rf $(REPORT_DIR)
 	-docker rmi $(IMAGE_NAME) 2>/dev/null
+
+GEN_OUTPUT    := $(CURDIR)/gen-files/out
+
+gen-files: ## Generate .docx test files from scratch using the public API
+	@mkdir -p $(GEN_OUTPUT)
+	cd $(PROJECT_ROOT) && go run ./visual-regtest/gen-files --output $(GEN_OUTPUT)
+	@echo ""
+	@echo "  Generated files: $(GEN_OUTPUT)/"
+	@echo "  Manifest:        $(GEN_OUTPUT)/manifest.json"
+
+gen-clean: ## Remove generated test files
+	rm -rf $(GEN_OUTPUT)
 
 report: ## Open the HTML report (macOS / Linux)
 	@if [ -f "$(REPORT_DIR)/index.html" ]; then \
