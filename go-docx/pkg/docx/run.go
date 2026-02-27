@@ -26,7 +26,10 @@ func newRun(r *oxml.CT_R, part *parts.StoryPart) *Run {
 //
 // Mirrors Python Run.add_break. Maps break_type to (type_, clear) pairs.
 func (run *Run) AddBreak(breakType enum.WdBreakType) error {
-	type_, clear := breakTypeToAttrs(breakType)
+	type_, clear, err := breakTypeToAttrs(breakType)
+	if err != nil {
+		return err
+	}
 	br := run.r.AddBr()
 	if type_ != "" {
 		if err := br.SetType(type_); err != nil {
@@ -42,22 +45,23 @@ func (run *Run) AddBreak(breakType enum.WdBreakType) error {
 }
 
 // breakTypeToAttrs maps WdBreakType to (type, clear) attribute values.
-func breakTypeToAttrs(bt enum.WdBreakType) (string, string) {
+// Returns an error for break types not applicable to a run (e.g. section breaks).
+func breakTypeToAttrs(bt enum.WdBreakType) (string, string, error) {
 	switch bt {
 	case enum.WdBreakTypeLine:
-		return "", ""
+		return "", "", nil
 	case enum.WdBreakTypePage:
-		return "page", ""
+		return "page", "", nil
 	case enum.WdBreakTypeColumn:
-		return "column", ""
+		return "column", "", nil
 	case enum.WdBreakTypeLineClearLeft:
-		return "textWrapping", "left"
+		return "textWrapping", "left", nil
 	case enum.WdBreakTypeLineClearRight:
-		return "textWrapping", "right"
+		return "textWrapping", "right", nil
 	case enum.WdBreakTypeLineClearAll:
-		return "textWrapping", "all"
+		return "textWrapping", "all", nil
 	default:
-		return "", ""
+		return "", "", fmt.Errorf("docx: unsupported break type for Run.AddBreak: %d", bt)
 	}
 }
 

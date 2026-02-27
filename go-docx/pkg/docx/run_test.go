@@ -156,7 +156,7 @@ func TestRun_AddBreak(t *testing.T) {
 			// SetType("textWrapping") omits the attribute. The getter
 			// returns "textWrapping" when absent. We check raw attrs
 			// accordingly: expect "" for textWrapping (omitted).
-			wantType, wantClear := breakTypeToAttrs(tt.breakType)
+			wantType, wantClear, _ := breakTypeToAttrs(tt.breakType)
 			wantRawType := wantType
 			if wantRawType == "textWrapping" {
 				wantRawType = "" // omitted because it is the default
@@ -170,6 +170,17 @@ func TestRun_AddBreak(t *testing.T) {
 				t.Errorf("br clear attr = %q, want %q", gotClear, wantClear)
 			}
 		})
+	}
+}
+
+// Mirrors Python: dict[break_type] → KeyError for unsupported types
+func TestRun_AddBreak_UnsupportedType(t *testing.T) {
+	r := makeR(t, "")
+	run := newRun(r, nil)
+	// Section breaks are not valid in Run.AddBreak
+	err := run.AddBreak(enum.WdBreakTypeSectionNextPage)
+	if err == nil {
+		t.Error("expected error for unsupported break type")
 	}
 }
 
