@@ -84,7 +84,9 @@ func (pr *PackageReader) Read(physReader *PhysPkgReader) (*ReadResult, error) {
 	}, nil
 }
 
-// walkParts recursively discovers parts by following relationships.
+// walkParts discovers parts by following relationships using iterative DFS.
+// Uses an explicit stack to avoid unbounded call-stack growth on deep
+// relationship chains, matching the pattern in OpcPackage.IterParts.
 func walkParts(
 	physReader *PhysPkgReader,
 	contentTypes *ContentTypeMap,
@@ -92,54 +94,74 @@ func walkParts(
 	sparts *[]SerializedPart,
 	visited map[PackURI]bool,
 ) error {
-	for _, srel := range srels {
-		if srel.IsExternal() {
-			continue
-		}
-		partname := srel.TargetPartname()
-		if visited[partname] {
-			continue
-		}
-		visited[partname] = true
+	// Explicit stack: each entry is a slice of relationships to process.
+	// When a part is discovered, its child rels are pushed onto the stack
+	// and processed before remaining siblings — preserving DFS pre-order.
+	stack := []([]SerializedRelationship){srels}
 
-		blob, err := physReader.BlobFor(partname)
-		if err != nil {
-			// Dangling relationship: .rels references a part that does not
-			// exist in the ZIP archive.  Common in files produced by
-			// LibreOffice, Google Docs, and older versions of Word.
-			// Python-docx crashes here with an unhandled KeyError — we
-			// intentionally improve on this by skipping gracefully.
-			if errors.Is(err, ErrMemberNotFound) {
+	for len(stack) > 0 {
+		top := len(stack) - 1
+		rels := stack[top]
+
+		// Find next unvisited part in current rels slice.
+		var advanced bool
+		for len(rels) > 0 {
+			srel := rels[0]
+			rels = rels[1:]
+			stack[top] = rels // consume
+
+			if srel.IsExternal() {
 				continue
 			}
-			return fmt.Errorf("opc: reading part %q: %w", partname, err)
+			partname := srel.TargetPartname()
+			if visited[partname] {
+				continue
+			}
+			visited[partname] = true
+
+			blob, err := physReader.BlobFor(partname)
+			if err != nil {
+				// Dangling relationship: .rels references a part that does not
+				// exist in the ZIP archive.  Common in files produced by
+				// LibreOffice, Google Docs, and older versions of Word.
+				// Python-docx crashes here with an unhandled KeyError — we
+				// intentionally improve on this by skipping gracefully.
+				if errors.Is(err, ErrMemberNotFound) {
+					continue
+				}
+				return fmt.Errorf("opc: reading part %q: %w", partname, err)
+			}
+
+			ct, err := contentTypes.ContentType(partname)
+			if err != nil {
+				// Part exists in ZIP but has no matching entry in
+				// [Content_Types].xml.  Rather than failing, skip the
+				// part — the document is technically malformed but Word
+				// opens it fine.
+				continue
+			}
+
+			partSRels, err := readSRels(physReader, partname)
+			if err != nil {
+				return fmt.Errorf("opc: reading rels for %q: %w", partname, err)
+			}
+
+			*sparts = append(*sparts, SerializedPart{
+				Partname:    partname,
+				ContentType: ct,
+				RelType:     srel.RelType,
+				Blob:        blob,
+				SRels:       partSRels,
+			})
+
+			// Push child rels — will be processed before remaining siblings.
+			stack = append(stack, partSRels)
+			advanced = true
+			break
 		}
-
-		ct, err := contentTypes.ContentType(partname)
-		if err != nil {
-			// Part exists in ZIP but has no matching entry in
-			// [Content_Types].xml.  Rather than failing, skip the
-			// part — the document is technically malformed but Word
-			// opens it fine.
-			continue
-		}
-
-		partSRels, err := readSRels(physReader, partname)
-		if err != nil {
-			return fmt.Errorf("opc: reading rels for %q: %w", partname, err)
-		}
-
-		*sparts = append(*sparts, SerializedPart{
-			Partname:    partname,
-			ContentType: ct,
-			RelType:     srel.RelType,
-			Blob:        blob,
-			SRels:       partSRels,
-		})
-
-		// Recurse into this part's relationships
-		if err := walkParts(physReader, contentTypes, partSRels, sparts, visited); err != nil {
-			return err
+		if !advanced {
+			// Current slice exhausted — pop it.
+			stack = stack[:top]
 		}
 	}
 	return nil
