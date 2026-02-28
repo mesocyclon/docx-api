@@ -214,20 +214,16 @@ func applyReplacements(atoms []textAtom, fullText, old, new string) int {
 			}
 
 			if atom.editable {
+				insert := ""
 				if !replacementPlaced {
-					// First editable atom: splice in the replacement text.
-					newText := atom.text[:cutStart] + new + atom.text[cutEnd:]
-					atom.elem.SetText(newText)
-					ensurePreserveSpace(atom.elem)
-					atom.text = newText
+					insert = new
 					replacementPlaced = true
-				} else {
-					// Subsequent editable atoms: remove the covered portion.
-					newText := atom.text[:cutStart] + atom.text[cutEnd:]
-					atom.elem.SetText(newText)
-					ensurePreserveSpace(atom.elem)
-					atom.text = newText
 				}
+				newText := atom.text[:cutStart] + insert + atom.text[cutEnd:]
+				atom.elem.SetText(newText)
+				ensurePreserveSpace(atom.elem)
+				atom.text = newText
+
 			} else {
 				// Fixed atom (1 char, fully covered): remove the element.
 				if parent := atom.elem.Parent(); parent != nil {
@@ -267,13 +263,6 @@ func insertReplacementText(atoms []textAtom, matchStart, matchEnd int, replaceme
 		insertAfterRPr(atom.run, tEl)
 		return
 	}
-}
-
-// findRunForAtom returns the parent <w:r> element for the atom at index j.
-// The run is captured at collection time in atom.run, so this always returns
-// the correct run even after the atom's element has been removed from the tree.
-func findRunForAtom(atoms []textAtom, j int) *etree.Element {
-	return atoms[j].run
 }
 
 // insertAfterRPr inserts child into run immediately after the <w:rPr> element

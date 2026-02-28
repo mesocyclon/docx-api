@@ -1,5 +1,5 @@
 # Generated report output
 report/
-
+*/out
 # Test corpus (too large for git — add your .docx files locally)
 test-files/*.docx

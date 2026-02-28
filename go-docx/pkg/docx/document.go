@@ -173,7 +173,7 @@ func (d *Document) AddComment(runs []*Run, text, author string, initials *string
 }
 
 // ReplaceText replaces all occurrences of old with new throughout the entire
-// document: body, headers, and footers of all sections.
+// document: body, headers, footers, and comments of all sections.
 //
 // Headers/footers without their own definition (linked to previous) are
 // skipped. Additionally, already-processed StoryParts are tracked by pointer
@@ -212,7 +212,28 @@ func (d *Document) ReplaceText(old, new string) (int, error) {
 			count += n
 		}
 	}
+
+	// 3. Comments.
+	n, err := d.replaceTextInComments(old, new)
+	if err != nil {
+		return count, err
+	}
+	count += n
+
 	return count, nil
+}
+
+// replaceTextInComments replaces text in all comments. Returns 0 if
+// no comments part exists (avoids creating one as a side effect).
+func (d *Document) replaceTextInComments(old, new string) (int, error) {
+	if !d.part.HasCommentsPart() {
+		return 0, nil
+	}
+	comments, err := d.Comments()
+	if err != nil {
+		return 0, fmt.Errorf("docx: replacing text in comments: %w", err)
+	}
+	return comments.ReplaceText(old, new), nil
 }
 
 // --------------------------------------------------------------------------

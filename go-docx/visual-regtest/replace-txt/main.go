@@ -211,6 +211,9 @@ func allReplacements() []repl {
 		{"TH_COL1", "Employee"},
 		{"TH_COL2", "Department"},
 		{"TH_COL3", "Status"},
+
+		// §29 replacement inside comment body
+		{"COMMENT_BODY_OLD", "COMMENT_BODY_NEW"},
 	}
 }
 
@@ -628,6 +631,27 @@ func buildBeforeDocument() (*docx.Document, error) {
 	setHighlightYellow(fr1)
 	fr2, _ := p28.AddRun(" then italic text")
 	_ = fr2.SetItalic(boolPtr(true))
+
+	// ================================================================
+	// §29 — Replacement inside comment body
+	// ================================================================
+	heading(doc, "29. Replacement Inside Comment Body", 1)
+	spec(doc, "COMMENT_BODY_OLD", "COMMENT_BODY_NEW")
+	note(doc, "The comment body itself contains a placeholder. ReplaceText must reach "+
+		"into word/comments.xml and replace it. The annotated body text stays unchanged.")
+
+	p29, _ := doc.AddParagraph("")
+	addPlain(p29, "This text has a comment whose body contains a placeholder: ")
+	p29run, _ := p29.AddRun("see comment")
+	setHighlightYellow(p29run)
+	initials29 := "CB"
+	if _, err := doc.AddComment(
+		[]*docx.Run{p29run},
+		"Review status: COMMENT_BODY_OLD — needs update",
+		"Comment Body Test", &initials29,
+	); err != nil {
+		return nil, fmt.Errorf("adding comment for §29: %w", err)
+	}
 
 	return doc, nil
 }

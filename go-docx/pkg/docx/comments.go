@@ -36,6 +36,16 @@ func (cs *Comments) Iter() []*Comment {
 	return result
 }
 
+// ReplaceText replaces all occurrences of old with new in every comment's
+// content. Returns the total number of replacements performed.
+func (cs *Comments) ReplaceText(old, new string) int {
+	count := 0
+	for _, c := range cs.Iter() {
+		count += c.ReplaceText(old, new)
+	}
+	return count
+}
+
 // Get returns the comment identified by commentID, or nil if not found.
 //
 // Mirrors Python Comments.get.

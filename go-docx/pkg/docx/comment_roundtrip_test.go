@@ -416,3 +416,131 @@ func TestComment_Timestamp_RoundTrip(t *testing.T) {
 		t.Errorf("timestamps differ by %v", diff)
 	}
 }
+
+// -----------------------------------------------------------------------
+// ReplaceText reaches comments (MR-13 / findRunForAtom fix)
+// -----------------------------------------------------------------------
+
+func TestDocument_ReplaceText_ReachesComments(t *testing.T) {
+	doc := mustNewDoc(t)
+	p, err := doc.AddParagraph("body text")
+	if err != nil {
+		t.Fatalf("AddParagraph: %v", err)
+	}
+	run, err := p.AddRun("annotated")
+	if err != nil {
+		t.Fatalf("AddRun: %v", err)
+	}
+
+	initials := "T"
+	_, err = doc.AddComment([]*Run{run}, "COMMENT_OLD is here", "Tester", &initials)
+	if err != nil {
+		t.Fatalf("AddComment: %v", err)
+	}
+
+	// Round-trip: save → reopen → replace → save → reopen.
+	var buf bytes.Buffer
+	if err := doc.Save(&buf); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	doc2, err := OpenBytes(buf.Bytes())
+	if err != nil {
+		t.Fatalf("OpenBytes: %v", err)
+	}
+
+	n, err := doc2.ReplaceText("COMMENT_OLD", "COMMENT_NEW")
+	if err != nil {
+		t.Fatalf("ReplaceText: %v", err)
+	}
+	if n != 1 {
+		t.Errorf("expected 1 replacement in comment, got %d", n)
+	}
+
+	// Verify the comment text was actually changed.
+	comments, err := doc2.Comments()
+	if err != nil {
+		t.Fatalf("Comments(): %v", err)
+	}
+	if comments.Len() != 1 {
+		t.Fatalf("expected 1 comment, got %d", comments.Len())
+	}
+	text := comments.Iter()[0].Text()
+	if !strings.Contains(text, "COMMENT_NEW") {
+		t.Errorf("comment text should contain 'COMMENT_NEW', got %q", text)
+	}
+	if strings.Contains(text, "COMMENT_OLD") {
+		t.Errorf("comment text should not contain 'COMMENT_OLD', got %q", text)
+	}
+}
+
+func TestDocument_ReplaceText_NoCommentsPart_NoPanic(t *testing.T) {
+	doc := mustNewDoc(t)
+	if _, err := doc.AddParagraph("no comments here"); err != nil {
+		t.Fatalf("AddParagraph: %v", err)
+	}
+
+	// Round-trip without ever creating comments.
+	var buf bytes.Buffer
+	if err := doc.Save(&buf); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	doc2, err := OpenBytes(buf.Bytes())
+	if err != nil {
+		t.Fatalf("OpenBytes: %v", err)
+	}
+
+	// Must not panic or error when comments part is absent.
+	n, err := doc2.ReplaceText("anything", "else")
+	if err != nil {
+		t.Fatalf("ReplaceText on doc without comments: %v", err)
+	}
+	if n != 0 {
+		t.Errorf("expected 0 replacements, got %d", n)
+	}
+}
+
+func TestDocument_ReplaceText_CommentMultiParagraph(t *testing.T) {
+	doc := mustNewDoc(t)
+	p, err := doc.AddParagraph("text")
+	if err != nil {
+		t.Fatalf("AddParagraph: %v", err)
+	}
+	run, err := p.AddRun("marked")
+	if err != nil {
+		t.Fatalf("AddRun: %v", err)
+	}
+
+	// Multi-line comment: "PLACEHOLDER in line one\nPLACEHOLDER in line two"
+	_, err = doc.AddComment(
+		[]*Run{run},
+		"PLACEHOLDER in line one\nPLACEHOLDER in line two",
+		"Author", nil,
+	)
+	if err != nil {
+		t.Fatalf("AddComment: %v", err)
+	}
+
+	var buf bytes.Buffer
+	if err := doc.Save(&buf); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	doc2, err := OpenBytes(buf.Bytes())
+	if err != nil {
+		t.Fatalf("OpenBytes: %v", err)
+	}
+
+	n, err := doc2.ReplaceText("PLACEHOLDER", "DONE")
+	if err != nil {
+		t.Fatalf("ReplaceText: %v", err)
+	}
+	// Two paragraphs, each with one occurrence.
+	if n != 2 {
+		t.Errorf("expected 2 replacements in multi-paragraph comment, got %d", n)
+	}
+
+	comments, _ := doc2.Comments()
+	text := comments.Iter()[0].Text()
+	if text != "DONE in line one\nDONE in line two" {
+		t.Errorf("unexpected comment text: %q", text)
+	}
+}

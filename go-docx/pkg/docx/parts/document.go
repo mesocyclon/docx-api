@@ -255,6 +255,13 @@ func (dp *DocumentPart) Settings() (*oxml.CT_Settings, error) {
 // CommentsPart — @property in Python (NOT lazyproperty)
 // --------------------------------------------------------------------------
 
+// HasCommentsPart reports whether a comments part already exists.
+// Unlike CommentsPart(), this does not create one if absent.
+func (dp *DocumentPart) HasCommentsPart() bool {
+	rel, err := dp.Rels().GetByRelType(opc.RTComments)
+	return err == nil && rel.TargetPart != nil
+}
+
 // CommentsPart returns the CommentsPart for this document, creating a
 // default one if not present.
 //
